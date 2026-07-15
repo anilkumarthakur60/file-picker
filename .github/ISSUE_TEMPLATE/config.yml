@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://anilkumarthakur60.github.io/file-picker/
+    about: Guides, framework how-tos, and the full API reference.
+  - name: 🚀 Live demos
+    url: https://anil-labs-file-picker.vercel.app/
+    about: Try every framework binding in the browser.
+  - name: 💬 Questions & discussions
+    url: https://github.com/anilkumarthakur60/file-picker/discussions
+    about: Ask a question or share what you built.

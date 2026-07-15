@@ -1,0 +1,70 @@
+name: 🐛 Bug report
+description: Report something that isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug! A minimal reproduction gets it fixed fastest.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package?
+      options:
+        - '@anil-labs/file-picker-core'
+        - '@anil-labs/file-picker-react'
+        - '@anil-labs/file-picker-vue'
+        - '@anil-labs/file-picker-svelte'
+        - '@anil-labs/file-picker-solid'
+        - '@anil-labs/file-picker-element'
+        - Not sure / multiple
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: A link to a minimal StackBlitz / CodeSandbox / repo. This is the single most helpful thing you can provide.
+      placeholder: https://stackblitz.com/edit/...
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the file picker with ...
+        2. Select / upload / filter ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser + OS, framework version, build tool, and whether it's SSR.
+      placeholder: |
+        - Browser: Chrome 126 / iOS Safari 17
+        - Framework: React 18
+        - Bundler: Vite 6
+    validations:
+      required: false

@@ -1,0 +1,47 @@
+{
+  "name": "file-picker",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Monorepo for @anil-labs/file-picker — a framework-agnostic media-library file picker (folders, upload, filters, editing) with React, Vue, Svelte, Solid and Web Component bindings",
+  "scripts": {
+    "build": "pnpm --filter \"./packages/*\" -r build",
+    "dev": "pnpm --filter \"./packages/*\" -r --parallel dev",
+    "test": "pnpm --filter \"./packages/*\" -r test",
+    "test:coverage": "pnpm --filter @anil-labs/file-picker-core test:coverage",
+    "typecheck": "pnpm --filter \"./packages/*\" -r typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test",
+    "example:vanilla": "pnpm --filter example-vanilla dev",
+    "example:react": "pnpm --filter example-react dev",
+    "example:vue": "pnpm --filter example-vue dev",
+    "example:svelte": "pnpm --filter example-svelte dev",
+    "example:solid": "pnpm --filter example-solid dev",
+    "example:element": "pnpm --filter example-element dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish",
+    "build:demos": "node scripts/build-demos.mjs",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:preview": "pnpm --filter docs preview"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5",
+    "prettier-plugin-svelte": "^4.1.1",
+    "typescript-eslint": "^8.64.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@11.13.0"
+}
