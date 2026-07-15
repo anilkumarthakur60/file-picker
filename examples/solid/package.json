@@ -1,0 +1,21 @@
+{
+  "name": "example-solid",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@anil-labs/file-picker-core": "workspace:*",
+    "@anil-labs/file-picker-solid": "workspace:*",
+    "solid-js": "^1.9.14"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^8.1.4",
+    "vite-plugin-solid": "^2.11.12"
+  }
+}

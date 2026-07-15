@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>@anil-labs/file-picker — Web Component example</title>
+  </head>
+  <body>
+    <main class="page">
+      <div class="hero">
+        <span class="badge">Web Component · &lt;file-picker&gt;</span>
+        <h1>@anil-labs/file-picker</h1>
+        <p class="tag">
+          A framework-agnostic media library — folders, upload, filters, editing and single/multi
+          selection. This demo runs entirely in-memory (no backend).
+        </p>
+      </div>
+
+      <div class="panel">
+        <file-picker multiple label="Choose media" title="Media Library" id="picker"></file-picker>
+      </div>
+
+      <section class="log-wrap">
+        <h2>Events</h2>
+        <div class="log" id="log">
+          <div class="empty">Open the picker and select, upload or edit…</div>
+        </div>
+      </section>
+
+      <footer>
+        The same <code>@anil-labs/file-picker-core</code> engine powers every framework binding.
+        <a href="https://github.com/anilkumarthakur60/file-picker">View source on GitHub</a>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
