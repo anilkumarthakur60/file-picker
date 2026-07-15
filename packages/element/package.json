@@ -1,0 +1,61 @@
+{
+  "name": "@anil-labs/file-picker-element",
+  "version": "0.1.0",
+  "description": "The <file-picker> Web Component for @anil-labs/file-picker-core — a media-library file picker usable in any framework or plain HTML.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "echo \"covered by @anil-labs/file-picker-core\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "file-picker",
+    "media-library",
+    "file-upload"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anilkumarthakur60/file-picker.git",
+    "directory": "packages/element"
+  },
+  "homepage": "https://github.com/anilkumarthakur60/file-picker/tree/main/packages/element#readme",
+  "bugs": "https://github.com/anilkumarthakur60/file-picker/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@anil-labs/file-picker-core": "workspace:^"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2"
+  }
+}
