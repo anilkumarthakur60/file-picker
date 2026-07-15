@@ -1,0 +1,63 @@
+{
+  "name": "@anil-labs/file-picker-svelte",
+  "version": "0.1.0",
+  "description": "Svelte bindings for @anil-labs/file-picker-core — a media-library file picker with folders, upload, filters and metadata editing.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "echo \"covered by @anil-labs/file-picker-core\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "svelte",
+    "file-picker",
+    "media-library",
+    "file-upload"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anilkumarthakur60/file-picker.git",
+    "directory": "packages/svelte"
+  },
+  "homepage": "https://github.com/anilkumarthakur60/file-picker/tree/main/packages/svelte#readme",
+  "bugs": "https://github.com/anilkumarthakur60/file-picker/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@anil-labs/file-picker-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "svelte": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "svelte": "^5.56.5",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2"
+  }
+}
