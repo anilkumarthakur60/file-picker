@@ -60,9 +60,9 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.10",
-    "happy-dom": "^15.11.6",
+    "happy-dom": "^20.10.6",
     "tsup": "^8.5.1",
-    "typescript": "^5.7.2",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }
 }
