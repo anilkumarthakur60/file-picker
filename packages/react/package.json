@@ -1,0 +1,65 @@
+{
+  "name": "@anil-labs/file-picker-react",
+  "version": "0.1.0",
+  "description": "React bindings for @anil-labs/file-picker-core — a media-library file picker with folders, upload, filters and metadata editing.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "echo \"covered by @anil-labs/file-picker-core\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "react",
+    "file-picker",
+    "media-library",
+    "file-upload",
+    "image-picker"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anilkumarthakur60/file-picker.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/anilkumarthakur60/file-picker/tree/main/packages/react#readme",
+  "bugs": "https://github.com/anilkumarthakur60/file-picker/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@anil-labs/file-picker-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "react": "^19.2.7",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2"
+  }
+}
