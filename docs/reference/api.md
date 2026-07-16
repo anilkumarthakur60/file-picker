@@ -40,6 +40,17 @@ const picker = new FilePicker(options)
 | `allowUpload` | `boolean` | `true` | Show the upload UI. |
 | `allowEdit` | `boolean` | `true` | Show the edit dialog. |
 | `allowDelete` | `boolean` | `true` | Show per-item delete. |
+| `searchDebounce` | `number` | `400` | Debounce (ms) for the search and tag inputs. |
+| `closeOnSelect` | `boolean` | `!multiple` | In single-select, confirm and close as soon as an item is picked. |
+| `maxSelection` | `number` | — (no limit) | Cap on how many items can be selected in `multiple` mode. |
+| `fileIcons` | `Record<string, string>` | `{}` | Override per-type icon keys, merged over the built-ins (e.g. `{ video: 'film' }`). |
+| `fileColors` | `Record<string, string>` | `{}` | Override per-type accent colors, merged over the built-ins. |
+| `labels` | `Partial<FilePickerLabels>` | built-in (English) | Override any user-facing string. See [Localization](#localization). |
+| `layout` | `'fullscreen' \| 'modal'` | `'fullscreen'` | Dialog layout: full-screen, or a centered modal card on desktop. |
+| `renderEmpty` | `() => string` | — | Replace the empty-library markup (returns trusted HTML). |
+| `renderLoading` | `() => string` | — | Replace the first-load loading markup (returns trusted HTML). |
+| `renderCardMeta` | `(item: MediaItem) => string` | — | Replace a card's meta line — e.g. show dimensions or a date (returns trusted HTML). |
+| `headerActions` | `HTMLElement[]` | — | Extra buttons to mount in the header toolbar. |
 
 ### Methods
 
@@ -65,9 +76,9 @@ that unsubscribes.
 | Event | Handler arguments | Fires when |
 | --- | --- | --- |
 | `open` | `()` | The dialog opened. |
-| `close` | `()` | The dialog closed (Done, Close, or Esc). |
+| `close` | `()` | The dialog closed — via the footer **Cancel**, the header close (✕), Esc, or after confirming with **Select N**. |
 | `change` | `(items: MediaItem[])` | The selection changed (any add / remove / clear). |
-| `select` | `(items: MediaItem[])` | The selection was confirmed with **Done**. |
+| `select` | `(items: MediaItem[])` | The selection was confirmed with the footer **Select N** button (labelled **Done** when nothing is picked). |
 | `upload` | `(items: MediaItem[])` | Files finished uploading. |
 | `delete` | `(item: MediaItem)` | An item was deleted. |
 | `error` | `(error: unknown)` | An adapter operation threw. |
@@ -76,6 +87,24 @@ that unsubscribes.
 ```ts
 const off = picker.on('select', (items) => console.log(items))
 off() // unsubscribe
+```
+
+### Localization
+
+Every user-facing string is overridable through the `labels` option — pass a
+`Partial<FilePickerLabels>` to translate or reword the UI for i18n / white-labeling. Only the keys
+you supply are replaced; the rest fall back to the built-in English set. Most entries take a plain
+string; the few that interpolate a count or name are functions.
+
+```ts
+new FilePicker({
+  adapter,
+  labels: {
+    title: 'Médiathèque',
+    upload: 'Téléverser',
+    selectAction: (n) => (n > 0 ? `Choisir ${n}` : 'Terminé'),
+  },
+})
 ```
 
 ## Adapters

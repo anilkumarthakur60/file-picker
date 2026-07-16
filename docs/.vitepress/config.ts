@@ -28,6 +28,8 @@ export default defineConfig({
           { text: 'Adapters', link: '/guide/adapters' },
           { text: 'Features', link: '/guide/features' },
           { text: 'Theming', link: '/guide/theming' },
+          { text: 'Internationalization', link: '/guide/i18n' },
+          { text: 'Server-Side Rendering', link: '/guide/ssr' },
         ],
       },
       {

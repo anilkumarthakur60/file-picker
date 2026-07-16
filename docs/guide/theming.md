@@ -82,16 +82,34 @@ your own stylesheet to match your brand:
 | `--fp-danger` | Destructive actions | `#e5484d` |
 | `--fp-good` | Success | `#16a34a` |
 | `--fp-overlay` | Modal backdrop | `rgba(15, 23, 42, 0.55)` |
-| `--fp-radius` | Corner radius | `12px` |
+| `--fp-radius` | Base corner radius | `12px` |
+| `--fp-radius-sm` | Small radius (inputs, chips, thumbnails) | `max(6px, calc(var(--fp-radius) - 3px))` |
+| `--fp-radius-lg` | Large radius (dialog card, previews) | `calc(var(--fp-radius) + 4px)` |
+| `--fp-card-min` | Minimum media-card width (grid track) | `148px` |
 | `--fp-shadow` | Dialog shadow | `0 12px 44px rgba(2, 8, 23, 0.22)` |
+| `--fp-font` | Font family | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` |
+| `--fp-z` | Base stacking z-index (overlays layer above it) | `9999` |
+
+`--fp-radius-sm` and `--fp-radius-lg` derive from `--fp-radius`, so overriding just the base radius
+rescales the whole corner scale together.
 
 ## Dark mode overrides
 
 The stylesheet supplies dark values automatically for `theme: 'auto'` (via `prefers-color-scheme`)
-and for `.fp--dark`. To tune the dark palette, override the variables under the dark selectors:
+and for `.fp--dark`. To tune the dark palette, override the variables under the dark selectors.
+
+An `@media` block can't sit inside a comma-separated selector list, so the two dark selectors have
+to be written as separate rules — mirroring the shipped stylesheet. The first covers forced dark
+(`.fp--dark`), the second covers `auto` under an OS that prefers dark:
 
 ```css
-.fp.fp--dark,
+/* Forced dark: theme: 'dark' */
+.fp.fp--dark {
+  --fp-bg: #12151a;
+  --fp-accent: #8ab4ff;
+}
+
+/* Auto, when the OS prefers dark (and dark isn't overridden to light) */
 @media (prefers-color-scheme: dark) {
   .fp:not(.fp--light) {
     --fp-bg: #12151a;

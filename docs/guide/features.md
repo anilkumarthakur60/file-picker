@@ -12,6 +12,11 @@ media with a `folderId` of `null`. Users can browse into a folder to filter the 
 
 Deleting a folder moves its media to Uncategorized rather than deleting the files.
 
+**Renaming** is inline too: a folder's rename control opens a small prompt for the new name, which is
+sent to your adapter's `renameFolder(id, name)` and applied across the rail and any open dialogs. If
+the adapter rejects it, the old name stays put and the failure surfaces as a toast plus an
+[`error`](/reference/api#events) event.
+
 ```ts
 new FilePicker({ adapter, manageFolders: true }) // default; set false to hide folder controls
 ```
@@ -108,10 +113,65 @@ derives the page count (or you can return an explicit `lastPage`).
 
 ## Preview
 
-Clicking the preview action on an item opens an **image lightbox** for images and vectors. Other file
-types (PDF, video, audio, documents…) open in a new browser tab using the item's `src`. The correct
-icon and accent color for each non-image type come from the built-in
-[`getFileIcon`](/reference/api#utilities) / `getFileColor` helpers.
+Clicking an item's **preview** action shows it without leaving the dialog:
+
+- **Images & vectors** open in an in-dialog **lightbox**.
+- **Video & audio** play inline in the preview overlay with native controls, autoplaying on open.
+  Closing the overlay detaches the media element, so playback stops immediately.
+
+File types that can't render inline (PDF, documents, spreadsheets…) get an **open** action instead,
+which opens the item's `src` in a new browser tab. The correct icon and accent color for each
+non-image type come from the built-in [`getFileIcon`](/reference/api#utilities) / `getFileColor`
+helpers.
+
+## Empty & filtered states
+
+The grid distinguishes two "nothing to show" cases, so users always know why:
+
+- **Empty library** — there's genuinely no media yet. It invites the first upload with an **Upload
+  files** CTA. With `allowUpload: false` the CTA is dropped and the copy switches to a read-only
+  message.
+- **No matches** — a search, tag or type filter has hidden everything. It offers a **Clear filters**
+  CTA that resets the toolbar in one click.
+
+Every string is translatable (`emptyTitle` / `emptyBody` / `emptyUpload` and `filteredTitle` /
+`filteredBody` — see [i18n](/guide/i18n)), and you can replace the empty-library markup wholesale
+with `renderEmpty` (the filtered state keeps its built-in clear-filters CTA):
+
+```ts
+new FilePicker({ adapter, renderEmpty: () => `<div class="my-empty">Nothing here yet</div>` })
+```
+
+## Feedback & announcements
+
+Actions that succeed or fail — uploads, edits, deletes, folder operations — surface a transient
+**toast** in the corner of the dialog. Toasts double as accessibility feedback: they live in an
+`aria-live="polite"` region, so screen readers announce them as well as sighted users seeing them. A
+separate visually-hidden live region announces grid status as it changes — loading, the result count,
+and load errors — so assistive tech follows along without any visual cue. All of the wording is
+translatable through [`labels`](/guide/i18n).
+
+## Keyboard navigation
+
+The media grid is fully keyboard operable. Cards share a **roving tabindex**, so **Tab** enters the
+grid once and the arrow keys take over from there:
+
+- **Arrow keys** move between cards — left/right within a row, up/down across rows, using the real
+  laid-out column count.
+- **Home** / **End** jump to the first / last item.
+- **Enter** / **Space** toggle selection on the focused card.
+- **Shift + arrow** extends the selection as you move, in `multiple` mode.
+
+## Layout
+
+By default the dialog fills the screen. Set `layout: 'modal'` to render it as a centered card floating
+over a dimmed backdrop on desktop instead:
+
+```ts
+new FilePicker({ adapter, layout: 'modal' }) // 'fullscreen' (default) | 'modal'
+```
+
+On small screens the modal layout expands to fill the viewport so the grid keeps the room it needs.
 
 ## Putting it together
 
