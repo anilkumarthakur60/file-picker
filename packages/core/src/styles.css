@@ -358,7 +358,8 @@
   background: var(--fp-surface-2);
   color: var(--fp-muted);
 }
-.fp-fs-del {
+.fp-fs-del,
+.fp-fs-ren {
   display: inline-flex;
   color: var(--fp-faint);
   padding: 2px;
@@ -366,6 +367,10 @@
 }
 .fp-fs-del:hover {
   color: var(--fp-danger);
+  background: var(--fp-hover);
+}
+.fp-fs-ren:hover {
+  color: var(--fp-accent);
   background: var(--fp-hover);
 }
 .fp-fs-create {
@@ -414,7 +419,8 @@
 }
 .fp-card--selected {
   border-color: var(--fp-accent);
-  box-shadow: 0 0 0 1px var(--fp-accent) inset;
+  box-shadow: 0 0 0 2px var(--fp-accent) inset;
+  background: var(--fp-accent-soft);
 }
 .fp-card-img {
   width: 100%;
@@ -453,6 +459,22 @@
   border-radius: 5px;
   padding: 1px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.fp-card--selected .fp-card-check,
+.fp-card:focus-within .fp-card-check {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .fp-card:hover .fp-card-check {
+    opacity: 1;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .fp-card-check {
+    opacity: 1;
+  }
 }
 .fp-card-check input {
   accent-color: var(--fp-accent);
@@ -594,6 +616,31 @@
   margin-left: 6px;
   padding: 0 8px;
   width: auto;
+}
+
+/* ── modal layout (centered card on desktop; full-screen on phones) ── */
+@media (min-width: 721px) {
+  .fp-overlay--modal {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .fp-dialog--modal {
+    width: min(1180px, 94vw);
+    height: min(860px, 92vh);
+    border-radius: var(--fp-radius-lg);
+    box-shadow: var(--fp-shadow);
+  }
+}
+
+/* ── footer (Cancel / Select) ─────────────────────────────────────── */
+.fp-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--fp-bg);
 }
 
 /* ── modals (upload / edit) ───────────────────────────────────────── */
@@ -793,11 +840,26 @@
   justify-content: center;
   padding: 40px;
 }
-.fp-preview-img {
+.fp-preview-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fp-preview-img,
+.fp-preview-media {
   max-width: 92vw;
   max-height: 88vh;
   border-radius: var(--fp-radius-sm);
   box-shadow: var(--fp-shadow);
+}
+.fp-preview-media {
+  background: #000;
+}
+.fp-preview-audio {
+  width: min(480px, 90vw);
+  max-height: none;
+  background: transparent;
+  box-shadow: none;
 }
 .fp-preview-close {
   position: absolute;

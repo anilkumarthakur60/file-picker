@@ -18,6 +18,7 @@ export interface FolderSelectOptions {
   onChange: (value: FolderScope) => void
   onCreate?: (name: string) => Promise<MediaFolder | null>
   onDelete?: (id: MediaId) => Promise<void>
+  onRename?: (id: MediaId, name: string) => Promise<MediaFolder | null>
   /** Prompt/confirm dialogs supplied by the host picker. */
   promptText: (title: string, message: string, def?: string) => Promise<string | null>
   confirm: (title: string, message: string) => Promise<boolean>
@@ -50,7 +51,12 @@ export class FolderSelect {
     this.labelSpan = el('span', { class: 'fp-fs-label' })
     this.trigger = el(
       'button',
-      { type: 'button', class: 'fp-fs-trigger', 'aria-haspopup': 'listbox' },
+      {
+        type: 'button',
+        class: 'fp-fs-trigger',
+        'aria-haspopup': 'listbox',
+        'aria-expanded': 'false',
+      },
       el('span', { class: 'fp-fs-ico', html: icon('folder', 18) }),
       this.labelSpan,
       el('span', { class: 'fp-fs-caret', html: icon('chevronRight', 16) }),
@@ -153,6 +159,7 @@ export class FolderSelect {
     this.open = open
     this.panel.hidden = !open
     this.el.classList.toggle('fp-fs--open', open)
+    this.trigger.setAttribute('aria-expanded', String(open))
     if (open) {
       this.search.value = ''
       this.renderList()
@@ -193,6 +200,20 @@ export class FolderSelect {
         }),
       )
       if (manageable && typeof opt.value === 'number') {
+        if (this.opts.onRename) {
+          const ren = el('span', {
+            class: 'fp-fs-ren',
+            title: this.opts.labels?.renameFolderControl ?? 'Rename folder',
+            html: icon('edit', 14),
+          })
+          this.disposers.push(
+            on(ren, 'click', (e) => {
+              e.stopPropagation()
+              void this.renameFolder(opt)
+            }),
+          )
+          append(row, ren)
+        }
         const del = el('span', {
           class: 'fp-fs-del',
           title: this.opts.labels?.deleteFolderControl ?? 'Delete folder',
@@ -242,6 +263,19 @@ export class FolderSelect {
       this.setOpen(false)
       this.opts.onChange(folder.id)
     }
+  }
+
+  private async renameFolder(opt: Option): Promise<void> {
+    if (!this.opts.onRename || typeof opt.value !== 'number') return
+    const name = await this.opts.promptText(
+      this.opts.labels?.renameFolderTitle ?? 'Rename folder',
+      this.opts.labels?.renameFolderMessage ?? 'New folder name',
+      opt.label,
+    )
+    if (!name || name === opt.label) return
+    await this.opts.onRename(opt.value, name)
+    if (String(this.value) === String(opt.value)) this.renderLabel()
+    this.renderList()
   }
 
   private async deleteFolder(opt: Option): Promise<void> {

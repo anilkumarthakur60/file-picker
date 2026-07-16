@@ -125,6 +125,7 @@ export interface FilePickerLabels {
   toggleTheme: string
   upload: string
   done: string
+  selectAction: (n: number) => string
   clearSelection: string
   selected: (n: number) => string
   searchPlaceholder: string
@@ -166,11 +167,13 @@ export interface FilePickerLabels {
   dropHint: string
   uploaded: (n: number) => string
   uploadFailed: string
+  uploadSkipped: (n: number) => string
   editTitle: string
   filename: string
   altText: string
   altPlaceholder: string
   saveAlt: string
+  saveFilename: string
   folder: string
   tags: string
   addTagHint: string
@@ -195,6 +198,10 @@ export interface FilePickerLabels {
   deleteFolderControl: string
   deleteFolderTitle: string
   deleteFolderConfirm: (name: string) => string
+  renameFolderControl: string
+  renameFolderTitle: string
+  renameFolderMessage: string
+  renameFolderFailed: string
 }
 
 /** Options for constructing a {@link FilePicker}. */
@@ -241,4 +248,14 @@ export interface FilePickerOptions {
   fileColors?: Record<string, string>
   /** Override any user-facing string (for i18n / white-labeling). */
   labels?: Partial<FilePickerLabels>
+  /** Dialog layout: full-screen (default) or a centered modal card on desktop. @default 'fullscreen' */
+  layout?: 'fullscreen' | 'modal'
+  /** Replace the empty-library markup (returns trusted HTML). */
+  renderEmpty?: () => string
+  /** Replace the first-load skeleton/loading markup (returns trusted HTML). */
+  renderLoading?: () => string
+  /** Replace a card's meta line — e.g. show dimensions or a date (returns trusted HTML). */
+  renderCardMeta?: (item: MediaItem) => string
+  /** Extra buttons to mount in the header toolbar. */
+  headerActions?: HTMLElement[]
 }

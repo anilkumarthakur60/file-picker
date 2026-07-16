@@ -40,6 +40,7 @@ interface ResolvedOptions {
   searchDebounce: number
   closeOnSelect: boolean
   maxSelection: number | null
+  layout: 'fullscreen' | 'modal'
 }
 
 const esc = (s: string): string =>
@@ -84,12 +85,12 @@ export class FilePicker {
   private gridEl!: HTMLElement
   private pagerEl!: HTMLElement
   private countChip!: HTMLElement
-  private doneIcon!: HTMLElement
+  private footerPrimary!: HTMLButtonElement
   private folderFilter!: FolderSelect
   private uploadOverlay!: HTMLElement
   private editOverlay!: HTMLElement
   private previewOverlay!: HTMLElement
-  private previewImg!: HTMLImageElement
+  private previewBody!: HTMLElement
   private modalHost!: HTMLElement
 
   private readonly selectedHosts = new Set<HTMLElement>()
@@ -126,14 +127,33 @@ export class FilePicker {
   private toastHost!: HTMLElement
   private liveRegion!: HTMLElement
   private readonly toastTimers: ReturnType<typeof setTimeout>[] = []
+  private prevBodyOverflow = ''
+  private stylesheetWarned = false
+  private uploading = false
   private filterSearchEl?: HTMLInputElement
   private filterTagEl?: HTMLInputElement
   private filterTypeEl?: HTMLSelectElement
   private readonly fileIconMap: Record<string, string>
   private readonly fileColorMap: Record<string, string>
   private readonly L: FilePickerLabels
+  private readonly renderEmptyHook?: () => string
+  private readonly renderLoadingHook?: () => string
+  private readonly renderCardMetaHook?: (item: MediaItem) => string
+  private readonly headerActionsHook: HTMLElement[]
 
   constructor(options: FilePickerOptions) {
+    if (typeof document === 'undefined') {
+      throw new Error(
+        '[file-picker] FilePicker renders to the DOM and must be constructed in the browser. ' +
+          'During SSR, create it inside an effect / onMount (or dynamic-import the web component client-side).',
+      )
+    }
+    if (!options.adapter) {
+      throw new Error(
+        '[file-picker] `adapter` is required — pass createRestAdapter(...), createMemoryAdapter(...), ' +
+          'or your own FilePickerAdapter.',
+      )
+    }
     this.adapter = options.adapter
     this.L = { ...defaultLabels, ...(options.labels ?? {}) }
     this.o = {
@@ -153,12 +173,22 @@ export class FilePicker {
       searchDebounce: options.searchDebounce ?? 400,
       closeOnSelect: options.closeOnSelect ?? !(options.multiple ?? false),
       maxSelection: options.maxSelection ?? null,
+      layout: options.layout ?? 'fullscreen',
     }
     this.fileIconMap = { ...DEFAULT_FILE_ICONS, ...(options.fileIcons ?? {}) }
     this.fileColorMap = { ...DEFAULT_FILE_COLORS, ...(options.fileColors ?? {}) }
+    this.renderEmptyHook = options.renderEmpty
+    this.renderLoadingHook = options.renderLoading
+    this.renderCardMetaHook = options.renderCardMeta
+    this.headerActionsHook = options.headerActions ?? []
     this.theme = this.o.theme
     this.applySelected(options.selected ?? null)
-    this.overlay = el('div', { class: this.rootClass('fp-overlay'), hidden: true })
+    this.overlay = el('div', {
+      class: this.rootClass(
+        this.o.layout === 'modal' ? 'fp-overlay fp-overlay--modal' : 'fp-overlay',
+      ),
+      hidden: true,
+    })
     this.buildDialog()
     this.buildUploadDialog()
     this.buildEditDialog()
@@ -282,6 +312,50 @@ export class FilePicker {
     return this.fileColorMap[type] ?? '#78909c'
   }
 
+  /** Whether an item can be shown in the in-dialog preview (image/video/audio). */
+  private previewable(m: MediaItem): boolean {
+    return isImage(m) || m.type === 'video' || m.type === 'audio'
+  }
+
+  /** Filter files against the `accept` option (browsers only enforce it for the file dialog). */
+  private acceptFilter(files: File[]): File[] {
+    const accept = this.o.accept.trim()
+    if (!accept) return files
+    const rules = accept
+      .split(',')
+      .map((r) => r.trim().toLowerCase())
+      .filter(Boolean)
+    return files.filter((f) => {
+      const name = f.name.toLowerCase()
+      const type = f.type.toLowerCase()
+      return rules.some((rule) => {
+        if (rule.startsWith('.')) return name.endsWith(rule)
+        if (rule.endsWith('/*')) return type.startsWith(rule.slice(0, -1))
+        return type === rule
+      })
+    })
+  }
+
+  private lockScroll(): void {
+    this.prevBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+  }
+
+  private unlockScroll(): void {
+    document.body.style.overflow = this.prevBodyOverflow
+  }
+
+  /** Once per instance, warn if the stylesheet wasn't imported (top onboarding trap). */
+  private warnIfUnstyled(): void {
+    if (this.stylesheetWarned || typeof getComputedStyle === 'undefined') return
+    this.stylesheetWarned = true
+    if (getComputedStyle(this.overlay).position !== 'fixed' && typeof console !== 'undefined') {
+      console.warn(
+        "[file-picker] the dialog looks unstyled — did you import '@anil-labs/file-picker-core/styles.css'?",
+      )
+    }
+  }
+
   private setFiltersOpen(open: boolean): void {
     this.dialogCard.classList.toggle('fp-dialog--filters', open)
   }
@@ -300,7 +374,8 @@ export class FilePicker {
     this.opened = true
     this.prevFocus = (document.activeElement as HTMLElement) ?? null
     this.overlay.hidden = false
-    document.body.style.overflow = 'hidden'
+    this.lockScroll()
+    this.warnIfUnstyled()
     this.dialogCard.focus()
     this.emitter.emit('open')
     void this.fetchData()
@@ -311,7 +386,7 @@ export class FilePicker {
     this.opened = false
     this.overlay.hidden = true
     this.setFiltersOpen(false)
-    document.body.style.overflow = ''
+    this.unlockScroll()
     this.prevFocus?.focus?.()
     this.prevFocus = null
     this.emitter.emit('close')
@@ -384,7 +459,7 @@ export class FilePicker {
     for (const timer of this.toastTimers) clearTimeout(timer)
     this.toastTimers.length = 0
     this.emitter.clear()
-    document.body.style.overflow = ''
+    this.unlockScroll()
     for (const node of [
       this.overlay,
       this.uploadOverlay,
@@ -545,18 +620,17 @@ export class FilePicker {
     })
     this.disposers.push(on(this.countChip, 'click', () => this.clearAll()))
 
-    this.doneIcon = el('span', { html: icon('close', 20) })
-    const doneBtn = el(
+    const headerClose = el(
       'button',
       {
         type: 'button',
-        class: 'fp-icon-btn fp-done',
-        title: this.L.done,
-        'aria-label': this.L.done,
+        class: 'fp-icon-btn fp-header-close',
+        title: this.L.close,
+        'aria-label': this.L.close,
       },
-      this.doneIcon,
+      el('span', { html: icon('close', 20) }),
     )
-    this.disposers.push(on(doneBtn, 'click', () => this.submit()))
+    this.disposers.push(on(headerClose, 'click', () => this.close()))
 
     const titleId = nextId()
     const header = el('div', { class: 'fp-header' })
@@ -616,7 +690,18 @@ export class FilePicker {
       this.disposers.push(on(up, 'click', () => this.openUpload()))
       actions.append(up)
     }
-    actions.append(doneBtn)
+    for (const btn of this.headerActionsHook) actions.append(btn)
+    actions.append(headerClose)
+
+    const cancelBtn = el('button', { type: 'button', class: 'fp-btn fp-btn--ghost' }, this.L.cancel)
+    this.disposers.push(on(cancelBtn, 'click', () => this.close()))
+    this.footerPrimary = el(
+      'button',
+      { type: 'button', class: 'fp-btn fp-btn--primary' },
+      this.L.selectAction(this.selected.length),
+    )
+    this.disposers.push(on(this.footerPrimary, 'click', () => this.submit()))
+    const footer = el('div', { class: 'fp-footer' }, cancelBtn, this.footerPrimary)
 
     this.filtersEl = this.buildFilters()
     this.filtersBackdrop = el('div', { class: 'fp-filters-backdrop' })
@@ -643,7 +728,7 @@ export class FilePicker {
     this.dialogCard = el(
       'div',
       {
-        class: 'fp-dialog',
+        class: this.o.layout === 'modal' ? 'fp-dialog fp-dialog--modal' : 'fp-dialog',
         role: 'dialog',
         'aria-modal': 'true',
         'aria-labelledby': titleId,
@@ -655,6 +740,8 @@ export class FilePicker {
       this.gridEl,
       el('div', { class: 'fp-sep' }),
       this.pagerEl,
+      el('div', { class: 'fp-sep' }),
+      footer,
     )
     this.disposers.push(
       on(this.overlay, 'click', (e) => {
@@ -680,6 +767,7 @@ export class FilePicker {
       },
       onCreate: (name) => this.createFolder(name),
       onDelete: (id) => this.deleteFolder(id),
+      onRename: (id, name) => this.renameFolder(id, name),
       promptText: (t, m, d) => this.promptText(t, m, d),
       confirm: (t, m) => this.confirm(t, m),
     })
@@ -820,7 +908,9 @@ export class FilePicker {
       // First load — a skeleton grid reads better than a lone centered spinner.
       const n = Math.min(this.o.perPage, 12)
       const skel = `<div class="fp-skel-card"><div class="fp-skel-thumb"></div><div class="fp-skel-line"></div><div class="fp-skel-line fp-skel-line--sm"></div></div>`
-      this.gridEl.innerHTML = `<div class="fp-grid" aria-hidden="true">${skel.repeat(n)}</div>`
+      this.gridEl.innerHTML =
+        this.renderLoadingHook?.() ??
+        `<div class="fp-grid" aria-hidden="true">${skel.repeat(n)}</div>`
       return
     }
     this.gridEl.classList.remove('fp-grid-scroll--loading')
@@ -850,6 +940,7 @@ export class FilePicker {
     if (this.filtered) {
       return `<div class="fp-state"><span class="fp-state-ico">${icon('search', 52)}</span><div>${esc(L.filteredTitle)}</div><small>${esc(L.filteredBody)}</small><button type="button" class="fp-btn fp-btn--primary fp-state-btn" data-action="clear-filters">${esc(L.clearFilters)}</button></div>`
     }
+    if (this.renderEmptyHook) return this.renderEmptyHook()
     const cta = this.o.allowUpload
       ? `<button type="button" class="fp-btn fp-btn--primary fp-state-btn" data-action="upload-empty">${esc(L.emptyUpload)}</button>`
       : ''
@@ -890,7 +981,7 @@ export class FilePicker {
     const fn = esc(m.filename)
     const L = this.L
     const actions = [
-      isImage(m)
+      this.previewable(m)
         ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
         : '',
       openable
@@ -913,7 +1004,7 @@ export class FilePicker {
         <span class="fp-card-ico" style="color:${this.fileColor(m.type)}">${icon(this.fileIcon(m.type), 14)}</span>
         <span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span>
       </div>
-      <div class="fp-card-meta"><span>${ext}</span><span>·</span><span>${formatSize(m.size)}</span></div>
+      <div class="fp-card-meta">${this.renderCardMetaHook ? this.renderCardMetaHook(m) : `<span>${ext}</span><span>·</span><span>${formatSize(m.size)}</span>`}</div>
     </div>`
   }
 
@@ -1011,9 +1102,7 @@ export class FilePicker {
     const n = this.selected.length
     this.countChip.hidden = n === 0
     this.countChip.innerHTML = `${esc(this.L.selected(n))} <span class="fp-chip-x">${icon('close', 14)}</span>`
-    this.doneIcon.innerHTML = icon(n ? 'check' : 'close', 20)
-    const doneBtn = this.overlay.querySelector('.fp-done')
-    doneBtn?.classList.toggle('fp-done--ready', n > 0)
+    this.footerPrimary.textContent = this.L.selectAction(n)
   }
 
   private renderPager(): void {
@@ -1123,7 +1212,7 @@ export class FilePicker {
     return `<div class="fp-card" data-id="${esc(idStr(m.id))}">
       ${thumb}
       <div class="fp-card-actions">
-        ${isImage(m) ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(this.L.preview)}" aria-label="${esc(this.L.preview)}">${icon('eye', 15)}</button>` : ''}
+        ${this.previewable(m) ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(this.L.preview)}" aria-label="${esc(this.L.preview)}">${icon('eye', 15)}</button>` : ''}
         <button type="button" class="fp-card-act" data-action="remove" title="${esc(this.L.remove)}" aria-label="${esc(this.L.remove)}">${icon('close', 15)}</button>
       </div>
       <div class="fp-card-info"><span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span></div>
@@ -1174,6 +1263,7 @@ export class FilePicker {
       onChange: (v) => (this.uploadFolder = v),
       onCreate: (name) => this.createFolder(name),
       onDelete: (id) => this.deleteFolder(id),
+      onRename: (id, name) => this.renameFolder(id, name),
       promptText: (t, m, d) => this.promptText(t, m, d),
       confirm: (t, m) => this.confirm(t, m),
     })
@@ -1191,6 +1281,7 @@ export class FilePicker {
       el('span', { class: 'fp-drop-ico', html: icon('upload', 34) }),
       el('div', {}, this.L.dropHint),
     )
+    let dragDepth = 0
     this.modalDisposers.push(
       on(drop, 'click', () => input.click()),
       on(drop, 'keydown', (e) => {
@@ -1202,16 +1293,26 @@ export class FilePicker {
       on(input, 'change', () => {
         if (input.files?.length) void this.doUpload([...input.files])
       }),
-      on(drop, 'dragover', (e) => {
+      on(drop, 'dragenter', (e) => {
         e.preventDefault()
+        dragDepth++
         drop.classList.add('fp-drop--over')
       }),
-      on(drop, 'dragleave', () => drop.classList.remove('fp-drop--over')),
+      on(drop, 'dragover', (e) => e.preventDefault()),
+      on(drop, 'dragleave', () => {
+        dragDepth = Math.max(0, dragDepth - 1)
+        if (dragDepth === 0) drop.classList.remove('fp-drop--over')
+      }),
       on(drop, 'drop', (e) => {
         e.preventDefault()
+        dragDepth = 0
         drop.classList.remove('fp-drop--over')
-        const files = e.dataTransfer?.files
-        if (files?.length) void this.doUpload([...files])
+        const dropped = e.dataTransfer?.files
+        if (!dropped?.length) return
+        const files = this.acceptFilter([...dropped])
+        const skipped = dropped.length - files.length
+        if (skipped > 0) this.toast(this.L.uploadSkipped(skipped), 'info')
+        if (files.length) void this.doUpload(files)
       }),
     )
 
@@ -1254,6 +1355,8 @@ export class FilePicker {
   }
 
   private async doUpload(files: File[]): Promise<void> {
+    if (this.uploading || !files.length) return
+    this.uploading = true
     const drop = this.uploadOverlay.querySelector('.fp-drop')
     drop?.classList.add('fp-drop--busy')
     try {
@@ -1271,6 +1374,7 @@ export class FilePicker {
       this.toast(this.L.uploadFailed, 'error')
       this.emitter.emit('error', err)
     } finally {
+      this.uploading = false
       drop?.classList.remove('fp-drop--busy')
     }
   }
@@ -1322,6 +1426,24 @@ export class FilePicker {
           el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
         )
 
+    const filenameInput = el('input', { type: 'text', class: 'fp-input', value: media.filename })
+    const filenameSave = el(
+      'button',
+      {
+        type: 'button',
+        class: 'fp-icon-btn',
+        title: this.L.saveFilename,
+        'aria-label': this.L.saveFilename,
+      },
+      el('span', { html: icon('check', 18) }),
+    )
+    this.modalDisposers.push(
+      on(filenameSave, 'click', () => {
+        const v = filenameInput.value.trim()
+        if (v) void this.saveField(media, 'filename', v)
+      }),
+    )
+
     const alt = el('input', {
       type: 'text',
       class: 'fp-input',
@@ -1350,6 +1472,7 @@ export class FilePicker {
       },
       onCreate: (name) => this.createFolder(name),
       onDelete: (id) => this.deleteFolder(id),
+      onRename: (id, name) => this.renameFolder(id, name),
       promptText: (t, m, d) => this.promptText(t, m, d),
       confirm: (t, m) => this.confirm(t, m),
     })
@@ -1426,7 +1549,7 @@ export class FilePicker {
         { class: 'fp-modal-body' },
         el('div', { class: 'fp-edit-preview-wrap' }, preview),
         el('label', { class: 'fp-label' }, this.L.filename),
-        el('div', { class: 'fp-input fp-input--disabled' }, `${media.filename}`),
+        el('div', { class: 'fp-row' }, filenameInput, filenameSave),
         el('label', { class: 'fp-label' }, this.L.altText),
         el('div', { class: 'fp-row' }, alt, altSave),
         el('label', { class: 'fp-label' }, this.L.folder),
@@ -1478,7 +1601,7 @@ export class FilePicker {
   // ── preview ────────────────────────────────────────────────────────
 
   private buildPreview(): void {
-    this.previewImg = el('img', { class: 'fp-preview-img', alt: '' })
+    this.previewBody = el('div', { class: 'fp-preview-body' })
     const close = el('button', {
       type: 'button',
       class: 'fp-preview-close',
@@ -1489,7 +1612,7 @@ export class FilePicker {
       'div',
       { class: this.rootClass('fp-overlay fp-preview'), hidden: true },
       close,
-      this.previewImg,
+      this.previewBody,
     )
     this.disposers.push(
       on(close, 'click', () => this.closePreview()),
@@ -1501,15 +1624,33 @@ export class FilePicker {
 
   private openPreview(item: MediaItem): void {
     this.modalPrevFocus = (document.activeElement as HTMLElement) ?? null
-    this.previewImg.src = item.src
-    this.previewImg.alt = item.alt ?? item.filename
+    clear(this.previewBody)
+    let node: HTMLElement
+    if (item.type === 'video') {
+      node = el('video', {
+        class: 'fp-preview-media',
+        src: item.src,
+        controls: true,
+        autoplay: true,
+      })
+    } else if (item.type === 'audio') {
+      node = el('audio', {
+        class: 'fp-preview-media fp-preview-audio',
+        src: item.src,
+        controls: true,
+        autoplay: true,
+      })
+    } else {
+      node = el('img', { class: 'fp-preview-img', src: item.src, alt: item.alt ?? item.filename })
+    }
+    this.previewBody.append(node)
     this.previewOverlay.hidden = false
     this.previewOverlay.querySelector<HTMLButtonElement>('.fp-preview-close')?.focus()
   }
 
   private closePreview(): void {
     this.previewOverlay.hidden = true
-    this.previewImg.src = ''
+    clear(this.previewBody) // detaches <video>/<audio> and stops playback
     this.modalPrevFocus?.focus?.()
     this.modalPrevFocus = null
   }
@@ -1523,6 +1664,18 @@ export class FilePicker {
       return folder
     } catch (err) {
       this.toast(this.L.createFolderFailed, 'error')
+      this.emitter.emit('error', err)
+      return null
+    }
+  }
+
+  private async renameFolder(id: MediaId, name: string): Promise<MediaFolder | null> {
+    try {
+      const folder = await this.adapter.renameFolder(id, name)
+      await this.loadFolders()
+      return folder
+    } catch (err) {
+      this.toast(this.L.renameFolderFailed, 'error')
       this.emitter.emit('error', err)
       return null
     }
