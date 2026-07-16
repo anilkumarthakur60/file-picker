@@ -1,5 +1,19 @@
 import { FilePicker as FilePickerCore } from '@anil-labs/file-picker-core'
-import type { FilePickerAdapter, FilePickerOptions, MediaItem } from '@anil-labs/file-picker-core'
+import type {
+  FilePickerAdapter,
+  FilePickerLabels,
+  FilePickerOptions,
+  MediaItem,
+  TypeFilterOption,
+} from '@anil-labs/file-picker-core'
+
+/**
+ * SSR-safe base: `HTMLElement` is undefined outside the browser, so evaluating
+ * `class ... extends HTMLElement` at import time would throw during SSR. Fall
+ * back to an inert base; `register()` still guards actual definition.
+ */
+const Base: typeof HTMLElement =
+  typeof HTMLElement !== 'undefined' ? HTMLElement : (class {} as unknown as typeof HTMLElement)
 
 /**
  * `<file-picker>` custom element. Set the required `adapter` as a JS property
@@ -16,9 +30,15 @@ import type { FilePickerAdapter, FilePickerOptions, MediaItem } from '@anil-labs
  * </script>
  * ```
  */
-export class FilePickerElement extends HTMLElement {
+export class FilePickerElement extends Base {
   private core: FilePickerCore | null = null
   private adapterRef: FilePickerAdapter | null = null
+  private selectedRef: MediaItem[] = []
+  private selectedKey = ''
+  private typeFiltersRef: TypeFilterOption[] | null = null
+  private fileIconsRef: Record<string, string> | null = null
+  private fileColorsRef: Record<string, string> | null = null
+  private labelsRef: Partial<FilePickerLabels> | null = null
   private disposers: (() => void)[] = []
 
   static readonly observedAttributes = [
@@ -28,6 +48,14 @@ export class FilePickerElement extends HTMLElement {
     'title',
     'per-page',
     'show-selected',
+    'allow-upload',
+    'allow-edit',
+    'allow-delete',
+    'manage-folders',
+    'theme-toggle',
+    'accept',
+    'class-name',
+    'layout',
   ]
 
   /** The data source (required). Set as a property, not an attribute. */
@@ -44,9 +72,54 @@ export class FilePickerElement extends HTMLElement {
     return this.core
   }
 
-  /** Currently-selected items. */
+  /** Currently-selected items. Set as a property (array/item/null). */
+  set selected(v: MediaItem[] | MediaItem | null) {
+    const items = Array.isArray(v) ? v : v ? [v] : []
+    this.selectedRef = items
+    // Keyed on the ids so reference-only changes don't loop back through 'change'.
+    const key = items.map((i) => i.id).join(',')
+    if (key === this.selectedKey) return
+    this.selectedKey = key
+    this.core?.setSelected(items)
+  }
   get selected(): MediaItem[] {
-    return this.core?.getSelected() ?? []
+    return this.core?.getSelected() ?? this.selectedRef
+  }
+
+  /** Type-filter options (object config; set as a property, not an attribute). */
+  set typeFilters(v: TypeFilterOption[] | null) {
+    this.typeFiltersRef = v
+    this.build()
+  }
+  get typeFilters(): TypeFilterOption[] | null {
+    return this.typeFiltersRef
+  }
+
+  /** Per-type icon overrides (set as a property, not an attribute). */
+  set fileIcons(v: Record<string, string> | null) {
+    this.fileIconsRef = v
+    this.build()
+  }
+  get fileIcons(): Record<string, string> | null {
+    return this.fileIconsRef
+  }
+
+  /** Per-type color overrides (set as a property, not an attribute). */
+  set fileColors(v: Record<string, string> | null) {
+    this.fileColorsRef = v
+    this.build()
+  }
+  get fileColors(): Record<string, string> | null {
+    return this.fileColorsRef
+  }
+
+  /** Label overrides for i18n / white-labeling (set as a property, not an attribute). */
+  set labels(v: Partial<FilePickerLabels> | null) {
+    this.labelsRef = v
+    this.build()
+  }
+  get labels(): Partial<FilePickerLabels> | null {
+    return this.labelsRef
   }
 
   connectedCallback(): void {
@@ -85,12 +158,32 @@ export class FilePickerElement extends HTMLElement {
     const theme: FilePickerOptions['theme'] =
       themeAttr === 'dark' || themeAttr === 'light' ? themeAttr : 'auto'
     const perPage = this.getAttribute('per-page')
+    const layout = this.getAttribute('layout')
+    // Boolean toggles default to true; an explicit `="false"` disables them.
+    const bool = (name: string): boolean => this.getAttribute(name) !== 'false'
     const options: FilePickerOptions = {
       adapter: this.adapterRef,
       multiple: this.hasAttribute('multiple'),
       theme,
+      allowUpload: bool('allow-upload'),
+      allowEdit: bool('allow-edit'),
+      allowDelete: bool('allow-delete'),
+      manageFolders: bool('manage-folders'),
+      ...(this.hasAttribute('theme-toggle')
+        ? { themeToggle: this.getAttribute('theme-toggle') !== 'false' }
+        : {}),
       ...(this.getAttribute('title') ? { title: this.getAttribute('title') as string } : {}),
+      ...(this.getAttribute('accept') ? { accept: this.getAttribute('accept') as string } : {}),
+      ...(this.getAttribute('class-name')
+        ? { className: this.getAttribute('class-name') as string }
+        : {}),
+      ...(layout === 'modal' || layout === 'fullscreen' ? { layout } : {}),
       ...(perPage ? { perPage: Number(perPage) } : {}),
+      ...(this.selectedRef.length ? { selected: this.selectedRef } : {}),
+      ...(this.typeFiltersRef ? { typeFilters: this.typeFiltersRef } : {}),
+      ...(this.fileIconsRef ? { fileIcons: this.fileIconsRef } : {}),
+      ...(this.fileColorsRef ? { fileColors: this.fileColorsRef } : {}),
+      ...(this.labelsRef ? { labels: this.labelsRef } : {}),
     }
 
     const core = new FilePickerCore(options)
@@ -99,6 +192,11 @@ export class FilePickerElement extends HTMLElement {
       core.on('select', (i) => this.emit('select', i)),
       core.on('change', (i) => this.emit('change', i)),
       core.on('upload', (i) => this.emit('upload', i)),
+      core.on('open', () => this.emit('open')),
+      core.on('close', () => this.emit('close')),
+      core.on('delete', (item) => this.emit('delete', item)),
+      core.on('error', (err) => this.emit('error', err)),
+      core.on('theme', (t) => this.emit('theme', t)),
     )
 
     const label = this.getAttribute('label') ?? 'Select File'
@@ -116,8 +214,8 @@ export class FilePickerElement extends HTMLElement {
     this.innerHTML = ''
   }
 
-  private emit(name: string, items: MediaItem[]): void {
-    this.dispatchEvent(new CustomEvent(`fp:${name}`, { detail: items, bubbles: true }))
+  private emit(name: string, detail?: unknown): void {
+    this.dispatchEvent(new CustomEvent(`fp:${name}`, { detail, bubbles: true }))
   }
 }
 
