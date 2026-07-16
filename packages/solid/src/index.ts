@@ -1,4 +1,5 @@
 import { createEffect, createSignal, onCleanup, onMount, type Accessor, type JSX } from 'solid-js'
+import { isServer } from 'solid-js/web'
 import { FilePicker as FilePickerCore } from '@anil-labs/file-picker-core'
 import type { FilePickerOptions, MediaItem } from '@anil-labs/file-picker-core'
 
@@ -6,10 +7,20 @@ export interface UseFilePickerOptions extends FilePickerOptions {
   onSelect?: (items: MediaItem[]) => void
   onChange?: (items: MediaItem[]) => void
   onUpload?: (items: MediaItem[]) => void
+  onError?: (err: unknown) => void
+  onDelete?: (item: MediaItem) => void
+  onOpen?: () => void
+  onClose?: () => void
+  onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void
 }
 
 const toArray = (v: MediaItem[] | MediaItem | null | undefined): MediaItem[] =>
   v ? (Array.isArray(v) ? v : [v]) : []
+
+const selectedKey = (v: MediaItem[] | MediaItem | null | undefined): string =>
+  toArray(v)
+    .map((i) => i.id)
+    .join(',')
 
 export interface FilePickerController {
   selected: Accessor<MediaItem[]>
@@ -38,10 +49,28 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
       options.onSelect?.(i)
     })
     p.on('upload', (i) => options.onUpload?.(i))
-    p.on('open', () => setIsOpen(true))
-    p.on('close', () => setIsOpen(false))
+    p.on('delete', (i) => options.onDelete?.(i))
+    p.on('error', (e) => options.onError?.(e))
+    p.on('theme', (t) => options.onThemeChange?.(t))
+    p.on('open', () => {
+      setIsOpen(true)
+      options.onOpen?.()
+    })
+    p.on('close', () => {
+      setIsOpen(false)
+      options.onClose?.()
+    })
     picker = p
     onCleanup(() => p.destroy())
+  })
+
+  // Controlled selection: only push into the engine when the id set changes.
+  let prevKey = selectedKey(options.selected)
+  createEffect(() => {
+    const key = selectedKey(options.selected)
+    if (key === prevKey) return
+    prevKey = key
+    picker?.setSelected(options.selected ?? null)
   })
 
   return {
@@ -64,6 +93,9 @@ export interface FilePickerProps extends UseFilePickerOptions {
 
 /** A ready-made trigger + selected-thumbnails component. */
 export function FilePicker(props: FilePickerProps): JSX.Element {
+  // SSR-safe: never touch `document` on the server; the real wrapper (and the
+  // imperative mounts below) are created only on the client.
+  if (isServer || typeof document === 'undefined') return null
   const wrap = document.createElement('div')
   let core: FilePickerCore | undefined
   onMount(() => {
