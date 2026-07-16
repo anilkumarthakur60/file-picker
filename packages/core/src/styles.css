@@ -407,11 +407,6 @@
     box-shadow 0.15s,
     transform 0.15s;
 }
-.fp-card:hover {
-  border-color: var(--fp-accent);
-  box-shadow: 0 4px 14px var(--fp-accent-soft);
-  transform: translateY(-1px);
-}
 @media (hover: hover) {
   .fp-card:hover .fp-card-actions {
     opacity: 1;
@@ -451,14 +446,10 @@
 }
 .fp-card-check {
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 6px;
+  left: 6px;
   z-index: 3;
   display: inline-flex;
-  background: var(--fp-bg);
-  border-radius: 5px;
-  padding: 1px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   opacity: 0;
   transition: opacity 0.15s;
 }
@@ -477,11 +468,40 @@
   }
 }
 .fp-card-check input {
-  accent-color: var(--fp-accent);
-  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
   margin: 0;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: rgba(15, 23, 42, 0.42);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.fp-card-check input::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.fp-card-check input:checked {
+  background: var(--fp-accent);
+  border-color: #fff;
+}
+.fp-card-check input:checked::after {
+  opacity: 1;
 }
 .fp-card-actions {
   position: absolute;
@@ -1167,9 +1187,6 @@
   .fp-spinner {
     animation-duration: 0.7s !important;
     animation-iteration-count: infinite !important;
-  }
-  .fp-card:hover {
-    transform: none;
   }
 }
 
