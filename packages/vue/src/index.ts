@@ -17,6 +17,11 @@ export interface UseFilePickerOptions extends FilePickerOptions {
   onSelect?: (items: MediaItem[]) => void
   onChange?: (items: MediaItem[]) => void
   onUpload?: (items: MediaItem[]) => void
+  onError?: (err: unknown) => void
+  onDelete?: (item: MediaItem) => void
+  onOpen?: () => void
+  onClose?: () => void
+  onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void
 }
 
 const toArray = (v: MediaItem[] | MediaItem | null | undefined): MediaItem[] =>
@@ -47,8 +52,17 @@ export function useFilePicker(options: UseFilePickerOptions): {
       options.onSelect?.(i)
     })
     p.on('upload', (i) => options.onUpload?.(i))
-    p.on('open', () => (isOpen.value = true))
-    p.on('close', () => (isOpen.value = false))
+    p.on('error', (e) => options.onError?.(e))
+    p.on('delete', (i) => options.onDelete?.(i))
+    p.on('open', () => {
+      isOpen.value = true
+      options.onOpen?.()
+    })
+    p.on('close', () => {
+      isOpen.value = false
+      options.onClose?.()
+    })
+    p.on('theme', (t) => options.onThemeChange?.(t))
     picker.value = p
   })
   onBeforeUnmount(() => picker.value?.destroy())
@@ -76,6 +90,12 @@ export const FilePicker = defineComponent({
     select: (items: MediaItem[]) => Array.isArray(items),
     change: (items: MediaItem[]) => Array.isArray(items),
     upload: (items: MediaItem[]) => Array.isArray(items),
+    error: (_err: unknown) => true,
+    delete: (item: MediaItem) => !!item,
+    open: () => true,
+    close: () => true,
+    themeChange: (theme: 'light' | 'dark' | 'auto') =>
+      theme === 'light' || theme === 'dark' || theme === 'auto',
   },
   setup(props, { emit, slots }) {
     const selectedEl = ref<HTMLElement>()
@@ -84,6 +104,11 @@ export const FilePicker = defineComponent({
       onSelect: (i) => emit('select', i),
       onChange: (i) => emit('change', i),
       onUpload: (i) => emit('upload', i),
+      onError: (e) => emit('error', e),
+      onDelete: (i) => emit('delete', i),
+      onOpen: () => emit('open'),
+      onClose: () => emit('close'),
+      onThemeChange: (t) => emit('themeChange', t),
     })
     onMounted(() => {
       if (props.showSelected && selectedEl.value) picker.value?.mountSelected(selectedEl.value)
@@ -92,6 +117,20 @@ export const FilePicker = defineComponent({
       () => props.options.theme,
       (t) => {
         if (t) picker.value?.setTheme(t)
+      },
+    )
+    let lastSelectedKey = toArray(props.options.selected)
+      .map((i) => i.id)
+      .join(',')
+    watch(
+      () => props.options.selected,
+      (v) => {
+        const key = toArray(v)
+          .map((i) => i.id)
+          .join(',')
+        if (key === lastSelectedKey) return
+        lastSelectedKey = key
+        picker.value?.setSelected(v ?? null)
       },
     )
     return () => {
