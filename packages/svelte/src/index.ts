@@ -6,6 +6,11 @@ export interface CreateFilePickerOptions extends FilePickerOptions {
   onSelect?: (items: MediaItem[]) => void
   onChange?: (items: MediaItem[]) => void
   onUpload?: (items: MediaItem[]) => void
+  onError?: (err: unknown) => void
+  onDelete?: (item: MediaItem) => void
+  onOpen?: () => void
+  onClose?: () => void
+  onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void
 }
 
 export interface FilePickerController {
@@ -45,8 +50,17 @@ export function createFilePicker(options: CreateFilePickerOptions): FilePickerCo
     options.onSelect?.(i)
   })
   picker.on('upload', (i) => options.onUpload?.(i))
-  picker.on('open', () => isOpen.set(true))
-  picker.on('close', () => isOpen.set(false))
+  picker.on('open', () => {
+    isOpen.set(true)
+    options.onOpen?.()
+  })
+  picker.on('close', () => {
+    isOpen.set(false)
+    options.onClose?.()
+  })
+  picker.on('error', (e) => options.onError?.(e))
+  picker.on('delete', (i) => options.onDelete?.(i))
+  picker.on('theme', (t) => options.onThemeChange?.(t))
 
   return {
     selected: { subscribe: selected.subscribe },
