@@ -7,6 +7,11 @@ export interface UseFilePickerOptions extends FilePickerOptions {
   onSelect?: (items: MediaItem[]) => void
   onChange?: (items: MediaItem[]) => void
   onUpload?: (items: MediaItem[]) => void
+  onError?: (err: unknown) => void
+  onDelete?: (item: MediaItem) => void
+  onOpen?: () => void
+  onClose?: () => void
+  onThemeChange?: (theme: 'light' | 'dark' | 'auto') => void
 }
 
 export interface FilePickerController {
@@ -47,8 +52,17 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
         optionsRef.current.onSelect?.(items)
       }),
       p.on('upload', (items) => optionsRef.current.onUpload?.(items)),
-      p.on('open', () => setIsOpen(true)),
-      p.on('close', () => setIsOpen(false)),
+      p.on('delete', (item) => optionsRef.current.onDelete?.(item)),
+      p.on('error', (err) => optionsRef.current.onError?.(err)),
+      p.on('theme', (theme) => optionsRef.current.onThemeChange?.(theme)),
+      p.on('open', () => {
+        setIsOpen(true)
+        optionsRef.current.onOpen?.()
+      }),
+      p.on('close', () => {
+        setIsOpen(false)
+        optionsRef.current.onClose?.()
+      }),
     ]
     setPicker(p)
     return () => {
@@ -62,6 +76,16 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
   useEffect(() => {
     if (picker && theme) picker.setTheme(theme)
   }, [picker, theme])
+
+  // Controlled selection: only push into the engine when the id set changes.
+  const selectedKey = toArray(options.selected)
+    .map((i) => i.id)
+    .join(',')
+  useEffect(() => {
+    if (picker) picker.setSelected(options.selected ?? null)
+    // Keyed on selectedKey so reference-only changes don't loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [picker, selectedKey])
 
   const open = useCallback(() => picker?.open(), [picker])
   const close = useCallback(() => picker?.close(), [picker])
