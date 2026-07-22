@@ -58,6 +58,22 @@ importers:
         specifier: ^8.1.4
         version: 8.1.4(esbuild@0.27.7)
 
+  examples/landing:
+    dependencies:
+      '@anil-labs/file-picker-core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
+      happy-dom:
+        specifier: ^15.11.6
+        version: 15.11.7
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.1.4
+        version: 8.1.4(esbuild@0.27.7)
+
   examples/react:
     dependencies:
       '@anil-labs/file-picker-core':
