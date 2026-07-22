@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@anil-labs/file-picker — a framework-agnostic media library picker</title>
+    <meta
+      name="description"
+      content="Live demos of @anil-labs/file-picker: a framework-agnostic media-library file picker with search, folders, filters, upload, edit and delete — driven by a small adapter, with React, Vue, Svelte, Solid and Web Component bindings."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@anil-labs/file-picker — one media picker, every framework" />
+    <meta
+      property="og:description"
+      content="A framework-agnostic media library: browse, search, filter, upload, tag and delete — wired to your backend through one small adapter."
+    />
+
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <a class="skip-link" href="#demos">Skip to demos</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">🗂</span>
+          <span class="brand-name">@anil-labs/file-picker</span>
+          <span class="brand-version" id="version-badge">v0.0.0</span>
+        </div>
+
+        <div class="header-actions">
+          <div
+            class="segmented"
+            role="group"
+            aria-label="Page theme"
+            id="theme-switch"
+            data-active="light"
+          >
+            <button type="button" data-theme="light" aria-pressed="true">Light</button>
+            <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+            <button type="button" data-theme="auto" aria-pressed="false">Auto</button>
+          </div>
+          <nav class="header-links" aria-label="Project">
+            <a href="https://anilkumarthakur60.github.io/file-picker/">Docs</a>
+            <a href="https://github.com/anilkumarthakur60/file-picker">GitHub</a>
+            <a href="https://www.npmjs.com/package/@anil-labs/file-picker-core">npm</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ---------------------------------------------------------------- -->
+      <section class="hero">
+        <div class="shell hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Vanilla · React · Vue · Svelte · Solid · Web Components</p>
+            <h1>A media library,<br />in one adapter.</h1>
+            <p class="lead">
+              A framework-agnostic file picker with search, folders, type filters, upload, inline
+              edit and delete — wired to your backend through one small adapter. Drop it into any
+              framework, or none.
+            </p>
+
+            <div class="install">
+              <code id="install-cmd">npm i @anil-labs/file-picker-core</code>
+              <button type="button" id="install-copy" class="copy-btn">Copy</button>
+            </div>
+
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="#demos">Try the demos</a>
+              <a class="btn btn-ghost" href="https://anilkumarthakur60.github.io/file-picker/">
+                Read the docs
+              </a>
+            </div>
+
+            <ul class="hero-stats">
+              <li><strong>8</strong><span>adapter methods</span></li>
+              <li><strong>0</strong><span>runtime deps</span></li>
+              <li><strong>6</strong><span>framework adapters</span></li>
+            </ul>
+          </div>
+
+          <!-- The hero demo is the product: open a real, working picker. -->
+          <div class="hero-demo">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Open it</span>
+                <span class="panel-hint">search · folders · upload · select</span>
+              </div>
+              <div class="panel-body">
+                <div class="picker-row">
+                  <div class="trigger-host" id="t-hero"></div>
+                </div>
+                <div class="selected-host" id="s-hero"></div>
+                <p class="panel-note">
+                  A full media library over an in-memory adapter — no backend. Everything you do here
+                  runs the published build.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section class="section" id="demos">
+        <div class="shell">
+          <div class="section-head">
+            <h2>Live demos</h2>
+            <p>
+              Each button below opens the real picker with different options. There's no framework on
+              this page — every one is a direct <code>new FilePicker()</code> over the same in-memory
+              adapter.
+            </p>
+          </div>
+
+          <div class="demo-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Single select</span>
+                <span class="panel-hint">picks one, closes on choose</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  <code>multiple: false</code> — tap an item and the dialog confirms and closes
+                  immediately.
+                </p>
+                <div class="trigger-host" id="t-single"></div>
+                <div class="selected-host" id="s-single"></div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Multiple, capped</span>
+                <span class="panel-hint">select up to four</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  <code>multiple: true</code> with <code>maxSelection: 4</code> — gather a batch, then
+                  confirm them together.
+                </p>
+                <div class="trigger-host" id="t-multi"></div>
+                <div class="selected-host" id="s-multi"></div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Read-only browser</span>
+                <span class="panel-hint">browse &amp; pick, no writes</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  <code>allowUpload</code>, <code>allowEdit</code>, <code>allowDelete</code> and
+                  <code>manageFolders</code> off — a safe pick-only view.
+                </p>
+                <div class="trigger-host" id="t-readonly"></div>
+                <div class="selected-host" id="s-readonly"></div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Modal layout</span>
+                <span class="panel-hint">centered card, not fullscreen</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  <code>layout: 'modal'</code> renders a centered dialog on desktop instead of taking
+                  the whole screen.
+                </p>
+                <div class="trigger-host" id="t-modal"></div>
+                <div class="selected-host" id="s-modal"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="demo-grid demo-grid-wide">
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Events</span>
+                <span class="panel-hint">every action, live</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  The picker emits <code>change</code>, <code>select</code>, <code>upload</code>,
+                  <code>delete</code> and <code>error</code>. Open it and pick something — this panel
+                  is what the build's headless guard drives to prove the engine really runs.
+                </p>
+                <div class="events-split">
+                  <div>
+                    <div class="trigger-host" id="t-events"></div>
+                    <div class="selected-host" id="s-events"></div>
+                  </div>
+                  <div class="log" id="events-log"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section class="section section-alt" id="theming">
+        <div class="shell">
+          <div class="section-head">
+            <h2>Theming</h2>
+            <p>
+              Every colour is a <code>--fp-*</code> custom property. The picker ships light and dark
+              out of the box (with its own toggle in the dialog header), and one variable —
+              <code>--fp-accent</code> — recolours the whole thing.
+            </p>
+          </div>
+
+          <div class="theming-grid">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Accent</span>
+                <span class="panel-hint">live — recolours every picker</span>
+              </div>
+              <div class="panel-body">
+                <div class="swatches" role="group" aria-label="Accent color" id="accent-switch">
+                  <button type="button" data-accent="blue" aria-pressed="true">
+                    <span class="swatch" style="background: #3b82f6"></span>Blue
+                  </button>
+                  <button type="button" data-accent="emerald" aria-pressed="false">
+                    <span class="swatch" style="background: #10b981"></span>Emerald
+                  </button>
+                  <button type="button" data-accent="rose" aria-pressed="false">
+                    <span class="swatch" style="background: #f43f5e"></span>Rose
+                  </button>
+                  <button type="button" data-accent="amber" aria-pressed="false">
+                    <span class="swatch" style="background: #f59e0b"></span>Amber
+                  </button>
+                  <button type="button" data-accent="violet" aria-pressed="false">
+                    <span class="swatch" style="background: #8b5cf6"></span>Violet
+                  </button>
+                </div>
+                <div class="accent-preview" id="fp-accent-scope">
+                  <button type="button" class="accent-btn">Primary action</button>
+                  <span class="accent-chip">selected</span>
+                  <span class="accent-chip">tag</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><span class="panel-title">What just changed</span></div>
+              <div class="panel-body">
+                <pre class="code" id="accent-code"></pre>
+                <p class="panel-note">
+                  Set <code>--fp-accent</code> on any ancestor — a wrapper, or <code>:root</code> to
+                  recolour every picker at once. No class to add, no stylesheet to fork.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section class="section" id="capabilities">
+        <div class="shell">
+          <div class="section-head">
+            <h2>One adapter, eight methods</h2>
+            <p>
+              The picker knows nothing about your storage. Implement eight methods —
+              list, upload, update, delete, and the folder operations — and the whole UI works
+              against it. A ready-made in-memory adapter (used all over this page) and a REST adapter
+              ship in the box.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <div class="feature">
+              <h3>Browse &amp; search</h3>
+              <p>
+                Paginated grid, debounced search, type filters (image, video, audio, docs…) and tag
+                filtering — all driven by a single <code>listMedia</code> query.
+              </p>
+            </div>
+            <div class="feature">
+              <h3>Folders</h3>
+              <p>
+                Create, rename and delete folders, and move items between them — or turn folder
+                management off entirely with one option.
+              </p>
+            </div>
+            <div class="feature">
+              <h3>Upload</h3>
+              <p>
+                Drag-and-drop or click-to-upload with an <code>accept</code> filter, straight into
+                the current folder, with a live pending state.
+              </p>
+            </div>
+            <div class="feature">
+              <h3>Inline edit</h3>
+              <p>
+                Rename, set alt text and manage tags in a side dialog — each field saved through the
+                adapter's <code>updateMedia</code>.
+              </p>
+            </div>
+            <div class="feature">
+              <h3>Accessible dialog</h3>
+              <p>
+                Focus is trapped and restored, the grid is a real <code>listbox</code>, and a live
+                region announces loading and results.
+              </p>
+            </div>
+            <div class="feature">
+              <h3>Themeable &amp; tiny</h3>
+              <p>
+                Zero runtime dependencies, light/dark built in, and every colour a
+                <code>--fp-*</code> variable. Bring your own icons, colours and labels.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section class="section section-alt" id="keyboard">
+        <div class="shell">
+          <div class="section-head">
+            <h2>Keyboard &amp; accessibility</h2>
+            <p>
+              The dialog is fully operable from the keyboard, with focus management and screen-reader
+              announcements — open any demo above and try it.
+            </p>
+          </div>
+
+          <div class="kbd-grid">
+            <table class="kbd-table">
+              <caption>
+                In the dialog
+              </caption>
+              <tbody>
+                <tr><th><kbd>Tab</kbd></th><td>Move through search, filters, grid and actions</td></tr>
+                <tr><th><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></th><td>Move between items in the grid</td></tr>
+                <tr><th><kbd>Space</kbd> / <kbd>Enter</kbd></th><td>Select or deselect the focused item</td></tr>
+                <tr><th><kbd>Esc</kbd></th><td>Close the dialog and restore focus to the trigger</td></tr>
+              </tbody>
+            </table>
+
+            <table class="kbd-table">
+              <caption>
+                Built in
+              </caption>
+              <tbody>
+                <tr><th>focus trap</th><td>Focus stays within the open dialog</td></tr>
+                <tr><th>focus return</th><td>Closing returns focus to whatever opened it</td></tr>
+                <tr><th>listbox</th><td>The grid exposes proper selection semantics</td></tr>
+                <tr><th>aria-live</th><td>Loading and result counts are announced</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- -->
+      <section class="section" id="frameworks">
+        <div class="shell">
+          <div class="section-head">
+            <h2>Per-framework playgrounds</h2>
+            <p>
+              This page is deliberately framework-free. Each adapter has its own playground showing
+              the idiomatic binding for that framework.
+            </p>
+          </div>
+          <div class="fw-grid" id="fw-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <p>
+          Built by
+          <a href="https://github.com/anilkumarthakur60">Anil Kumar Thakur</a> · MIT licensed
+        </p>
+        <p class="muted">
+          Every demo on this page runs the same <code>@anil-labs/file-picker-core</code> engine over
+          one in-memory adapter.
+        </p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

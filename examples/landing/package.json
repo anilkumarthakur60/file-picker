@@ -1,0 +1,21 @@
+{
+  "name": "example-landing",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Framework-neutral landing page for @anil-labs/file-picker — every demo on it runs the core FilePicker engine directly, so it needs no framework runtime.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/check-page.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anil-labs/file-picker-core": "workspace:*"
+  },
+  "devDependencies": {
+    "happy-dom": "^15.11.6",
+    "typescript": "^5.7.2",
+    "vite": "^8.1.4"
+  }
+}
