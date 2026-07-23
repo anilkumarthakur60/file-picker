@@ -7,9 +7,9 @@ const here = (path: string): string => fileURLToPath(new URL(path, import.meta.u
 // Single source of truth for the version badge — read from the core package
 // rather than hardcoded in markup, so a `changeset version` bump can never
 // leave the landing page advertising a stale release.
-const { version } = JSON.parse(
-  readFileSync(here('../../packages/core/package.json'), 'utf8'),
-) as { version: string }
+const { version } = JSON.parse(readFileSync(here('../../packages/core/package.json'), 'utf8')) as {
+  version: string
+}
 
 export default defineConfig({
   root: here('.'),

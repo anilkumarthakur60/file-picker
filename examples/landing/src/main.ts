@@ -88,7 +88,12 @@ const DEMOS: DemoSpec[] = [
     trigger: 't-single',
     selected: 's-single',
     label: 'Choose an image',
-    options: { adapter: createDemoAdapter(), multiple: false, title: 'Pick an image', theme: 'auto' },
+    options: {
+      adapter: createDemoAdapter(),
+      multiple: false,
+      title: 'Pick an image',
+      theme: 'auto',
+    },
   },
   {
     trigger: 't-multi',
@@ -161,13 +166,15 @@ const logLine = (kind: string, detail: string): void => {
   eventsLog.prepend(row)
   while (eventsLog.childElementCount > 24) eventsLog.lastElementChild?.remove()
 }
-eventsLog.innerHTML = '<div class="empty">Open the picker and pick something — events appear here…</div>'
+eventsLog.innerHTML =
+  '<div class="empty">Open the picker and pick something — events appear here…</div>'
 
-const names = (items: MediaItem[]): string =>
-  items.map((m) => m.filename).join(', ') || '(none)'
+const names = (items: MediaItem[]): string => items.map((m) => m.filename).join(', ') || '(none)'
 
 eventsPicker.on('change', (items) => logLine('change', `${items.length} — ${names(items)}`))
-eventsPicker.on('select', (items) => logLine('select ✓', `confirmed ${items.length} — ${names(items)}`))
+eventsPicker.on('select', (items) =>
+  logLine('select ✓', `confirmed ${items.length} — ${names(items)}`),
+)
 eventsPicker.on('upload', (items) => logLine('upload', `${items.length} file(s) — ${names(items)}`))
 eventsPicker.on('delete', (item) => logLine('delete', item.filename))
 eventsPicker.on('error', (err) => logLine('error', String(err)))

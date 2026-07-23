@@ -11,7 +11,10 @@
     <meta name="color-scheme" content="light dark" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="@anil-labs/file-picker — one media picker, every framework" />
+    <meta
+      property="og:title"
+      content="@anil-labs/file-picker — one media picker, every framework"
+    />
     <meta
       property="og:description"
       content="A framework-agnostic media library: browse, search, filter, upload, tag and delete — wired to your backend through one small adapter."
@@ -96,8 +99,8 @@
                 </div>
                 <div class="selected-host" id="s-hero"></div>
                 <p class="panel-note">
-                  A full media library over an in-memory adapter — no backend. Everything you do here
-                  runs the published build.
+                  A full media library over an in-memory adapter — no backend. Everything you do
+                  here runs the published build.
                 </p>
               </div>
             </div>
@@ -111,9 +114,9 @@
           <div class="section-head">
             <h2>Live demos</h2>
             <p>
-              Each button below opens the real picker with different options. There's no framework on
-              this page — every one is a direct <code>new FilePicker()</code> over the same in-memory
-              adapter.
+              Each button below opens the real picker with different options. There's no framework
+              on this page — every one is a direct <code>new FilePicker()</code> over the same
+              in-memory adapter.
             </p>
           </div>
 
@@ -140,8 +143,8 @@
               </div>
               <div class="panel-body">
                 <p class="panel-note">
-                  <code>multiple: true</code> with <code>maxSelection: 4</code> — gather a batch, then
-                  confirm them together.
+                  <code>multiple: true</code> with <code>maxSelection: 4</code> — gather a batch,
+                  then confirm them together.
                 </p>
                 <div class="trigger-host" id="t-multi"></div>
                 <div class="selected-host" id="s-multi"></div>
@@ -170,8 +173,8 @@
               </div>
               <div class="panel-body">
                 <p class="panel-note">
-                  <code>layout: 'modal'</code> renders a centered dialog on desktop instead of taking
-                  the whole screen.
+                  <code>layout: 'modal'</code> renders a centered dialog on desktop instead of
+                  taking the whole screen.
                 </p>
                 <div class="trigger-host" id="t-modal"></div>
                 <div class="selected-host" id="s-modal"></div>
@@ -188,8 +191,8 @@
               <div class="panel-body">
                 <p class="panel-note">
                   The picker emits <code>change</code>, <code>select</code>, <code>upload</code>,
-                  <code>delete</code> and <code>error</code>. Open it and pick something — this panel
-                  is what the build's headless guard drives to prove the engine really runs.
+                  <code>delete</code> and <code>error</code>. Open it and pick something — this
+                  panel is what the build's headless guard drives to prove the engine really runs.
                 </p>
                 <div class="events-split">
                   <div>
@@ -268,10 +271,10 @@
           <div class="section-head">
             <h2>One adapter, eight methods</h2>
             <p>
-              The picker knows nothing about your storage. Implement eight methods —
-              list, upload, update, delete, and the folder operations — and the whole UI works
-              against it. A ready-made in-memory adapter (used all over this page) and a REST adapter
-              ship in the box.
+              The picker knows nothing about your storage. Implement eight methods — list, upload,
+              update, delete, and the folder operations — and the whole UI works against it. A
+              ready-made in-memory adapter (used all over this page) and a REST adapter ship in the
+              box.
             </p>
           </div>
           <div class="feature-grid">
@@ -327,8 +330,8 @@
           <div class="section-head">
             <h2>Keyboard &amp; accessibility</h2>
             <p>
-              The dialog is fully operable from the keyboard, with focus management and screen-reader
-              announcements — open any demo above and try it.
+              The dialog is fully operable from the keyboard, with focus management and
+              screen-reader announcements — open any demo above and try it.
             </p>
           </div>
 
@@ -338,10 +341,22 @@
                 In the dialog
               </caption>
               <tbody>
-                <tr><th><kbd>Tab</kbd></th><td>Move through search, filters, grid and actions</td></tr>
-                <tr><th><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></th><td>Move between items in the grid</td></tr>
-                <tr><th><kbd>Space</kbd> / <kbd>Enter</kbd></th><td>Select or deselect the focused item</td></tr>
-                <tr><th><kbd>Esc</kbd></th><td>Close the dialog and restore focus to the trigger</td></tr>
+                <tr>
+                  <th><kbd>Tab</kbd></th>
+                  <td>Move through search, filters, grid and actions</td>
+                </tr>
+                <tr>
+                  <th><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></th>
+                  <td>Move between items in the grid</td>
+                </tr>
+                <tr>
+                  <th><kbd>Space</kbd> / <kbd>Enter</kbd></th>
+                  <td>Select or deselect the focused item</td>
+                </tr>
+                <tr>
+                  <th><kbd>Esc</kbd></th>
+                  <td>Close the dialog and restore focus to the trigger</td>
+                </tr>
               </tbody>
             </table>
 
@@ -350,10 +365,22 @@
                 Built in
               </caption>
               <tbody>
-                <tr><th>focus trap</th><td>Focus stays within the open dialog</td></tr>
-                <tr><th>focus return</th><td>Closing returns focus to whatever opened it</td></tr>
-                <tr><th>listbox</th><td>The grid exposes proper selection semantics</td></tr>
-                <tr><th>aria-live</th><td>Loading and result counts are announced</td></tr>
+                <tr>
+                  <th>focus trap</th>
+                  <td>Focus stays within the open dialog</td>
+                </tr>
+                <tr>
+                  <th>focus return</th>
+                  <td>Closing returns focus to whatever opened it</td>
+                </tr>
+                <tr>
+                  <th>listbox</th>
+                  <td>The grid exposes proper selection semantics</td>
+                </tr>
+                <tr>
+                  <th>aria-live</th>
+                  <td>Loading and result counts are announced</td>
+                </tr>
               </tbody>
             </table>
           </div>

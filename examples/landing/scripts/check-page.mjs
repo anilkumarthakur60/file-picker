@@ -78,7 +78,11 @@ for (const key of [
   'DOMParser',
 ]) {
   if (window[key] !== undefined) {
-    Object.defineProperty(globalThis, key, { value: window[key], configurable: true, writable: true })
+    Object.defineProperty(globalThis, key, {
+      value: window[key],
+      configurable: true,
+      writable: true,
+    })
   }
 }
 
@@ -101,12 +105,18 @@ for (const id of DEMOS) {
   check($(`#${id} .fp-trigger`) !== null, `#${id}: no .fp-trigger mounted (picker never created).`)
 }
 
-check(text('#t-hero .fp-trigger').includes('Open the media library'), '#t-hero: wrong trigger label.')
+check(
+  text('#t-hero .fp-trigger').includes('Open the media library'),
+  '#t-hero: wrong trigger label.',
+)
 
 // Every picker mounts a selected strip and a (hidden) overlay on <body>. The
 // overlay (.fp-overlay) is what carries `hidden`; .fp-dialog is the card inside
 // it and is never hidden on its own.
-check($$('.fp-selected').length >= 6, `expected 6+ mounted selected strips, found ${$$('.fp-selected').length}.`)
+check(
+  $$('.fp-selected').length >= 6,
+  `expected 6+ mounted selected strips, found ${$$('.fp-selected').length}.`,
+)
 
 const overlays = $$('.fp-overlay')
 check(overlays.length >= 6, `expected 6+ picker overlays on <body>, found ${overlays.length}.`)
@@ -117,7 +127,10 @@ check(
 
 // The hero and events demos start pre-selected — prove the `selected` option and
 // the selected-strip renderer are wired.
-check(($('#s-hero .fp-selected')?.childElementCount ?? 0) > 0, '#s-hero: initial selection did not render.')
+check(
+  ($('#s-hero .fp-selected')?.childElementCount ?? 0) > 0,
+  '#s-hero: initial selection did not render.',
+)
 
 // -------------------------------------------------- open → load → select (events)
 
@@ -128,13 +141,19 @@ const openOverlay = $$('.fp-overlay').find((o) => o.hidden === false)
 check(openOverlay != null, 'events picker: clicking the trigger did not open a dialog.')
 
 const cards = openOverlay ? [...openOverlay.querySelectorAll('.fp-card')] : []
-check(cards.length > 0, 'events picker: the grid rendered no items — the adapter/render pipeline did not run.')
+check(
+  cards.length > 0,
+  'events picker: the grid rendered no items — the adapter/render pipeline did not run.',
+)
 
 if (cards.length > 0) {
   click(cards[0])
   await window.happyDOM.waitUntilComplete()
 
-  check($('#events-log .empty') === null, '#events-log: placeholder not cleared after selecting an item.')
+  check(
+    $('#events-log .empty') === null,
+    '#events-log: placeholder not cleared after selecting an item.',
+  )
   check(
     $$('#events-log .log-row').length >= 1,
     '#events-log: selecting an item logged no `change` event — the event wiring is broken.',
