@@ -28,6 +28,36 @@
         </div>
       </section>
 
+      <section class="form-wrap">
+        <h2>As a form field</h2>
+        <form class="form" id="form">
+          <label class="field">
+            <span>Title</span>
+            <input name="title" value="Summer campaign" />
+          </label>
+
+          <label class="field">
+            <span>Alt text</span>
+            <input name="alt" placeholder="Describe the media" />
+          </label>
+
+          <div class="field">
+            <span>Media</span>
+            <div id="form-trigger"></div>
+            <div id="form-selected"></div>
+            <!-- main.ts writes one hidden `mediaIds[]` input in here per
+                 selected item, on every `change` event. -->
+            <div id="form-hidden"></div>
+            <p class="hint" id="form-hint"></p>
+          </div>
+
+          <button class="submit" type="submit">Submit</button>
+        </form>
+
+        <h2>What the server receives</h2>
+        <pre class="payload" id="payload">Submit the form to see the FormData it would post…</pre>
+      </section>
+
       <footer>
         The same <code>@anil-labs/file-picker-core</code> engine powers every framework binding.
         <a href="https://github.com/anilkumarthakur60/file-picker">View source on GitHub</a>

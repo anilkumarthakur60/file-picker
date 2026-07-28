@@ -426,6 +426,44 @@ a {
   opacity: 0.7;
 }
 
+/* ---------------------------------------------------------- form demo */
+
+.demo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+.demo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  width: 100%;
+}
+.demo-field > span {
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pg-fg-muted);
+}
+.demo-field input {
+  font: inherit;
+  font-size: 14px;
+  color: inherit;
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--pg-border-strong);
+  border-radius: 9px;
+  background: transparent;
+}
+.demo-field input:focus-visible {
+  outline: 2px solid var(--fp-accent, #3b82f6);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
 /* -------------------------------------------------------------- sections */
 
 .section {

@@ -76,6 +76,9 @@ for (const key of [
   'KeyboardEvent',
   'Image',
   'DOMParser',
+  // The form demo reads its own <form> through FormData — Node has a global of
+  // that name, but only happy-dom's knows how to walk this document's fields.
+  'FormData',
 ]) {
   if (window[key] !== undefined) {
     Object.defineProperty(globalThis, key, {
@@ -100,7 +103,7 @@ const click = (elem) => elem?.dispatchEvent(new window.MouseEvent('click', { bub
 
 // ------------------------------------------------------------- every demo mounted
 
-const DEMOS = ['t-hero', 't-single', 't-multi', 't-readonly', 't-modal', 't-events']
+const DEMOS = ['t-hero', 't-single', 't-multi', 't-readonly', 't-modal', 't-events', 't-form']
 for (const id of DEMOS) {
   check($(`#${id} .fp-trigger`) !== null, `#${id}: no .fp-trigger mounted (picker never created).`)
 }
@@ -114,12 +117,12 @@ check(
 // overlay (.fp-overlay) is what carries `hidden`; .fp-dialog is the card inside
 // it and is never hidden on its own.
 check(
-  $$('.fp-selected').length >= 6,
-  `expected 6+ mounted selected strips, found ${$$('.fp-selected').length}.`,
+  $$('.fp-selected').length >= 7,
+  `expected 7+ mounted selected strips, found ${$$('.fp-selected').length}.`,
 )
 
 const overlays = $$('.fp-overlay')
-check(overlays.length >= 6, `expected 6+ picker overlays on <body>, found ${overlays.length}.`)
+check(overlays.length >= 7, `expected 7+ picker overlays on <body>, found ${overlays.length}.`)
 check(
   overlays.every((o) => o.hidden === true),
   'a picker overlay was already open before any trigger was clicked.',
@@ -159,6 +162,36 @@ if (cards.length > 0) {
     '#events-log: selecting an item logged no `change` event — the event wiring is broken.',
   )
 }
+
+// ------------------------------------------------- form demo (hidden inputs)
+
+// The form demo starts pre-selected, so the hidden inputs must already exist —
+// a picker that mounts but never mirrors its selection posts an empty form.
+const hiddenInputs = $$('#form-hidden input[name="mediaIds[]"]')
+check(
+  hiddenInputs.length > 0,
+  '#form-hidden: no hidden mediaIds[] inputs for the initial selection.',
+)
+check(
+  hiddenInputs.every((i) => i.value !== ''),
+  '#form-hidden: a hidden mediaIds[] input has an empty value.',
+)
+check(text('#form-hint').includes('mediaIds[]'), '#form-hint: selection hint not rendered.')
+
+$('#demo-form')?.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
+await window.happyDOM.waitUntilComplete()
+
+const payload = text('#form-payload')
+check(payload.includes('title'), '#form-payload: submitting did not report the `title` field.')
+check(
+  payload.includes('mediaIds[]'),
+  "#form-payload: submitting did not report the picker's mediaIds[] fields.",
+)
+const firstId = hiddenInputs[0]?.value ?? ''
+check(
+  firstId !== '' && payload.includes(firstId),
+  '#form-payload: the reported payload is missing the selected media id.',
+)
 
 // --------------------------------------------------------------- theme switch
 

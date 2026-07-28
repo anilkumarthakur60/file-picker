@@ -203,6 +203,40 @@
                 </div>
               </div>
             </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <span class="panel-title">Inside a form</span>
+                <span class="panel-hint">submits like any other field</span>
+              </div>
+              <div class="panel-body">
+                <p class="panel-note">
+                  The picker is not an <code>&lt;input&gt;</code>, so it posts nothing by itself.
+                  Mirror the selection into hidden inputs on <code>change</code> and it behaves like
+                  any other field — submit below to see the exact <code>FormData</code> the browser
+                  would send.
+                </p>
+                <div class="events-split">
+                  <form class="demo-form" id="demo-form">
+                    <label class="demo-field">
+                      <span>Title</span>
+                      <input name="title" value="Summer campaign" />
+                    </label>
+                    <div class="demo-field">
+                      <span>Media</span>
+                      <div class="trigger-host" id="t-form"></div>
+                      <div class="selected-host" id="s-form"></div>
+                      <!-- main.ts writes one hidden `mediaIds[]` input in here
+                           per selected item, on every `change` event. -->
+                      <div id="form-hidden"></div>
+                      <p class="panel-note" id="form-hint"></p>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Submit</button>
+                  </form>
+                  <pre class="code" id="form-payload"></pre>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
       </section>

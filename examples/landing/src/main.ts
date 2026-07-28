@@ -179,6 +179,66 @@ eventsPicker.on('upload', (items) => logLine('upload', `${items.length} file(s) 
 eventsPicker.on('delete', (item) => logLine('delete', item.filename))
 eventsPicker.on('error', (err) => logLine('error', String(err)))
 
+// --- Form demo — the picker is not an <input> ------------------------------
+
+// It mounts a trigger and a thumbnail strip, neither of which a <form> can
+// read. Mirroring the selection into hidden inputs on `change` — the same event
+// the selected strip renders from — makes it submit like any other field.
+const formPicker = new FilePicker({
+  adapter: createDemoAdapter(),
+  multiple: true,
+  title: 'Attach media',
+  theme: 'auto',
+  selected: sampleSelection(),
+})
+formPicker.mountTrigger(el('t-form'), { label: 'Attach media' })
+formPicker.mountSelected(el('s-form'))
+
+const hiddenHost = el('form-hidden')
+const formHint = el('form-hint')
+
+function syncHiddenInputs(items: MediaItem[]): void {
+  hiddenHost.replaceChildren(
+    ...items.map((item) => {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      // `mediaIds[]` arrives as an array in PHP/Laravel/Rails; use `mediaIds`
+      // for a plain repeated key.
+      input.name = 'mediaIds[]'
+      input.value = String(item.id)
+      return input
+    }),
+  )
+  formHint.innerHTML =
+    `${items.length} hidden <code>mediaIds[]</code> input${items.length === 1 ? '' : 's'} — ` +
+    `the trigger is a <code>type="button"</code>, so opening the picker never submits the form.`
+}
+
+formPicker.on('change', syncHiddenInputs)
+syncHiddenInputs(formPicker.getSelected())
+
+// What the server would receive, printed instead of navigating away.
+function describeSubmission(form: HTMLFormElement): string {
+  const entries = [...new FormData(form).entries()]
+  const width = Math.max(...entries.map(([key]) => key.length), 0)
+  const lines = entries.map(
+    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
+  )
+  if (!entries.some(([key]) => key === 'mediaIds[]')) {
+    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  }
+  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+}
+
+const demoForm = el<HTMLFormElement>('demo-form')
+const formPayload = el('form-payload')
+formPayload.textContent = 'Submit the form to see the FormData it would post…'
+
+demoForm.addEventListener('submit', (event) => {
+  event.preventDefault()
+  formPayload.textContent = describeSubmission(demoForm)
+})
+
 // ----------------------------------------------------------------- theming
 
 const ACCENTS = {

@@ -7,13 +7,23 @@
 
   type LogEntry = { kind: string; detail: string }
 
+  // Both pickers on this page browse the same in-memory library.
+  const adapter = createDemoAdapter()
+
   let triggerEl = $state<HTMLDivElement>()
   let selectedEl = $state<HTMLDivElement>()
   let selected = $state<MediaItem[]>([])
   let log = $state<LogEntry[]>([])
 
+  let formTriggerEl = $state<HTMLDivElement>()
+  let formSelectedEl = $state<HTMLDivElement>()
+  let formSelected = $state<MediaItem[]>([])
+  let payload = $state<string | null>(null)
+
   let controller: FilePickerController | undefined
+  let formController: FilePickerController | undefined
   let unsubscribe: (() => void) | undefined
+  let formUnsubscribe: (() => void) | undefined
 
   const names = (items: MediaItem[]): string => items.map((m) => m.filename).join(', ') || '(none)'
 
@@ -21,9 +31,32 @@
     log = [{ kind, detail }, ...log].slice(0, 40)
   }
 
+  // The picker is not an <input>, so it contributes nothing to a form on its
+  // own. Mirroring the selection into hidden inputs is all it takes — this
+  // prints the exact FormData the browser would post, so you can see what
+  // arrives server-side.
+  const describeSubmission = (form: HTMLFormElement): string => {
+    const entries = [...new FormData(form).entries()]
+    const width = Math.max(...entries.map(([key]) => key.length), 0)
+    const lines = entries.map(
+      ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
+    )
+    if (!entries.some(([key]) => key === 'mediaIds[]')) {
+      lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+    }
+    return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+  }
+
+  const onSubmit = (event: SubmitEvent): void => {
+    // A real app would let this submit (or post it with fetch); the demo just
+    // shows the payload instead of navigating away.
+    event.preventDefault()
+    payload = describeSubmission(event.currentTarget as HTMLFormElement)
+  }
+
   onMount(() => {
     controller = createFilePicker({
-      adapter: createDemoAdapter(),
+      adapter,
       multiple: true,
       title: 'Media Library',
       onChange: (items) => push('change', `${items.length} selected — ${names(items)}`),
@@ -34,11 +67,18 @@
     unsubscribe = controller.selected.subscribe((items) => (selected = items))
     controller.picker.mountTrigger(triggerEl!, { label: 'Choose media' })
     controller.picker.mountSelected(selectedEl!)
+
+    formController = createFilePicker({ adapter, multiple: true, title: 'Attach media' })
+    formUnsubscribe = formController.selected.subscribe((items) => (formSelected = items))
+    formController.picker.mountTrigger(formTriggerEl!, { label: 'Attach media' })
+    formController.picker.mountSelected(formSelectedEl!)
   })
 
   onDestroy(() => {
     unsubscribe?.()
     controller?.destroy()
+    formUnsubscribe?.()
+    formController?.destroy()
   })
 </script>
 
@@ -71,6 +111,43 @@
         {/each}
       {/if}
     </div>
+  </section>
+
+  <section class="form-wrap">
+    <h2>As a form field</h2>
+    <form class="form" onsubmit={onSubmit}>
+      <label class="field">
+        <span>Title</span>
+        <input name="title" value="Summer campaign" />
+      </label>
+
+      <label class="field">
+        <span>Alt text</span>
+        <input name="alt" placeholder="Describe the media" />
+      </label>
+
+      <div class="field">
+        <span>Media</span>
+        <div bind:this={formTriggerEl}></div>
+        <div bind:this={formSelectedEl}></div>
+        <!-- One hidden input per selected item — `mediaIds[]` arrives as an
+             array in PHP/Laravel/Rails; use `mediaIds` for a repeated key. -->
+        {#each formSelected as item (item.id)}
+          <input type="hidden" name="mediaIds[]" value={String(item.id)} />
+        {/each}
+        <p class="hint">
+          {formSelected.length} hidden <code>mediaIds[]</code> input{formSelected.length === 1
+            ? ''
+            : 's'} — the trigger is a <code>type="button"</code>, so opening the picker never
+          submits the form.
+        </p>
+      </div>
+
+      <button class="submit" type="submit">Submit</button>
+    </form>
+
+    <h2>What the server receives</h2>
+    <pre class="payload">{payload ?? 'Submit the form to see the FormData it would post…'}</pre>
   </section>
 
   <footer>

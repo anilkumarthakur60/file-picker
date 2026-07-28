@@ -32,6 +32,33 @@ const onSelect = (items: MediaItem[]): void => {
 const onUpload = (items: MediaItem[]): void => {
   push('upload', `${items.length} file(s) — ${names(items)}`)
 }
+
+// --- form integration ------------------------------------------------------
+
+// The picker is not an <input>, so it contributes nothing to a form on its own.
+// Mirroring the selection into hidden inputs is all it takes — this prints the
+// exact FormData the browser would post so you can see what arrives server-side.
+const selected = ref<MediaItem[]>([])
+const payload = ref<string | null>(null)
+
+const describeSubmission = (form: HTMLFormElement): string => {
+  const entries = [...new FormData(form).entries()]
+  const width = Math.max(...entries.map(([key]) => key.length), 0)
+  const lines = entries.map(
+    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
+  )
+  if (!entries.some(([key]) => key === 'mediaIds[]')) {
+    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  }
+  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+}
+
+const onSubmit = (event: Event): void => {
+  // A real app would let this submit (or post it with fetch); the demo just
+  // shows the payload instead of navigating away.
+  event.preventDefault()
+  payload.value = describeSubmission(event.target as HTMLFormElement)
+}
 </script>
 
 <template>
@@ -63,6 +90,53 @@ const onUpload = (items: MediaItem[]): void => {
           <span class="k">{{ entry.kind }}</span> {{ entry.detail }}
         </div>
       </div>
+    </section>
+
+    <section class="form-wrap">
+      <h2>As a form field</h2>
+      <form class="form" @submit="onSubmit">
+        <label class="field">
+          <span>Title</span>
+          <input name="title" value="Summer campaign" />
+        </label>
+
+        <label class="field">
+          <span>Alt text</span>
+          <input name="alt" placeholder="Describe the media" />
+        </label>
+
+        <div class="field">
+          <span>Media</span>
+          <FilePicker
+            :options="{ adapter, multiple: true, title: 'Attach media' }"
+            label="Attach media"
+            @change="selected = $event"
+          />
+          <!-- One hidden input per selected item — `mediaIds[]` arrives as an
+               array in PHP/Laravel/Rails; use `mediaIds` for a repeated key. -->
+          <input
+            v-for="item in selected"
+            :key="item.id"
+            type="hidden"
+            name="mediaIds[]"
+            :value="String(item.id)"
+          />
+          <p class="hint">
+            {{ selected.length }} hidden <code>mediaIds[]</code> input{{
+              selected.length === 1 ? '' : 's'
+            }}
+            — the trigger is a <code>type="button"</code>, so opening the picker never submits the
+            form.
+          </p>
+        </div>
+
+        <button class="submit" type="submit">Submit</button>
+      </form>
+
+      <h2>What the server receives</h2>
+      <pre class="payload">{{
+        payload ?? 'Submit the form to see the FormData it would post…'
+      }}</pre>
     </section>
 
     <footer>
