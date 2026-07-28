@@ -93,6 +93,11 @@ your own stylesheet to match your brand:
 `--fp-radius-sm` and `--fp-radius-lg` derive from `--fp-radius`, so overriding just the base radius
 rescales the whole corner scale together.
 
+`--fp-card-min` drives the grid from tablet width up. At phone widths (≤ 520px) the grid is a fixed
+two columns instead, so thumbnails stay big enough to judge; override
+`.fp-grid { grid-template-columns: … }` inside your own media query if you want a different count
+there.
+
 ## Dark mode overrides
 
 The stylesheet supplies dark values automatically for `theme: 'auto'` (via `prefers-color-scheme`)

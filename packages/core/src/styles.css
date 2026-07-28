@@ -1138,13 +1138,17 @@
   }
 }
 
-/* ── denser grid on small phones ──────────────────────────────────── */
+/* ── phones: exactly two cards per row ────────────────────────────── */
 @media (max-width: 520px) {
   .fp-grid-scroll {
     padding: 12px;
   }
+  /* A fixed pair rather than auto-fill: on a phone, auto-fill fits a third
+   * (and on the widest phones a fourth) track, which leaves the thumbnails too
+   * small to judge. `minmax(0, 1fr)` — not `1fr` — so a long filename can't
+   * push a track past its share and break the pair. */
   .fp-grid {
-    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
   .fp-selected .fp-grid {
