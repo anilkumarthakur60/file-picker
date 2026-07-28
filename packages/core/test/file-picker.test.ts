@@ -4,6 +4,14 @@ import type { FilePickerAdapter, MediaItem } from '../src'
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 5))
 
+// Click a card's checkbox. Cards are rebuilt by renderGrid after every
+// selection change, so re-query on each call.
+const checkCard = (i: number): void =>
+  document
+    .querySelectorAll<HTMLElement>('.fp-card')
+    [i]?.querySelector<HTMLElement>('.fp-card-check')
+    ?.click()
+
 const media = (id: number): MediaItem => ({
   id,
   folderId: null,
@@ -219,17 +227,34 @@ describe('FilePicker', () => {
     fp.destroy()
   })
 
+  it('the card body and its checkbox both toggle selection', async () => {
+    const adapter = createMemoryAdapter({ media: [media(1), media(2)], latency: 0 })
+    const fp = new FilePicker({ adapter, multiple: true })
+    fp.open()
+    await tick()
+
+    // The whole card is a hit target: thumbnail, filename or the card itself.
+    document.querySelector<HTMLElement>('.fp-card .fp-card-img, .fp-card .fp-card-file')?.click()
+    expect(fp.getSelected().map((m) => m.id)).toEqual([1])
+    document.querySelector<HTMLElement>('.fp-card .fp-card-name')?.click()
+    expect(fp.getSelected()).toHaveLength(0)
+
+    // …and so is the checkbox, which is what shows the state.
+    checkCard(0)
+    expect(fp.getSelected().map((m) => m.id)).toEqual([1])
+    checkCard(0)
+    expect(fp.getSelected()).toHaveLength(0)
+    fp.destroy()
+  })
+
   it('maxSelection caps a multi-select', async () => {
     const adapter = createMemoryAdapter({ media: [media(1), media(2), media(3)], latency: 0 })
     const fp = new FilePicker({ adapter, multiple: true, maxSelection: 2 })
     fp.open()
     await tick()
-    // Re-query each time — renderGrid rebuilds the cards after every selection.
-    const clickCard = (i: number): void =>
-      document.querySelectorAll<HTMLElement>('.fp-card')[i]?.click()
-    clickCard(0)
-    clickCard(1)
-    clickCard(2)
+    checkCard(0)
+    checkCard(1)
+    checkCard(2)
     expect(fp.getSelected()).toHaveLength(2)
     fp.destroy()
   })

@@ -57,6 +57,8 @@ Selection is single by default. Set `multiple: true` to allow more than one item
 new FilePicker({ adapter, multiple: true })
 ```
 
+- **Click anywhere on a card** — the whole card toggles selection, as does its checkbox, which is
+  always visible and is what shows the state (a selected card gets no border or tint of its own).
 - **Shift-click range** — in multiple mode, click one item then shift-click another to select the
   whole range between them.
 - **Selected strip** — a live thumbnails strip of the current selection can be mounted next to your

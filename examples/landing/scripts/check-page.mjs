@@ -161,6 +161,18 @@ if (cards.length > 0) {
     $$('#events-log .log-row').length >= 1,
     '#events-log: selecting an item logged no `change` event — the event wiring is broken.',
   )
+
+  // The checkbox is the other half of the same hit target — clicking it must
+  // toggle too, and it is the only thing that shows the selection now that a
+  // selected card carries no border. Re-query: renderGrid rebuilt the cards
+  // above, so the `cards` handles are detached and clicking them is a no-op.
+  const rowsAfterCard = $$('#events-log .log-row').length
+  click(openOverlay?.querySelector('.fp-card .fp-card-check'))
+  await window.happyDOM.waitUntilComplete()
+  check(
+    $$('#events-log .log-row').length > rowsAfterCard,
+    '#events-log: clicking a card checkbox emitted no `change`.',
+  )
 }
 
 // ------------------------------------------------- form demo (hidden inputs)
