@@ -39,6 +39,11 @@ export class FilePickerElement extends Base {
   private fileIconsRef: Record<string, string> | null = null
   private fileColorsRef: Record<string, string> | null = null
   private labelsRef: Partial<FilePickerLabels> | null = null
+  private perPageOptionsRef: number[] | null = null
+  private renderEmptyRef: (() => string) | null = null
+  private renderLoadingRef: (() => string) | null = null
+  private renderCardMetaRef: ((item: MediaItem) => string) | null = null
+  private headerActionsRef: HTMLElement[] | null = null
   private disposers: (() => void)[] = []
 
   static readonly observedAttributes = [
@@ -56,6 +61,9 @@ export class FilePickerElement extends Base {
     'accept',
     'class-name',
     'layout',
+    'close-on-select',
+    'max-selection',
+    'search-debounce',
   ]
 
   /** The data source (required). Set as a property, not an attribute. */
@@ -122,6 +130,51 @@ export class FilePickerElement extends Base {
     return this.labelsRef
   }
 
+  /** Per-page choices (object config; set as a property, not an attribute). */
+  set perPageOptions(v: number[] | null) {
+    this.perPageOptionsRef = v
+    this.build()
+  }
+  get perPageOptions(): number[] | null {
+    return this.perPageOptionsRef
+  }
+
+  /** Custom empty-state HTML factory (set as a property, not an attribute). */
+  set renderEmpty(v: (() => string) | null) {
+    this.renderEmptyRef = v
+    this.build()
+  }
+  get renderEmpty(): (() => string) | null {
+    return this.renderEmptyRef
+  }
+
+  /** Custom loading HTML factory (set as a property, not an attribute). */
+  set renderLoading(v: (() => string) | null) {
+    this.renderLoadingRef = v
+    this.build()
+  }
+  get renderLoading(): (() => string) | null {
+    return this.renderLoadingRef
+  }
+
+  /** Custom per-card meta HTML factory (set as a property, not an attribute). */
+  set renderCardMeta(v: ((item: MediaItem) => string) | null) {
+    this.renderCardMetaRef = v
+    this.build()
+  }
+  get renderCardMeta(): ((item: MediaItem) => string) | null {
+    return this.renderCardMetaRef
+  }
+
+  /** Extra header action elements (set as a property, not an attribute). */
+  set headerActions(v: HTMLElement[] | null) {
+    this.headerActionsRef = v
+    this.build()
+  }
+  get headerActions(): HTMLElement[] | null {
+    return this.headerActionsRef
+  }
+
   connectedCallback(): void {
     this.build()
   }
@@ -161,6 +214,14 @@ export class FilePickerElement extends Base {
     const layout = this.getAttribute('layout')
     // Boolean toggles default to true; an explicit `="false"` disables them.
     const bool = (name: string): boolean => this.getAttribute(name) !== 'false'
+    const numAttr = (name: string): number | undefined => {
+      const raw = this.getAttribute(name)
+      if (raw == null || raw === '') return undefined
+      const n = Number(raw)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const maxSelection = numAttr('max-selection')
+    const searchDebounce = numAttr('search-debounce')
     const options: FilePickerOptions = {
       adapter: this.adapterRef,
       multiple: this.hasAttribute('multiple'),
@@ -184,6 +245,16 @@ export class FilePickerElement extends Base {
       ...(this.fileIconsRef ? { fileIcons: this.fileIconsRef } : {}),
       ...(this.fileColorsRef ? { fileColors: this.fileColorsRef } : {}),
       ...(this.labelsRef ? { labels: this.labelsRef } : {}),
+      ...(this.hasAttribute('close-on-select')
+        ? { closeOnSelect: this.getAttribute('close-on-select') !== 'false' }
+        : {}),
+      ...(maxSelection != null ? { maxSelection } : {}),
+      ...(searchDebounce != null ? { searchDebounce } : {}),
+      ...(this.perPageOptionsRef ? { perPageOptions: this.perPageOptionsRef } : {}),
+      ...(this.renderEmptyRef ? { renderEmpty: this.renderEmptyRef } : {}),
+      ...(this.renderLoadingRef ? { renderLoading: this.renderLoadingRef } : {}),
+      ...(this.renderCardMetaRef ? { renderCardMeta: this.renderCardMetaRef } : {}),
+      ...(this.headerActionsRef ? { headerActions: this.headerActionsRef } : {}),
     }
 
     const core = new FilePickerCore(options)
@@ -230,7 +301,9 @@ register()
 
 export type {
   FilePickerOptions,
+  FilePickerLabels,
   MediaItem,
   MediaFolder,
   FilePickerAdapter,
+  TypeFilterOption,
 } from '@anil-labs/file-picker-core'
