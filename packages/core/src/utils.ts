@@ -50,12 +50,14 @@ export const truncate = (str: string, max: number): string =>
 /** Default options for the Type filter dropdown. */
 export const TYPE_FILTER_OPTIONS: TypeFilterOption[] = [
   { label: 'Images', value: 'image', icon: 'image', color: '#2f6fed' },
+  { label: 'Vectors', value: 'vector', icon: 'image', color: '#2f6fed' },
   { label: 'Videos', value: 'video', icon: 'video', color: '#e5484d' },
   { label: 'Audio', value: 'audio', icon: 'audio', color: '#8e4ec6' },
   { label: 'PDF', value: 'pdf', icon: 'pdf', color: '#c62828' },
   { label: 'Documents', value: 'document', icon: 'document', color: '#1565c0' },
   { label: 'Spreadsheets', value: 'spreadsheet', icon: 'spreadsheet', color: '#2e7d32' },
   { label: 'Presentations', value: 'presentation', icon: 'presentation', color: '#ef6c00' },
+  { label: 'Text', value: 'text', icon: 'text', color: '#546e7a' },
 ]
 
 /** Default "items per page" choices. */

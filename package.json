@@ -25,6 +25,7 @@
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
     "build:demos": "node scripts/build-demos.mjs",
+    "samples": "node scripts/make-sample-files.mjs",
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
     "docs:preview": "pnpm --filter docs preview"

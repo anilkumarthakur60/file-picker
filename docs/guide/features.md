@@ -81,9 +81,9 @@ The toolbar offers three independent filters, all passed to `listMedia(query)`:
 
 - **Search** — matches against the filename (`query.search`).
 - **Tag** — filters by tag (`query.tag`).
-- **Type** — a dropdown of high-level buckets (`query.type`): images, videos, audio, PDF, documents,
-  spreadsheets and presentations. Customize the options with `typeFilters`; the default set is
-  exported as [`TYPE_FILTER_OPTIONS`](/reference/api#utilities).
+- **Type** — a dropdown of high-level buckets (`query.type`): images, vectors, videos, audio, PDF,
+  documents, spreadsheets, presentations and text. Customize the options with `typeFilters`; the
+  default set is exported as [`TYPE_FILTER_OPTIONS`](/reference/api#utilities).
 
 Because these arrive in the adapter query, filtering runs wherever your data lives — server-side for
 REST, in-memory for the memory adapter.

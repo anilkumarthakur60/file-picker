@@ -977,7 +977,7 @@ export class FilePicker {
           ? `<div class="fp-card-file"><span style="color:${this.fileColor(m.type)}">${icon('audio', 40)}</span></div>`
           : `<div class="fp-card-file"><span style="color:${this.fileColor(m.type)}">${icon(this.fileIcon(m.type), 40)}</span>${ext ? `<span class="fp-ext">${ext}</span>` : ''}</div>`
 
-    const openable = m.type === 'pdf' || m.type === 'document'
+    const openable = !!m.src && !this.previewable(m)
     const fn = esc(m.filename)
     const L = this.L
     const actions = [
