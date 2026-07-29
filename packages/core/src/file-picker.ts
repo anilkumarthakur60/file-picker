@@ -1475,10 +1475,22 @@ export class FilePicker {
       )
     let preview: HTMLElement
     if (isImage(media) && media.src) {
-      const img = el('img', { class: 'fp-edit-preview', src: media.src, alt: media.filename })
-      // Broken/unreachable image → fall back to the file tile (mirrors the grid),
-      // instead of leaving a large empty band above the fields.
-      img.addEventListener('error', () => img.replaceWith(fileTile()), { once: true })
+      const img = el('img', {
+        class: 'fp-edit-preview fp-edit-preview--loading',
+        src: media.src,
+        alt: media.filename,
+      })
+      // Show a shimmer placeholder until the image resolves; on load drop it,
+      // on error fall back to the file tile (mirrors the grid) rather than
+      // leaving an empty band above the fields.
+      const settle = (ok: boolean): void => {
+        if (ok) img.classList.remove('fp-edit-preview--loading')
+        else img.replaceWith(fileTile())
+      }
+      img.addEventListener('load', () => settle(true), { once: true })
+      img.addEventListener('error', () => settle(false), { once: true })
+      // Already cached/decoded before the listeners attached.
+      if (img.complete) settle(img.naturalWidth > 0)
       preview = img
     } else {
       preview = fileTile()

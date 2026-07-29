@@ -753,6 +753,21 @@
   object-fit: contain;
   background: var(--fp-surface);
 }
+/* Reserve space with a shimmer while the image loads, so the preview area
+   doesn't collapse to a blank band before it paints. Removed on load. */
+.fp-edit-preview--loading {
+  width: 260px;
+  height: 150px;
+  object-fit: cover;
+  background: linear-gradient(
+    100deg,
+    var(--fp-surface) 30%,
+    var(--fp-surface-2) 50%,
+    var(--fp-surface) 70%
+  );
+  background-size: 200% 100%;
+  animation: fp-shimmer 1.3s ease-in-out infinite;
+}
 .fp-edit-file {
   display: inline-flex;
   flex-direction: column;
