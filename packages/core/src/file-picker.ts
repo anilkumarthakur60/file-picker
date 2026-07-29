@@ -161,7 +161,8 @@ export class FilePicker {
     this.L = { ...defaultLabels, ...(options.labels ?? {}) }
     this.o = {
       multiple: options.multiple ?? false,
-      perPage: options.perPage ?? 24,
+      // Clamp: perPage 0 would make lastPage Infinity and the grid always empty.
+      perPage: Math.max(1, Math.floor(options.perPage ?? 24)),
       perPageOptions: options.perPageOptions ?? PER_PAGE_OPTIONS,
       typeFilters: options.typeFilters ?? TYPE_FILTER_OPTIONS,
       theme: options.theme ?? 'auto',
@@ -311,11 +312,20 @@ export class FilePicker {
       el('span', {}, message),
     )
     this.toastHost.append(t)
-    const timer = setTimeout(() => {
+    // Self-trimming timers so toastTimers doesn't grow unbounded over a long
+    // session; destroy() clears whatever is still pending.
+    const schedule = (fn: () => void, ms: number): void => {
+      const id = setTimeout(() => {
+        const i = this.toastTimers.indexOf(id)
+        if (i >= 0) this.toastTimers.splice(i, 1)
+        fn()
+      }, ms)
+      this.toastTimers.push(id)
+    }
+    schedule(() => {
       t.classList.add('fp-toast--out')
-      setTimeout(() => t.remove(), 200)
+      schedule(() => t.remove(), 200)
     }, 3500)
-    this.toastTimers.push(timer)
   }
 
   /** Announce a status message to assistive tech (no visible UI). */
@@ -507,6 +517,7 @@ export class FilePicker {
     const arr = value ? (Array.isArray(value) ? value : [value]) : []
     this.selected = this.o.multiple ? [...arr] : arr.slice(0, 1)
     this.checkbox = {}
+    this.lastIndex = null
     for (const m of this.selected) this.checkbox[idStr(m.id)] = true
   }
 
@@ -604,12 +615,20 @@ export class FilePicker {
       this.total = res.total
       this.lastPage = res.lastPage ?? Math.max(1, Math.ceil(res.total / this.o.perPage))
       this.loadError = null
+      // The media array was replaced — a stale shift-range anchor is meaningless.
+      this.lastIndex = null
       this.announce(this.L.results(this.total))
     } catch (err) {
       if (token !== this.fetchToken || this.destroyed) return
-      this.media = []
       this.loadError = err
-      this.announce(this.L.errorTitle)
+      if (this.media.length) {
+        // A background refetch failed but content is already on screen — keep
+        // it and surface the failure as a toast, rather than wiping to a
+        // full-page error state.
+        this.toast(this.L.errorTitle, 'error')
+      } else {
+        this.announce(this.L.errorTitle)
+      }
       this.emitter.emit('error', err)
     } finally {
       if (token === this.fetchToken && !this.destroyed) {
@@ -1324,7 +1343,14 @@ export class FilePicker {
         }
       }),
       on(input, 'change', () => {
-        if (input.files?.length) void this.doUpload([...input.files])
+        if (!input.files?.length) return
+        // Apply the accept filter here too — the native `accept` attribute is
+        // only advisory (users can pick "All files"), so mirror the drop path.
+        const picked = [...input.files]
+        const files = this.acceptFilter(picked)
+        const skipped = picked.length - files.length
+        if (skipped > 0) this.toast(this.L.uploadSkipped(skipped), 'info')
+        if (files.length) void this.doUpload(files)
       }),
       on(drop, 'dragenter', (e) => {
         e.preventDefault()
@@ -1755,7 +1781,17 @@ export class FilePicker {
       await this.adapter.deleteMedia(item.id)
       this.updateSelected(item, false)
       this.media = this.media.filter((m) => idStr(m.id) !== idStr(item.id))
-      this.renderGrid()
+      // Keep the pager in sync with the removed item.
+      this.total = Math.max(0, this.total - 1)
+      this.lastPage = Math.max(1, Math.ceil(this.total / this.o.perPage))
+      if (!this.media.length && this.page > 1) {
+        // Deleted the last row on a later page — step back and refetch.
+        this.page = Math.min(this.page, this.lastPage)
+        void this.fetchData()
+      } else {
+        this.renderGrid()
+        this.renderPager()
+      }
       this.toast(this.L.fileDeleted, 'success')
       this.emitter.emit('delete', item)
     } catch (err) {

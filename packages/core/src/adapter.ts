@@ -17,6 +17,9 @@ const str = (v: unknown, fallback = ''): string => {
   return fallback
 }
 const num = (v: unknown, fallback = 0): number => {
+  // Treat null/undefined/'' as absent — Number('') and Number(null) are 0
+  // (finite), which would otherwise mask the fallback.
+  if (v == null || v === '') return fallback
   const n = Number(v)
   return Number.isFinite(n) ? n : fallback
 }
