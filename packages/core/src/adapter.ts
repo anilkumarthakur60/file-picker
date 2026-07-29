@@ -157,6 +157,11 @@ export function createMemoryAdapter(seed: MemoryAdapterSeed = {}): FilePickerAda
       media = media.map((m) => (sameId(m.folderId, id) ? { ...m, folderId: null } : m))
       return wait(undefined)
     },
+
+    dispose(): void {
+      // Revoke every object URL still outstanding (uploaded but not deleted).
+      for (const id of [...objectUrls.keys()]) revoke(id)
+    },
   }
 }
 

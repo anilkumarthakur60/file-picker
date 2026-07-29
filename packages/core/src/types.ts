@@ -111,6 +111,12 @@ export interface FilePickerAdapter {
   renameFolder(id: MediaId, name: string): Promise<MediaFolder>
   /** Delete a folder (its files move to Uncategorized). */
   deleteFolder(id: MediaId): Promise<void>
+  /**
+   * Optional teardown, called from {@link FilePicker.destroy}. Release any
+   * resources the adapter holds — e.g. revoke object URLs, abort in-flight
+   * requests. Safe to omit for stateless adapters.
+   */
+  dispose?(): void
 }
 
 /**

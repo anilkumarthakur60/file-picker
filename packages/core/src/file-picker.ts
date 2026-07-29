@@ -95,6 +95,8 @@ export class FilePicker {
   private modalHost!: HTMLElement
 
   private readonly selectedHosts = new Set<HTMLElement>()
+  /** Teardowns for trigger/selected hosts mounted via mountTrigger/mountSelected. */
+  private readonly mountDisposers: (() => void)[] = []
   private readonly disposers: (() => void)[] = []
   private searchTimer: ReturnType<typeof setTimeout> | undefined
   private tagTimer: ReturnType<typeof setTimeout> | undefined
@@ -282,6 +284,24 @@ export class FilePicker {
     bucket.length = 0
   }
 
+  /**
+   * Wrap a mount teardown so it runs at most once and is tracked in
+   * {@link mountDisposers}, letting `destroy()` clean up trigger/selected hosts
+   * the caller never disposed. Manual disposal removes it from the bucket.
+   */
+  private trackMount(teardown: () => void): () => void {
+    let done = false
+    const dispose = (): void => {
+      if (done) return
+      done = true
+      const i = this.mountDisposers.indexOf(dispose)
+      if (i >= 0) this.mountDisposers.splice(i, 1)
+      teardown()
+    }
+    this.mountDisposers.push(dispose)
+    return dispose
+  }
+
   /** Show a transient toast (also announced to screen readers via `toastHost`). */
   private toast(message: string, kind: 'success' | 'error' | 'info' = 'info'): void {
     const t = el(
@@ -417,13 +437,13 @@ export class FilePicker {
       el('span', {}, opts.label ?? 'Select File'),
     )
     this.trackThemed(btn)
-    const dispose = on(btn, 'click', () => this.open())
+    const off = on(btn, 'click', () => this.open())
     container.append(btn)
-    return () => {
-      dispose()
+    return this.trackMount(() => {
+      off()
       btn.remove()
       this.untrackThemed(btn)
-    }
+    })
   }
 
   /** Mount a selected-thumbnails strip into `container`. Auto-updates. */
@@ -434,12 +454,12 @@ export class FilePicker {
     this.selectedHosts.add(host)
     this.renderSelectedHost(host)
     const off = on(host, 'error', (e) => this.onImgError(e), { capture: true })
-    return () => {
+    return this.trackMount(() => {
       off()
       this.selectedHosts.delete(host)
       host.remove()
       this.untrackThemed(host)
-    }
+    })
   }
 
   destroy(): void {
@@ -461,6 +481,11 @@ export class FilePicker {
     this.toastTimers.length = 0
     this.emitter.clear()
     this.unlockScroll()
+    // Tear down trigger/selected hosts the caller mounted but never disposed —
+    // removes their nodes and listeners so a dead instance can't respond to
+    // trigger clicks. Iterate a copy since each dispose splices itself out.
+    for (const dispose of [...this.mountDisposers]) dispose()
+    this.mountDisposers.length = 0
     for (const node of [
       this.overlay,
       this.uploadOverlay,
@@ -473,6 +498,7 @@ export class FilePicker {
       node.remove()
     }
     this.selectedHosts.clear()
+    this.adapter.dispose?.()
   }
 
   // ── selection ──────────────────────────────────────────────────────
