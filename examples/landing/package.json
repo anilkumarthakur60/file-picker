@@ -14,8 +14,8 @@
     "@anil-labs/file-picker-core": "workspace:*"
   },
   "devDependencies": {
-    "happy-dom": "^15.11.6",
-    "typescript": "^5.7.2",
-    "vite": "^8.1.4"
+    "happy-dom": "^20.11.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5"
   }
 }
