@@ -10,7 +10,6 @@ import type { FilePickerLabels } from './types'
 export const defaultLabels: FilePickerLabels = {
   title: 'Media Library',
   filters: 'Filters',
-  toggleTheme: 'Toggle light or dark theme',
   upload: 'Upload',
   done: 'Done',
   selectAction: (n) => (n > 0 ? `Select ${n}` : 'Done'),

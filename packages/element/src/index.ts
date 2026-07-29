@@ -57,7 +57,6 @@ export class FilePickerElement extends Base {
     'allow-edit',
     'allow-delete',
     'manage-folders',
-    'theme-toggle',
     'accept',
     'class-name',
     'layout',
@@ -230,9 +229,6 @@ export class FilePickerElement extends Base {
       allowEdit: bool('allow-edit'),
       allowDelete: bool('allow-delete'),
       manageFolders: bool('manage-folders'),
-      ...(this.hasAttribute('theme-toggle')
-        ? { themeToggle: this.getAttribute('theme-toggle') !== 'false' }
-        : {}),
       ...(this.getAttribute('title') ? { title: this.getAttribute('title') as string } : {}),
       ...(this.getAttribute('accept') ? { accept: this.getAttribute('accept') as string } : {}),
       ...(this.getAttribute('class-name')

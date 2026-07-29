@@ -128,7 +128,6 @@ export interface FilePickerAdapter {
 export interface FilePickerLabels {
   title: string
   filters: string
-  toggleTheme: string
   upload: string
   done: string
   selectAction: (n: number) => string
@@ -228,10 +227,12 @@ export interface FilePickerOptions {
   perPageOptions?: number[]
   /** Type-filter options. Defaults to the built-in set. */
   typeFilters?: TypeFilterOption[]
-  /** Color theme. @default 'auto' */
+  /**
+   * Color theme. `'auto'` follows the OS. The picker renders no theme-toggle
+   * UI of its own — drive it from your app (e.g. mirror your navbar's switch)
+   * via this option and {@link FilePicker.setTheme}. @default 'auto'
+   */
   theme?: 'light' | 'dark' | 'auto'
-  /** Show the light/dark toggle button in the dialog header. @default true */
-  themeToggle?: boolean
   /** Extra class on the picker root for custom styling. */
   className?: string
   /** Dialog title. @default 'Media Library' */

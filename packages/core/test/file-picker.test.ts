@@ -115,15 +115,21 @@ describe('FilePicker', () => {
     fp.destroy()
   })
 
-  it('themeToggle:false omits the theme button', () => {
+  it('renders no built-in theme toggle; the host drives the theme', () => {
     const adapter = createMemoryAdapter({ latency: 0 })
-    const withToggle = new FilePicker({ adapter })
-    const withCount = document.querySelectorAll('.fp-toolbar-actions .fp-icon-btn').length
-    withToggle.destroy()
-    const without = new FilePicker({ adapter, themeToggle: false })
-    const withoutCount = document.querySelectorAll('.fp-toolbar-actions .fp-icon-btn').length
-    expect(withCount).toBeGreaterThan(withoutCount)
-    without.destroy()
+    const fp = new FilePicker({ adapter, theme: 'dark' })
+    // No theme-toggle control in the toolbar…
+    const actions = document.querySelector('.fp-toolbar-actions')
+    const labels = [...(actions?.querySelectorAll('button') ?? [])].map((b) =>
+      b.getAttribute('aria-label'),
+    )
+    expect(labels).not.toContain('Toggle light or dark theme')
+    // …but the theme is applied and remains host-drivable via setTheme().
+    const overlay = document.querySelector('.fp-overlay')
+    expect(overlay?.classList.contains('fp--dark')).toBe(true)
+    fp.setTheme('light')
+    expect(overlay?.classList.contains('fp--light')).toBe(true)
+    fp.destroy()
   })
 
   it('the dialog is a labelled modal', () => {

@@ -30,7 +30,6 @@ interface ResolvedOptions {
   perPageOptions: number[]
   typeFilters: TypeFilterOption[]
   theme: 'light' | 'dark' | 'auto'
-  themeToggle: boolean
   className: string
   title: string
   accept: string
@@ -101,7 +100,6 @@ export class FilePicker {
   private searchTimer: ReturnType<typeof setTimeout> | undefined
   private tagTimer: ReturnType<typeof setTimeout> | undefined
   private theme: 'light' | 'dark' | 'auto' = 'auto'
-  private themeIcon: HTMLElement | null = null
   private readonly themedRoots: HTMLElement[] = []
   private dialogCard!: HTMLElement
   private filtersEl!: HTMLElement
@@ -166,7 +164,6 @@ export class FilePicker {
       perPageOptions: options.perPageOptions ?? PER_PAGE_OPTIONS,
       typeFilters: options.typeFilters ?? TYPE_FILTER_OPTIONS,
       theme: options.theme ?? 'auto',
-      themeToggle: options.themeToggle ?? true,
       className: options.className ?? '',
       title: options.title ?? this.L.title,
       accept: options.accept ?? '',
@@ -248,9 +245,6 @@ export class FilePicker {
 
   private applyTheme(): void {
     for (const root of this.themedRoots) this.applyThemeTo(root)
-    if (this.themeIcon) {
-      this.themeIcon.innerHTML = icon(this.resolvedTheme === 'dark' ? 'sun' : 'moon', 20)
-    }
   }
 
   private applyThemeTo(node: HTMLElement): void {
@@ -717,26 +711,6 @@ export class FilePicker {
     )
     this.disposers.push(on(filtersToggle, 'click', () => this.setFiltersOpen(true)))
     actions.append(filtersToggle)
-
-    if (this.o.themeToggle) {
-      this.themeIcon = el('span', { html: icon('moon', 20) })
-      const themeBtn = el(
-        'button',
-        {
-          type: 'button',
-          class: 'fp-icon-btn',
-          title: this.L.toggleTheme,
-          'aria-label': this.L.toggleTheme,
-        },
-        this.themeIcon,
-      )
-      this.disposers.push(
-        on(themeBtn, 'click', () =>
-          this.setTheme(this.resolvedTheme === 'dark' ? 'light' : 'dark'),
-        ),
-      )
-      actions.append(themeBtn)
-    }
 
     if (this.o.allowUpload) {
       const up = el(
