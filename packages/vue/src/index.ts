@@ -67,6 +67,30 @@ export function useFilePicker(options: UseFilePickerOptions): {
   })
   onBeforeUnmount(() => picker.value?.destroy())
 
+  // Controlled sync (mirrors the React hook). These fire only when `options`
+  // is reactive (e.g. a reactive() object, or the FilePicker component's props);
+  // with a plain static object they stay dormant.
+  let lastSelectedKey = toArray(options.selected)
+    .map((i) => i.id)
+    .join(',')
+  watch(
+    () => options.selected,
+    (v) => {
+      const key = toArray(v)
+        .map((i) => i.id)
+        .join(',')
+      if (key === lastSelectedKey) return
+      lastSelectedKey = key
+      picker.value?.setSelected(v ?? null)
+    },
+  )
+  watch(
+    () => options.theme,
+    (t) => {
+      if (t) picker.value?.setTheme(t)
+    },
+  )
+
   return {
     picker,
     selected,

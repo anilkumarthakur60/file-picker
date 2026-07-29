@@ -73,6 +73,12 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
     picker?.setSelected(options.selected ?? null)
   })
 
+  // Controlled theme (mirrors the React/Vue hooks). Initial theme is applied
+  // via the constructor; this pushes later changes into the engine.
+  createEffect(() => {
+    if (options.theme) picker?.setTheme(options.theme)
+  })
+
   return {
     selected,
     isOpen,
