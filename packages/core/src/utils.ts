@@ -1,4 +1,13 @@
-import type { MediaItem, MediaType, TypeFilterOption } from './types'
+import type { FolderScope, MediaId, MediaItem, MediaType, TypeFilterOption } from './types'
+
+/**
+ * Whether a {@link FolderScope} points at a concrete folder (a real id), as
+ * opposed to the `'uncategorized'` sentinel or `null` ("all folders"). Works
+ * for both string (UUID) and numeric folder ids — do NOT use `typeof === 'number'`
+ * for this test, as it silently excludes string ids.
+ */
+export const isFolderId = (scope: FolderScope): scope is MediaId =>
+  scope != null && scope !== 'uncategorized'
 
 /** Built-in per-type icon keys. Override per instance via the `fileIcons` option. */
 export const DEFAULT_FILE_ICONS: Record<string, string> = {

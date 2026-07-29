@@ -7,6 +7,7 @@ import {
   DEFAULT_FILE_COLORS,
   DEFAULT_FILE_ICONS,
   formatSize,
+  isFolderId,
   isImage,
   PER_PAGE_OPTIONS,
   TYPE_FILTER_OPTIONS,
@@ -1243,10 +1244,10 @@ export class FilePicker {
   }
 
   private openUpload(): void {
-    this.uploadFolder =
-      this.filterFolder === 'uncategorized' || typeof this.filterFolder === 'number'
-        ? this.filterFolder
-        : null
+    // Default the upload destination to the current filter scope. Preserves a
+    // real folder id (string or numeric) as well as the 'uncategorized' sentinel;
+    // `null` ("all folders") stays null.
+    this.uploadFolder = this.filterFolder
     const modal = this.uploadOverlay.querySelector('.fp-modal') as HTMLElement
     clear(modal)
     this.flush(this.modalDisposers)
@@ -1360,7 +1361,7 @@ export class FilePicker {
     const drop = this.uploadOverlay.querySelector('.fp-drop')
     drop?.classList.add('fp-drop--busy')
     try {
-      const folderId = typeof this.uploadFolder === 'number' ? this.uploadFolder : null
+      const folderId = isFolderId(this.uploadFolder) ? this.uploadFolder : null
       const created = await this.adapter.uploadMedia(files, { folderId })
       this.closeUpload()
       await this.loadFolders()
@@ -1467,7 +1468,7 @@ export class FilePicker {
       includeAll: false,
       manageable: this.o.manageFolders,
       onChange: (v) => {
-        form.folderId = typeof v === 'number' ? v : null
+        form.folderId = isFolderId(v) ? v : null
         void this.saveField(media, 'folderId', form.folderId)
       },
       onCreate: (name) => this.createFolder(name),

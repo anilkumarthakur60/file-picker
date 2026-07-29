@@ -1,6 +1,7 @@
 import { append, clear, el, on } from './dom'
 import { icon } from './icons'
 import type { FilePickerLabels, FolderScope, MediaFolder, MediaId } from './types'
+import { isFolderId } from './utils'
 
 export interface FolderSelectOptions {
   /** Current folder list (read lazily so it stays fresh). */
@@ -199,7 +200,7 @@ export class FolderSelect {
           this.opts.onChange(opt.value)
         }),
       )
-      if (manageable && typeof opt.value === 'number') {
+      if (manageable && isFolderId(opt.value)) {
         if (this.opts.onRename) {
           const ren = el('span', {
             class: 'fp-fs-ren',
@@ -266,7 +267,7 @@ export class FolderSelect {
   }
 
   private async renameFolder(opt: Option): Promise<void> {
-    if (!this.opts.onRename || typeof opt.value !== 'number') return
+    if (!this.opts.onRename || !isFolderId(opt.value)) return
     const name = await this.opts.promptText(
       this.opts.labels?.renameFolderTitle ?? 'Rename folder',
       this.opts.labels?.renameFolderMessage ?? 'New folder name',
@@ -279,7 +280,7 @@ export class FolderSelect {
   }
 
   private async deleteFolder(opt: Option): Promise<void> {
-    if (!this.opts.onDelete || typeof opt.value !== 'number') return
+    if (!this.opts.onDelete || !isFolderId(opt.value)) return
     const ok = await this.opts.confirm(
       this.opts.labels?.deleteFolderTitle ?? 'Delete folder',
       this.opts.labels?.deleteFolderConfirm(opt.label) ??
