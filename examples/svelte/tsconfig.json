@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client", "svelte"],
+    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.example-svelte.tsbuildinfo"
+  },
+  "include": ["src"]
+}
