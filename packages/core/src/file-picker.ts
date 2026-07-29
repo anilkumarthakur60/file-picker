@@ -1463,17 +1463,26 @@ export class FilePicker {
     this.editFolderSelect?.destroy()
     this.modalPrevFocus = (document.activeElement as HTMLElement) ?? null
 
-    const preview = isImage(media)
-      ? el('img', { class: 'fp-edit-preview', src: media.src, alt: media.filename })
-      : el(
-          'div',
-          { class: 'fp-edit-file' },
-          el('span', {
-            style: `color:${this.fileColor(media.type)}`,
-            html: icon(this.fileIcon(media.type), 46),
-          }),
-          el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
-        )
+    const fileTile = (): HTMLElement =>
+      el(
+        'div',
+        { class: 'fp-edit-file' },
+        el('span', {
+          style: `color:${this.fileColor(media.type)}`,
+          html: icon(this.fileIcon(media.type), 46),
+        }),
+        el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
+      )
+    let preview: HTMLElement
+    if (isImage(media) && media.src) {
+      const img = el('img', { class: 'fp-edit-preview', src: media.src, alt: media.filename })
+      // Broken/unreachable image → fall back to the file tile (mirrors the grid),
+      // instead of leaving a large empty band above the fields.
+      img.addEventListener('error', () => img.replaceWith(fileTile()), { once: true })
+      preview = img
+    } else {
+      preview = fileTile()
+    }
 
     // Ids to associate each visible <label> with its control (fresh per open).
     const filenameId = nextId()
