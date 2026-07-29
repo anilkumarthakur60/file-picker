@@ -7,6 +7,7 @@ import {
   DEFAULT_FILE_COLORS,
   DEFAULT_FILE_ICONS,
   formatSize,
+  isFolderId,
   isImage,
   PER_PAGE_OPTIONS,
   TYPE_FILTER_OPTIONS,
@@ -29,7 +30,6 @@ interface ResolvedOptions {
   perPageOptions: number[]
   typeFilters: TypeFilterOption[]
   theme: 'light' | 'dark' | 'auto'
-  themeToggle: boolean
   className: string
   title: string
   accept: string
@@ -94,11 +94,12 @@ export class FilePicker {
   private modalHost!: HTMLElement
 
   private readonly selectedHosts = new Set<HTMLElement>()
+  /** Teardowns for trigger/selected hosts mounted via mountTrigger/mountSelected. */
+  private readonly mountDisposers: (() => void)[] = []
   private readonly disposers: (() => void)[] = []
   private searchTimer: ReturnType<typeof setTimeout> | undefined
   private tagTimer: ReturnType<typeof setTimeout> | undefined
   private theme: 'light' | 'dark' | 'auto' = 'auto'
-  private themeIcon: HTMLElement | null = null
   private readonly themedRoots: HTMLElement[] = []
   private dialogCard!: HTMLElement
   private filtersEl!: HTMLElement
@@ -112,8 +113,8 @@ export class FilePicker {
   private loadError: unknown = null
   private readonly pagerDisposers: (() => void)[] = []
   private readonly modalDisposers: (() => void)[] = []
-  private uploadFolderSelect?: FolderSelect
-  private editFolderSelect?: FolderSelect
+  private uploadFolderSelect?: FolderSelect | undefined
+  private editFolderSelect?: FolderSelect | undefined
   private osThemeDispose?: () => void
 
   // ── a11y / focus ───────────────────────────────────────────────────
@@ -136,9 +137,9 @@ export class FilePicker {
   private readonly fileIconMap: Record<string, string>
   private readonly fileColorMap: Record<string, string>
   private readonly L: FilePickerLabels
-  private readonly renderEmptyHook?: () => string
-  private readonly renderLoadingHook?: () => string
-  private readonly renderCardMetaHook?: (item: MediaItem) => string
+  private readonly renderEmptyHook?: (() => string) | undefined
+  private readonly renderLoadingHook?: (() => string) | undefined
+  private readonly renderCardMetaHook?: ((item: MediaItem) => string) | undefined
   private readonly headerActionsHook: HTMLElement[]
 
   constructor(options: FilePickerOptions) {
@@ -158,11 +159,11 @@ export class FilePicker {
     this.L = { ...defaultLabels, ...(options.labels ?? {}) }
     this.o = {
       multiple: options.multiple ?? false,
-      perPage: options.perPage ?? 24,
+      // Clamp: perPage 0 would make lastPage Infinity and the grid always empty.
+      perPage: Math.max(1, Math.floor(options.perPage ?? 24)),
       perPageOptions: options.perPageOptions ?? PER_PAGE_OPTIONS,
       typeFilters: options.typeFilters ?? TYPE_FILTER_OPTIONS,
       theme: options.theme ?? 'auto',
-      themeToggle: options.themeToggle ?? true,
       className: options.className ?? '',
       title: options.title ?? this.L.title,
       accept: options.accept ?? '',
@@ -244,9 +245,6 @@ export class FilePicker {
 
   private applyTheme(): void {
     for (const root of this.themedRoots) this.applyThemeTo(root)
-    if (this.themeIcon) {
-      this.themeIcon.innerHTML = icon(this.resolvedTheme === 'dark' ? 'sun' : 'moon', 20)
-    }
   }
 
   private applyThemeTo(node: HTMLElement): void {
@@ -281,6 +279,24 @@ export class FilePicker {
     bucket.length = 0
   }
 
+  /**
+   * Wrap a mount teardown so it runs at most once and is tracked in
+   * {@link mountDisposers}, letting `destroy()` clean up trigger/selected hosts
+   * the caller never disposed. Manual disposal removes it from the bucket.
+   */
+  private trackMount(teardown: () => void): () => void {
+    let done = false
+    const dispose = (): void => {
+      if (done) return
+      done = true
+      const i = this.mountDisposers.indexOf(dispose)
+      if (i >= 0) this.mountDisposers.splice(i, 1)
+      teardown()
+    }
+    this.mountDisposers.push(dispose)
+    return dispose
+  }
+
   /** Show a transient toast (also announced to screen readers via `toastHost`). */
   private toast(message: string, kind: 'success' | 'error' | 'info' = 'info'): void {
     const t = el(
@@ -290,11 +306,20 @@ export class FilePicker {
       el('span', {}, message),
     )
     this.toastHost.append(t)
-    const timer = setTimeout(() => {
+    // Self-trimming timers so toastTimers doesn't grow unbounded over a long
+    // session; destroy() clears whatever is still pending.
+    const schedule = (fn: () => void, ms: number): void => {
+      const id = setTimeout(() => {
+        const i = this.toastTimers.indexOf(id)
+        if (i >= 0) this.toastTimers.splice(i, 1)
+        fn()
+      }, ms)
+      this.toastTimers.push(id)
+    }
+    schedule(() => {
       t.classList.add('fp-toast--out')
-      setTimeout(() => t.remove(), 200)
+      schedule(() => t.remove(), 200)
     }, 3500)
-    this.toastTimers.push(timer)
   }
 
   /** Announce a status message to assistive tech (no visible UI). */
@@ -413,16 +438,16 @@ export class FilePicker {
       'button',
       { type: 'button', class: this.rootClass('fp-trigger') },
       el('span', { html: icon('image', 18) }),
-      el('span', {}, opts.label ?? 'Select File'),
+      el('span', {}, opts.label ?? this.L.triggerLabel),
     )
     this.trackThemed(btn)
-    const dispose = on(btn, 'click', () => this.open())
+    const off = on(btn, 'click', () => this.open())
     container.append(btn)
-    return () => {
-      dispose()
+    return this.trackMount(() => {
+      off()
       btn.remove()
       this.untrackThemed(btn)
-    }
+    })
   }
 
   /** Mount a selected-thumbnails strip into `container`. Auto-updates. */
@@ -433,12 +458,12 @@ export class FilePicker {
     this.selectedHosts.add(host)
     this.renderSelectedHost(host)
     const off = on(host, 'error', (e) => this.onImgError(e), { capture: true })
-    return () => {
+    return this.trackMount(() => {
       off()
       this.selectedHosts.delete(host)
       host.remove()
       this.untrackThemed(host)
-    }
+    })
   }
 
   destroy(): void {
@@ -460,6 +485,11 @@ export class FilePicker {
     this.toastTimers.length = 0
     this.emitter.clear()
     this.unlockScroll()
+    // Tear down trigger/selected hosts the caller mounted but never disposed —
+    // removes their nodes and listeners so a dead instance can't respond to
+    // trigger clicks. Iterate a copy since each dispose splices itself out.
+    for (const dispose of [...this.mountDisposers]) dispose()
+    this.mountDisposers.length = 0
     for (const node of [
       this.overlay,
       this.uploadOverlay,
@@ -472,6 +502,7 @@ export class FilePicker {
       node.remove()
     }
     this.selectedHosts.clear()
+    this.adapter.dispose?.()
   }
 
   // ── selection ──────────────────────────────────────────────────────
@@ -480,6 +511,7 @@ export class FilePicker {
     const arr = value ? (Array.isArray(value) ? value : [value]) : []
     this.selected = this.o.multiple ? [...arr] : arr.slice(0, 1)
     this.checkbox = {}
+    this.lastIndex = null
     for (const m of this.selected) this.checkbox[idStr(m.id)] = true
   }
 
@@ -542,10 +574,26 @@ export class FilePicker {
   }
 
   private afterSelectionChange(): void {
-    this.renderGrid()
+    // Selection-only change: patch the affected cards in place instead of
+    // rebuilding the whole grid innerHTML (avoids re-parsing SVGs, recreating
+    // <img>s and re-triggering fallback errors on every checkbox toggle).
+    this.syncCardSelection()
     this.renderCountChip()
     this.renderSelectedHosts()
     this.emitter.emit('change', this.getSelected())
+  }
+
+  /** Update only the selection-dependent bits (class/aria/checkbox) of each card. */
+  private syncCardSelection(): void {
+    if (!this.gridEl) return
+    for (const card of this.gridEl.querySelectorAll<HTMLElement>('.fp-card')) {
+      const id = card.getAttribute('data-id')
+      const sel = id != null && !!this.checkbox[id]
+      card.classList.toggle('fp-card--selected', sel)
+      card.setAttribute('aria-selected', sel ? 'true' : 'false')
+      const box = card.querySelector<HTMLInputElement>('.fp-card-check input')
+      if (box) box.checked = sel
+    }
   }
 
   private syncCheckboxes(): void {
@@ -577,12 +625,20 @@ export class FilePicker {
       this.total = res.total
       this.lastPage = res.lastPage ?? Math.max(1, Math.ceil(res.total / this.o.perPage))
       this.loadError = null
+      // The media array was replaced — a stale shift-range anchor is meaningless.
+      this.lastIndex = null
       this.announce(this.L.results(this.total))
     } catch (err) {
       if (token !== this.fetchToken || this.destroyed) return
-      this.media = []
       this.loadError = err
-      this.announce(this.L.errorTitle)
+      if (this.media.length) {
+        // A background refetch failed but content is already on screen — keep
+        // it and surface the failure as a toast, rather than wiping to a
+        // full-page error state.
+        this.toast(this.L.errorTitle, 'error')
+      } else {
+        this.announce(this.L.errorTitle)
+      }
       this.emitter.emit('error', err)
     } finally {
       if (token === this.fetchToken && !this.destroyed) {
@@ -655,26 +711,6 @@ export class FilePicker {
     )
     this.disposers.push(on(filtersToggle, 'click', () => this.setFiltersOpen(true)))
     actions.append(filtersToggle)
-
-    if (this.o.themeToggle) {
-      this.themeIcon = el('span', { html: icon('moon', 20) })
-      const themeBtn = el(
-        'button',
-        {
-          type: 'button',
-          class: 'fp-icon-btn',
-          title: this.L.toggleTheme,
-          'aria-label': this.L.toggleTheme,
-        },
-        this.themeIcon,
-      )
-      this.disposers.push(
-        on(themeBtn, 'click', () =>
-          this.setTheme(this.resolvedTheme === 'dark' ? 'light' : 'dark'),
-        ),
-      )
-      actions.append(themeBtn)
-    }
 
     if (this.o.allowUpload) {
       const up = el(
@@ -776,6 +812,7 @@ export class FilePicker {
       type: 'search',
       class: 'fp-input',
       placeholder: this.L.searchPlaceholder,
+      'aria-label': this.L.searchPlaceholder,
     })
     this.filterSearchEl = search
     this.disposers.push(
@@ -792,6 +829,7 @@ export class FilePicker {
       type: 'search',
       class: 'fp-input',
       placeholder: this.L.tagPlaceholder,
+      'aria-label': this.L.tagPlaceholder,
     })
     this.filterTagEl = tag
     this.disposers.push(
@@ -807,7 +845,7 @@ export class FilePicker {
 
     const typeSel = el(
       'select',
-      { class: 'fp-input fp-select' },
+      { class: 'fp-input fp-select', 'aria-label': this.L.allTypes },
       el('option', { value: '' }, this.L.allTypes),
     )
     for (const t of this.o.typeFilters) typeSel.append(el('option', { value: t.value }, t.label))
@@ -925,7 +963,7 @@ export class FilePicker {
     const hadFocus = this.gridEl.contains(document.activeElement)
     this.gridEl.innerHTML = `<div class="fp-grid" role="listbox"${
       this.o.multiple ? ' aria-multiselectable="true"' : ''
-    } aria-label="Media">${this.media.map((m, i) => this.cardHtml(m, i)).join('')}</div>`
+    } aria-label="${esc(this.L.gridLabel)}">${this.media.map((m, i) => this.cardHtml(m, i)).join('')}</div>`
     const cards = this.gridEl.querySelectorAll<HTMLElement>('.fp-card')
     if (cards.length) {
       const active = Math.min(Math.max(0, this.activeCardIndex), cards.length - 1)
@@ -980,18 +1018,20 @@ export class FilePicker {
     const openable = !!m.src && !this.previewable(m)
     const fn = esc(m.filename)
     const L = this.L
+    // Action buttons are reached via the card (roving tabindex), so they carry
+    // tabindex="-1" — otherwise Tab would stop on up to 4 buttons per card.
     const actions = [
       this.previewable(m)
-        ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="preview" tabindex="-1" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
         : '',
       openable
-        ? `<button type="button" class="fp-card-act" data-action="open" title="${esc(L.open)}" aria-label="${esc(L.open)} ${fn}">${icon('externalLink', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="open" tabindex="-1" title="${esc(L.open)}" aria-label="${esc(L.open)} ${fn}">${icon('externalLink', 15)}</button>`
         : '',
       this.o.allowEdit
-        ? `<button type="button" class="fp-card-act" data-action="edit" title="${esc(L.edit)}" aria-label="${esc(L.edit)} ${fn}">${icon('edit', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="edit" tabindex="-1" title="${esc(L.edit)}" aria-label="${esc(L.edit)} ${fn}">${icon('edit', 15)}</button>`
         : '',
       this.o.allowDelete
-        ? `<button type="button" class="fp-card-act" data-action="delete" title="${esc(L.delete)}" aria-label="${esc(L.delete)} ${fn}">${icon('trash', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="delete" tabindex="-1" title="${esc(L.delete)}" aria-label="${esc(L.delete)} ${fn}">${icon('trash', 15)}</button>`
         : '',
     ].join('')
 
@@ -1000,7 +1040,7 @@ export class FilePicker {
       ${thumb}
       <label class="fp-card-check" data-action="check" aria-hidden="true"><input type="checkbox"${checked} tabindex="-1" /></label>
       <div class="fp-card-actions">${actions}</div>
-      <div class="fp-card-info">
+      <div class="fp-card-info" dir="auto">
         <span class="fp-card-ico" style="color:${this.fileColor(m.type)}">${icon(this.fileIcon(m.type), 14)}</span>
         <span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span>
       </div>
@@ -1102,6 +1142,8 @@ export class FilePicker {
     const n = this.selected.length
     this.countChip.hidden = n === 0
     this.countChip.innerHTML = `${esc(this.L.selected(n))} <span class="fp-chip-x">${icon('close', 14)}</span>`
+    // Keep the count in the accessible name (aria-label otherwise hides it).
+    this.countChip.setAttribute('aria-label', `${this.L.clearSelection}, ${this.L.selected(n)}`)
     this.footerPrimary.textContent = this.L.selectAction(n)
   }
 
@@ -1215,7 +1257,7 @@ export class FilePicker {
         ${this.previewable(m) ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(this.L.preview)}" aria-label="${esc(this.L.preview)}">${icon('eye', 15)}</button>` : ''}
         <button type="button" class="fp-card-act" data-action="remove" title="${esc(this.L.remove)}" aria-label="${esc(this.L.remove)}">${icon('close', 15)}</button>
       </div>
-      <div class="fp-card-info"><span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span></div>
+      <div class="fp-card-info" dir="auto"><span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span></div>
       <div class="fp-card-meta"><span>${ext}</span><span>·</span><span>${formatSize(m.size)}</span></div>
     </div>`
   }
@@ -1232,7 +1274,7 @@ export class FilePicker {
         class: 'fp-modal',
         role: 'dialog',
         'aria-modal': 'true',
-        'aria-label': 'Upload media',
+        'aria-label': this.L.uploadTitle,
       }),
     )
     this.disposers.push(
@@ -1243,10 +1285,10 @@ export class FilePicker {
   }
 
   private openUpload(): void {
-    this.uploadFolder =
-      this.filterFolder === 'uncategorized' || typeof this.filterFolder === 'number'
-        ? this.filterFolder
-        : null
+    // Default the upload destination to the current filter scope. Preserves a
+    // real folder id (string or numeric) as well as the 'uncategorized' sentinel;
+    // `null` ("all folders") stays null.
+    this.uploadFolder = this.filterFolder
     const modal = this.uploadOverlay.querySelector('.fp-modal') as HTMLElement
     clear(modal)
     this.flush(this.modalDisposers)
@@ -1291,7 +1333,14 @@ export class FilePicker {
         }
       }),
       on(input, 'change', () => {
-        if (input.files?.length) void this.doUpload([...input.files])
+        if (!input.files?.length) return
+        // Apply the accept filter here too — the native `accept` attribute is
+        // only advisory (users can pick "All files"), so mirror the drop path.
+        const picked = [...input.files]
+        const files = this.acceptFilter(picked)
+        const skipped = picked.length - files.length
+        if (skipped > 0) this.toast(this.L.uploadSkipped(skipped), 'info')
+        if (files.length) void this.doUpload(files)
       }),
       on(drop, 'dragenter', (e) => {
         e.preventDefault()
@@ -1360,7 +1409,7 @@ export class FilePicker {
     const drop = this.uploadOverlay.querySelector('.fp-drop')
     drop?.classList.add('fp-drop--busy')
     try {
-      const folderId = typeof this.uploadFolder === 'number' ? this.uploadFolder : null
+      const folderId = isFolderId(this.uploadFolder) ? this.uploadFolder : null
       const created = await this.adapter.uploadMedia(files, { folderId })
       this.closeUpload()
       await this.loadFolders()
@@ -1391,7 +1440,7 @@ export class FilePicker {
         class: 'fp-modal',
         role: 'dialog',
         'aria-modal': 'true',
-        'aria-label': 'Edit media',
+        'aria-label': this.L.editTitle,
       }),
     )
     this.disposers.push(
@@ -1414,19 +1463,49 @@ export class FilePicker {
     this.editFolderSelect?.destroy()
     this.modalPrevFocus = (document.activeElement as HTMLElement) ?? null
 
-    const preview = isImage(media)
-      ? el('img', { class: 'fp-edit-preview', src: media.src, alt: media.filename })
-      : el(
-          'div',
-          { class: 'fp-edit-file' },
-          el('span', {
-            style: `color:${this.fileColor(media.type)}`,
-            html: icon(this.fileIcon(media.type), 46),
-          }),
-          el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
-        )
+    const fileTile = (): HTMLElement =>
+      el(
+        'div',
+        { class: 'fp-edit-file' },
+        el('span', {
+          style: `color:${this.fileColor(media.type)}`,
+          html: icon(this.fileIcon(media.type), 46),
+        }),
+        el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
+      )
+    let preview: HTMLElement
+    if (isImage(media) && media.src) {
+      const img = el('img', {
+        class: 'fp-edit-preview fp-edit-preview--loading',
+        src: media.src,
+        alt: media.filename,
+      })
+      // Show a shimmer placeholder until the image resolves; on load drop it,
+      // on error fall back to the file tile (mirrors the grid) rather than
+      // leaving an empty band above the fields.
+      const settle = (ok: boolean): void => {
+        if (ok) img.classList.remove('fp-edit-preview--loading')
+        else img.replaceWith(fileTile())
+      }
+      img.addEventListener('load', () => settle(true), { once: true })
+      img.addEventListener('error', () => settle(false), { once: true })
+      // Already cached/decoded before the listeners attached.
+      if (img.complete) settle(img.naturalWidth > 0)
+      preview = img
+    } else {
+      preview = fileTile()
+    }
 
-    const filenameInput = el('input', { type: 'text', class: 'fp-input', value: media.filename })
+    // Ids to associate each visible <label> with its control (fresh per open).
+    const filenameId = nextId()
+    const altId = nextId()
+    const tagsId = nextId()
+    const filenameInput = el('input', {
+      type: 'text',
+      class: 'fp-input',
+      id: filenameId,
+      value: media.filename,
+    })
     const filenameSave = el(
       'button',
       {
@@ -1447,6 +1526,7 @@ export class FilePicker {
     const alt = el('input', {
       type: 'text',
       class: 'fp-input',
+      id: altId,
       value: media.alt ?? '',
       placeholder: this.L.altPlaceholder,
     })
@@ -1467,7 +1547,7 @@ export class FilePicker {
       includeAll: false,
       manageable: this.o.manageFolders,
       onChange: (v) => {
-        form.folderId = typeof v === 'number' ? v : null
+        form.folderId = isFolderId(v) ? v : null
         void this.saveField(media, 'folderId', form.folderId)
       },
       onCreate: (name) => this.createFolder(name),
@@ -1482,6 +1562,7 @@ export class FilePicker {
     const tagInput = el('input', {
       type: 'text',
       class: 'fp-input',
+      id: tagsId,
       placeholder: this.L.addTagHint,
     })
     const renderTags = (): void => {
@@ -1548,13 +1629,13 @@ export class FilePicker {
         'div',
         { class: 'fp-modal-body' },
         el('div', { class: 'fp-edit-preview-wrap' }, preview),
-        el('label', { class: 'fp-label' }, this.L.filename),
+        el('label', { class: 'fp-label', for: filenameId }, this.L.filename),
         el('div', { class: 'fp-row' }, filenameInput, filenameSave),
-        el('label', { class: 'fp-label' }, this.L.altText),
+        el('label', { class: 'fp-label', for: altId }, this.L.altText),
         el('div', { class: 'fp-row' }, alt, altSave),
         el('label', { class: 'fp-label' }, this.L.folder),
         folder.el,
-        el('label', { class: 'fp-label' }, this.L.tags),
+        el('label', { class: 'fp-label', for: tagsId }, this.L.tags),
         tagsWrap,
         el('div', { class: 'fp-row' }, tagInput, tagsSave),
         el(
@@ -1610,7 +1691,13 @@ export class FilePicker {
     })
     this.previewOverlay = el(
       'div',
-      { class: this.rootClass('fp-overlay fp-preview'), hidden: true },
+      {
+        class: this.rootClass('fp-overlay fp-preview'),
+        hidden: true,
+        role: 'dialog',
+        'aria-modal': 'true',
+        'aria-label': this.L.preview,
+      },
       close,
       this.previewBody,
     )
@@ -1624,6 +1711,8 @@ export class FilePicker {
 
   private openPreview(item: MediaItem): void {
     this.modalPrevFocus = (document.activeElement as HTMLElement) ?? null
+    // Name the dialog after the item so AT announces what opened.
+    this.previewOverlay.setAttribute('aria-label', `${this.L.preview}: ${item.filename}`)
     clear(this.previewBody)
     let node: HTMLElement
     if (item.type === 'video') {
@@ -1634,11 +1723,12 @@ export class FilePicker {
         autoplay: true,
       })
     } else if (item.type === 'audio') {
+      // No autoplay for audio — auto-playing sound is disruptive, especially
+      // for screen-reader users; the controls let them start it.
       node = el('audio', {
         class: 'fp-preview-media fp-preview-audio',
         src: item.src,
         controls: true,
-        autoplay: true,
       })
     } else {
       node = el('img', { class: 'fp-preview-img', src: item.src, alt: item.alt ?? item.filename })
@@ -1702,7 +1792,17 @@ export class FilePicker {
       await this.adapter.deleteMedia(item.id)
       this.updateSelected(item, false)
       this.media = this.media.filter((m) => idStr(m.id) !== idStr(item.id))
-      this.renderGrid()
+      // Keep the pager in sync with the removed item.
+      this.total = Math.max(0, this.total - 1)
+      this.lastPage = Math.max(1, Math.ceil(this.total / this.o.perPage))
+      if (!this.media.length && this.page > 1) {
+        // Deleted the last row on a later page — step back and refetch.
+        this.page = Math.min(this.page, this.lastPage)
+        void this.fetchData()
+      } else {
+        this.renderGrid()
+        this.renderPager()
+      }
       this.toast(this.L.fileDeleted, 'success')
       this.emitter.emit('delete', item)
     } catch (err) {

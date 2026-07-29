@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { FilePicker, createMemoryAdapter } from '../src'
-import type { FilePickerAdapter, MediaItem } from '../src'
+import type { FilePickerAdapter, MediaItem, MediaPage } from '../src'
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 5))
 
@@ -115,15 +115,21 @@ describe('FilePicker', () => {
     fp.destroy()
   })
 
-  it('themeToggle:false omits the theme button', () => {
+  it('renders no built-in theme toggle; the host drives the theme', () => {
     const adapter = createMemoryAdapter({ latency: 0 })
-    const withToggle = new FilePicker({ adapter })
-    const withCount = document.querySelectorAll('.fp-toolbar-actions .fp-icon-btn').length
-    withToggle.destroy()
-    const without = new FilePicker({ adapter, themeToggle: false })
-    const withoutCount = document.querySelectorAll('.fp-toolbar-actions .fp-icon-btn').length
-    expect(withCount).toBeGreaterThan(withoutCount)
-    without.destroy()
+    const fp = new FilePicker({ adapter, theme: 'dark' })
+    // No theme-toggle control in the toolbar…
+    const actions = document.querySelector('.fp-toolbar-actions')
+    const labels = [...(actions?.querySelectorAll('button') ?? [])].map((b) =>
+      b.getAttribute('aria-label'),
+    )
+    expect(labels).not.toContain('Toggle light or dark theme')
+    // …but the theme is applied and remains host-drivable via setTheme().
+    const overlay = document.querySelector('.fp-overlay')
+    expect(overlay?.classList.contains('fp--dark')).toBe(true)
+    fp.setTheme('light')
+    expect(overlay?.classList.contains('fp--light')).toBe(true)
+    fp.destroy()
   })
 
   it('the dialog is a labelled modal', () => {
@@ -276,6 +282,102 @@ describe('FilePicker', () => {
     fp.open()
     await tick()
     expect(document.querySelector('.fp-grid')?.innerHTML).toContain('#abcdef')
+    fp.destroy()
+  })
+
+  it('destroy() tears down trigger and selected hosts the caller never disposed', () => {
+    const adapter = createMemoryAdapter({ media: [media(1)], latency: 0 })
+    const fp = new FilePicker({ adapter })
+    const host = document.createElement('div')
+    document.body.append(host)
+    // Intentionally discard the returned disposers — destroy() must still clean up.
+    fp.mountTrigger(host)
+    fp.mountSelected(host)
+    expect(host.querySelector('.fp-trigger')).not.toBeNull()
+    expect(host.querySelector('.fp-selected')).not.toBeNull()
+    fp.destroy()
+    expect(host.querySelector('.fp-trigger')).toBeNull()
+    expect(host.querySelector('.fp-selected')).toBeNull()
+  })
+
+  it('a failed background refetch keeps existing content and shows a toast', async () => {
+    const base = createMemoryAdapter({ media: [media(1), media(2)], latency: 0 })
+    let fail = false
+    const adapter: FilePickerAdapter = {
+      ...base,
+      listMedia: (q) => (fail ? Promise.reject(new Error('boom')) : base.listMedia(q)),
+    }
+    const fp = new FilePicker({ adapter, searchDebounce: 0 })
+    fp.on('error', () => {})
+    fp.open()
+    await tick()
+    expect(document.querySelectorAll('.fp-card')).toHaveLength(2)
+
+    fail = true
+    const search = document.querySelector<HTMLInputElement>('.fp-input[type="search"]')
+    if (search) {
+      search.value = 'zzz'
+      search.dispatchEvent(new Event('input'))
+    }
+    await tick()
+    await tick()
+
+    // Content is preserved (not wiped to the full-page error state) and the
+    // failure surfaces as a toast instead.
+    expect(document.querySelectorAll('.fp-card')).toHaveLength(2)
+    expect(document.querySelector('[data-action="retry"]')).toBeNull()
+    expect(document.querySelector('.fp-toast')).not.toBeNull()
+    fp.destroy()
+  })
+
+  it('a stale in-flight fetch does not clobber a newer one', async () => {
+    const base = createMemoryAdapter({ latency: 0 })
+    const pending: { search: string | null | undefined; resolve: (v: MediaPage) => void }[] = []
+    const adapter: FilePickerAdapter = {
+      ...base,
+      listMedia: (q) =>
+        new Promise<MediaPage>((resolve) => pending.push({ search: q.search, resolve })),
+    }
+    const fp = new FilePicker({ adapter, searchDebounce: 0 })
+    fp.on('error', () => {})
+    fp.open()
+    const search = document.querySelector<HTMLInputElement>('.fp-input[type="search"]')
+    if (search) {
+      search.value = 'q'
+      search.dispatchEvent(new Event('input'))
+    }
+    await tick()
+
+    const newer = pending.find((p) => p.search === 'q')
+    const older = pending.find((p) => !p.search)
+    expect(newer).toBeTruthy()
+    expect(older).toBeTruthy()
+    // Newer resolves first…
+    newer?.resolve({ items: [media(2), media(3)], total: 2, lastPage: 1 })
+    await tick()
+    // …then the stale older request resolves late and must be ignored.
+    older?.resolve({ items: [media(1)], total: 1, lastPage: 1 })
+    await tick()
+
+    const ids = [...document.querySelectorAll('.fp-card')].map((c) => c.getAttribute('data-id'))
+    expect(ids).toEqual(['2', '3'])
+    fp.destroy()
+  })
+
+  it('deleting an item keeps the pager total in sync', async () => {
+    const adapter = createMemoryAdapter({
+      media: Array.from({ length: 25 }, (_, i) => media(i + 1)),
+      latency: 0,
+    })
+    const fp = new FilePicker({ adapter, perPage: 12 })
+    fp.on('error', () => {})
+    fp.open()
+    await tick()
+    expect(document.querySelector('.fp-page-label')?.textContent).toContain('25')
+    ;(document.querySelector('[data-action="delete"]') as HTMLButtonElement).click()
+    ;(document.querySelector('.fp-mini .fp-btn--danger') as HTMLButtonElement).click()
+    await tick()
+    expect(document.querySelector('.fp-page-label')?.textContent).toContain('24')
     fp.destroy()
   })
 })

@@ -2,10 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsx": "react-jsx",
     "types": ["vite/client"],
-    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.example-solid.tsbuildinfo"
+    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.example-react.tsbuildinfo"
   },
   "include": ["src"]
 }

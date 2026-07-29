@@ -8,6 +8,13 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Verify the published packages across their supported Node range
+        # (engines: ">=18"). Example apps need Node 20.19+ (Vite 8), so their
+        # build is skipped on 18 below.
+        node: [18, 20, 22]
     steps:
       - uses: actions/checkout@v4
 
@@ -15,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - name: Install
@@ -33,8 +40,14 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Typecheck examples
+        # Examples import the bindings' built types, so this relies on the
+        # Build step above having produced each package's dist.
+        run: pnpm typecheck:examples
+
       - name: Test
         run: pnpm test
 
       - name: Build examples
+        if: matrix.node != '18'
         run: pnpm --filter "example-*" -r build

@@ -10,6 +10,7 @@
     "test": "pnpm --filter \"./packages/*\" -r test",
     "test:coverage": "pnpm --filter @anil-labs/file-picker-core test:coverage",
     "typecheck": "pnpm --filter \"./packages/*\" -r typecheck",
+    "typecheck:examples": "pnpm --filter \"./examples/*\" -r typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

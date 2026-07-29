@@ -29,9 +29,8 @@ apply). You can add those classes yourself if you theme a region of the page ind
 
 ## Switch the theme at runtime
 
-The dialog header shows a **light/dark toggle button** by default — hide it with
-`themeToggle: false`. To drive the theme from your app (e.g. to mirror your own light/dark switch),
-call `setTheme()`:
+The picker renders **no theme toggle of its own** — your app owns that (e.g. a switch in your
+navbar). Drive the picker's theme from your app by passing `theme` and calling `setTheme()`:
 
 ```ts
 const picker = new FilePicker({ adapter, theme: 'auto' })

@@ -65,13 +65,15 @@
     })
     // Read the selection reactively from the controller's `$selected` store.
     unsubscribe = controller.selected.subscribe((items) => (selected = items))
-    controller.picker.mountTrigger(triggerEl!, { label: 'Choose media' })
-    controller.picker.mountSelected(selectedEl!)
+    // Inside onMount the engine is always built (client-only); the optional
+    // chaining just satisfies the `picker: FilePickerCore | null` SSR type.
+    controller.picker?.mountTrigger(triggerEl!, { label: 'Choose media' })
+    controller.picker?.mountSelected(selectedEl!)
 
     formController = createFilePicker({ adapter, multiple: true, title: 'Attach media' })
     formUnsubscribe = formController.selected.subscribe((items) => (formSelected = items))
-    formController.picker.mountTrigger(formTriggerEl!, { label: 'Attach media' })
-    formController.picker.mountSelected(formSelectedEl!)
+    formController.picker?.mountTrigger(formTriggerEl!, { label: 'Attach media' })
+    formController.picker?.mountSelected(formSelectedEl!)
   })
 
   onDestroy(() => {

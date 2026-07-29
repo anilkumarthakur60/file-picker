@@ -73,6 +73,12 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
     picker?.setSelected(options.selected ?? null)
   })
 
+  // Controlled theme (mirrors the React/Vue hooks). Initial theme is applied
+  // via the constructor; this pushes later changes into the engine.
+  createEffect(() => {
+    if (options.theme) picker?.setTheme(options.theme)
+  })
+
   return {
     selected,
     isOpen,
@@ -103,7 +109,15 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
     core.on('select', (i) => props.onSelect?.(i))
     core.on('change', (i) => props.onChange?.(i))
     core.on('upload', (i) => props.onUpload?.(i))
-    const disposeTrigger = core.mountTrigger(wrap, { label: props.label })
+    core.on('delete', (i) => props.onDelete?.(i))
+    core.on('error', (e) => props.onError?.(e))
+    core.on('open', () => props.onOpen?.())
+    core.on('close', () => props.onClose?.())
+    core.on('theme', (t) => props.onThemeChange?.(t))
+    const disposeTrigger = core.mountTrigger(
+      wrap,
+      props.label != null ? { label: props.label } : {},
+    )
     const disposeSelected = props.showSelected !== false ? core.mountSelected(wrap) : undefined
     onCleanup(() => {
       disposeTrigger()

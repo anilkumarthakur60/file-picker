@@ -31,8 +31,7 @@ const picker = new FilePicker(options)
 | `perPage` | `number` | `24` | Items per page. |
 | `perPageOptions` | `number[]` | `[12, 24, 48, 96]` | Choices in the "per page" selector. |
 | `typeFilters` | `TypeFilterOption[]` | built-in set | Type-filter dropdown options. |
-| `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | Color theme (switchable at runtime — see `setTheme`). |
-| `themeToggle` | `boolean` | `true` | Show the light/dark toggle button in the header. |
+| `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | Color theme (switchable at runtime — see `setTheme`). The picker renders no theme toggle of its own; drive it from your app. |
 | `className` | `string` | `''` | Extra class on the picker root. |
 | `title` | `string` | `'Media Library'` | Dialog title. |
 | `accept` | `string` | `''` | `accept` attribute for the upload input. |

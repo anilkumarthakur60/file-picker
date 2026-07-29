@@ -3,7 +3,6 @@ import type { FilePickerAdapter, MediaItem } from '@anil-labs/file-picker-core'
 
 const pic = (id: number): string => `https://picsum.photos/id/${id}/600/400`
 
-
 const sample = (filename: string): string => `samples/${filename}`
 
 const OOXML = 'application/vnd.openxmlformats-officedocument'

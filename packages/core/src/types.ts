@@ -111,6 +111,12 @@ export interface FilePickerAdapter {
   renameFolder(id: MediaId, name: string): Promise<MediaFolder>
   /** Delete a folder (its files move to Uncategorized). */
   deleteFolder(id: MediaId): Promise<void>
+  /**
+   * Optional teardown, called from {@link FilePicker.destroy}. Release any
+   * resources the adapter holds — e.g. revoke object URLs, abort in-flight
+   * requests. Safe to omit for stateless adapters.
+   */
+  dispose?(): void
 }
 
 /**
@@ -122,12 +128,15 @@ export interface FilePickerAdapter {
 export interface FilePickerLabels {
   title: string
   filters: string
-  toggleTheme: string
   upload: string
   done: string
   selectAction: (n: number) => string
   clearSelection: string
   selected: (n: number) => string
+  /** Accessible name for the media grid (role="listbox"). */
+  gridLabel: string
+  /** Default label for a mounted trigger button (overridable per mount). */
+  triggerLabel: string
   searchPlaceholder: string
   tagPlaceholder: string
   allTypes: string
@@ -218,10 +227,12 @@ export interface FilePickerOptions {
   perPageOptions?: number[]
   /** Type-filter options. Defaults to the built-in set. */
   typeFilters?: TypeFilterOption[]
-  /** Color theme. @default 'auto' */
+  /**
+   * Color theme. `'auto'` follows the OS. The picker renders no theme-toggle
+   * UI of its own — drive it from your app (e.g. mirror your navbar's switch)
+   * via this option and {@link FilePicker.setTheme}. @default 'auto'
+   */
   theme?: 'light' | 'dark' | 'auto'
-  /** Show the light/dark toggle button in the dialog header. @default true */
-  themeToggle?: boolean
   /** Extra class on the picker root for custom styling. */
   className?: string
   /** Dialog title. @default 'Media Library' */
