@@ -114,7 +114,10 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
     core.on('open', () => props.onOpen?.())
     core.on('close', () => props.onClose?.())
     core.on('theme', (t) => props.onThemeChange?.(t))
-    const disposeTrigger = core.mountTrigger(wrap, { label: props.label })
+    const disposeTrigger = core.mountTrigger(
+      wrap,
+      props.label != null ? { label: props.label } : {},
+    )
     const disposeSelected = props.showSelected !== false ? core.mountSelected(wrap) : undefined
     onCleanup(() => {
       disposeTrigger()

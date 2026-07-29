@@ -113,8 +113,8 @@ export class FilePicker {
   private loadError: unknown = null
   private readonly pagerDisposers: (() => void)[] = []
   private readonly modalDisposers: (() => void)[] = []
-  private uploadFolderSelect?: FolderSelect
-  private editFolderSelect?: FolderSelect
+  private uploadFolderSelect?: FolderSelect | undefined
+  private editFolderSelect?: FolderSelect | undefined
   private osThemeDispose?: () => void
 
   // ── a11y / focus ───────────────────────────────────────────────────
@@ -137,9 +137,9 @@ export class FilePicker {
   private readonly fileIconMap: Record<string, string>
   private readonly fileColorMap: Record<string, string>
   private readonly L: FilePickerLabels
-  private readonly renderEmptyHook?: () => string
-  private readonly renderLoadingHook?: () => string
-  private readonly renderCardMetaHook?: (item: MediaItem) => string
+  private readonly renderEmptyHook?: (() => string) | undefined
+  private readonly renderLoadingHook?: (() => string) | undefined
+  private readonly renderCardMetaHook?: ((item: MediaItem) => string) | undefined
   private readonly headerActionsHook: HTMLElement[]
 
   constructor(options: FilePickerOptions) {

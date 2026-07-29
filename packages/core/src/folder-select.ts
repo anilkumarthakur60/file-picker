@@ -155,7 +155,7 @@ export class FolderSelect {
         value: f.id,
         icon: 'folder',
         color: '#e0a83a',
-        count: f.mediaCount,
+        ...(f.mediaCount != null ? { count: f.mediaCount } : {}),
       })
     }
     return list
@@ -190,7 +190,7 @@ export class FolderSelect {
   private focusOption(index: number): void {
     if (!this.optionButtons.length) return
     const i = Math.max(0, Math.min(index, this.optionButtons.length - 1))
-    this.optionButtons[i].focus()
+    this.optionButtons[i]?.focus()
   }
 
   /** Arrow/Home/End/Escape navigation across the option buttons. */

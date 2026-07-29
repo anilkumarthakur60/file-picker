@@ -4,8 +4,8 @@ import { createRestAdapter } from '../src'
 /** A fake `fetch` that records calls and returns a canned response. */
 const makeFetch = (
   handler: (url: string, init?: RequestInit) => { status?: number; body?: unknown },
-): { fn: typeof fetch; calls: { url: string; init?: RequestInit }[] } => {
-  const calls: { url: string; init?: RequestInit }[] = []
+): { fn: typeof fetch; calls: { url: string; init?: RequestInit | undefined }[] } => {
+  const calls: { url: string; init?: RequestInit | undefined }[] = []
   const fn = (async (url: string, init?: RequestInit) => {
     calls.push({ url, init })
     const { status = 200, body } = handler(url, init)

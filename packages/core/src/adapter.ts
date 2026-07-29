@@ -245,7 +245,7 @@ const defaultMapMedia = (raw: Raw): MediaItem => {
 const defaultMapFolder = (raw: Raw): MediaFolder => ({
   id: (raw.id ?? '') as MediaId,
   name: str(raw.name),
-  mediaCount: raw.media_count != null ? num(raw.media_count) : undefined,
+  ...(raw.media_count != null ? { mediaCount: num(raw.media_count) } : {}),
 })
 
 const defaultParseList = (json: unknown): { items: Raw[]; total: number; lastPage?: number } => {
@@ -253,8 +253,11 @@ const defaultParseList = (json: unknown): { items: Raw[]; total: number; lastPag
   const items = (Array.isArray(j.data) ? j.data : Array.isArray(json) ? json : []) as Raw[]
   const meta = (j.meta ?? j) as Raw
   const total = num(meta.total, items.length)
-  const lastPage = meta.last_page != null ? num(meta.last_page) : undefined
-  return { items, total, lastPage }
+  return {
+    items,
+    total,
+    ...(meta.last_page != null ? { lastPage: num(meta.last_page) } : {}),
+  }
 }
 
 const defaultToListParams = (q: MediaQuery): Record<string, string> => ({
@@ -323,7 +326,11 @@ export function createRestAdapter(config: RestAdapterConfig): FilePickerAdapter 
       const qs = new URLSearchParams(toListParams(query)).toString()
       const json = await request(`${url(endpoints.media)}?${qs}`)
       const { items, total, lastPage } = parseList(json)
-      return { items: items.map(mapMedia), total, lastPage }
+      return {
+        items: items.map(mapMedia),
+        total,
+        ...(lastPage != null ? { lastPage } : {}),
+      }
     },
 
     async deleteMedia(id: MediaId): Promise<void> {
