@@ -580,10 +580,26 @@ export class FilePicker {
   }
 
   private afterSelectionChange(): void {
-    this.renderGrid()
+    // Selection-only change: patch the affected cards in place instead of
+    // rebuilding the whole grid innerHTML (avoids re-parsing SVGs, recreating
+    // <img>s and re-triggering fallback errors on every checkbox toggle).
+    this.syncCardSelection()
     this.renderCountChip()
     this.renderSelectedHosts()
     this.emitter.emit('change', this.getSelected())
+  }
+
+  /** Update only the selection-dependent bits (class/aria/checkbox) of each card. */
+  private syncCardSelection(): void {
+    if (!this.gridEl) return
+    for (const card of this.gridEl.querySelectorAll<HTMLElement>('.fp-card')) {
+      const id = card.getAttribute('data-id')
+      const sel = id != null && !!this.checkbox[id]
+      card.classList.toggle('fp-card--selected', sel)
+      card.setAttribute('aria-selected', sel ? 'true' : 'false')
+      const box = card.querySelector<HTMLInputElement>('.fp-card-check input')
+      if (box) box.checked = sel
+    }
   }
 
   private syncCheckboxes(): void {
@@ -1050,7 +1066,7 @@ export class FilePicker {
       ${thumb}
       <label class="fp-card-check" data-action="check" aria-hidden="true"><input type="checkbox"${checked} tabindex="-1" /></label>
       <div class="fp-card-actions">${actions}</div>
-      <div class="fp-card-info">
+      <div class="fp-card-info" dir="auto">
         <span class="fp-card-ico" style="color:${this.fileColor(m.type)}">${icon(this.fileIcon(m.type), 14)}</span>
         <span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span>
       </div>
@@ -1267,7 +1283,7 @@ export class FilePicker {
         ${this.previewable(m) ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(this.L.preview)}" aria-label="${esc(this.L.preview)}">${icon('eye', 15)}</button>` : ''}
         <button type="button" class="fp-card-act" data-action="remove" title="${esc(this.L.remove)}" aria-label="${esc(this.L.remove)}">${icon('close', 15)}</button>
       </div>
-      <div class="fp-card-info"><span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span></div>
+      <div class="fp-card-info" dir="auto"><span class="fp-card-name" title="${esc(m.filename)}">${esc(m.filename)}</span></div>
       <div class="fp-card-meta"><span>${ext}</span><span>·</span><span>${formatSize(m.size)}</span></div>
     </div>`
   }
