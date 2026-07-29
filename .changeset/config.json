@@ -13,6 +13,8 @@
     "example-vue",
     "example-svelte",
     "example-solid",
-    "example-element"
+    "example-element",
+    "example-landing",
+    "docs"
   ]
 }
