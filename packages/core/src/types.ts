@@ -134,6 +134,10 @@ export interface FilePickerLabels {
   selectAction: (n: number) => string
   clearSelection: string
   selected: (n: number) => string
+  /** Accessible name for the media grid (role="listbox"). */
+  gridLabel: string
+  /** Default label for a mounted trigger button (overridable per mount). */
+  triggerLabel: string
   searchPlaceholder: string
   tagPlaceholder: string
   allTypes: string

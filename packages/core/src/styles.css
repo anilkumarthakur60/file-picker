@@ -11,8 +11,8 @@
   --fp-surface: #f8fafc;
   --fp-surface-2: #eef2f7;
   --fp-hover: #f1f5f9;
-  --fp-accent: #3b82f6;
-  --fp-accent-soft: rgba(59, 130, 246, 0.12);
+  --fp-accent: #2563eb;
+  --fp-accent-soft: rgba(37, 99, 235, 0.12);
   --fp-accent-fg: #ffffff;
   --fp-danger: #e5484d;
   --fp-good: #16a34a;
@@ -358,11 +358,30 @@
   background: var(--fp-surface-2);
   color: var(--fp-muted);
 }
+.fp-fs-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 4px;
+  border-radius: 7px;
+}
+.fp-fs-row:hover {
+  background: var(--fp-hover);
+}
+.fp-fs-row .fp-fs-opt {
+  flex: 1;
+  min-width: 0;
+}
 .fp-fs-del,
 .fp-fs-ren {
   display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
   color: var(--fp-faint);
-  padding: 2px;
+  padding: 4px;
   border-radius: 6px;
 }
 .fp-fs-del:hover {
@@ -437,7 +456,8 @@
   padding: 1px 5px;
   border-radius: 5px;
   background: var(--fp-surface-2);
-  color: var(--fp-muted);
+  /* --fp-fg (not --fp-muted) so the tiny 9px badge clears WCAG AA on surface-2. */
+  color: var(--fp-fg);
 }
 .fp-card-check {
   position: absolute;
@@ -1110,7 +1130,8 @@
     width: 22px;
     height: 22px;
   }
-  .fp-fs-del {
+  .fp-fs-del,
+  .fp-fs-ren {
     padding: 8px;
   }
   .fp-perpage {

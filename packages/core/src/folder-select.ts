@@ -3,6 +3,8 @@ import { icon } from './icons'
 import type { FilePickerLabels, FolderScope, MediaFolder, MediaId } from './types'
 import { isFolderId } from './utils'
 
+let fsUid = 0
+
 export interface FolderSelectOptions {
   /** Current folder list (read lazily so it stays fresh). */
   getFolders: () => MediaFolder[]
@@ -35,7 +37,7 @@ interface Option {
   count?: number
 }
 
-/** A searchable folder dropdown with optional create/delete. */
+/** A searchable folder dropdown with optional create/rename/delete. */
 export class FolderSelect {
   readonly el: HTMLElement
   private readonly trigger: HTMLButtonElement
@@ -43,6 +45,9 @@ export class FolderSelect {
   private readonly labelSpan: HTMLElement
   private readonly search: HTMLInputElement
   private readonly list: HTMLElement
+  private readonly listId = `fp-fs-list-${++fsUid}`
+  /** The current option buttons, in DOM order — used for arrow-key navigation. */
+  private optionButtons: HTMLButtonElement[] = []
   private value: FolderScope
   private open = false
   private readonly disposers: (() => void)[] = []
@@ -57,17 +62,25 @@ export class FolderSelect {
         class: 'fp-fs-trigger',
         'aria-haspopup': 'listbox',
         'aria-expanded': 'false',
+        'aria-controls': this.listId,
       },
       el('span', { class: 'fp-fs-ico', html: icon('folder', 18) }),
       this.labelSpan,
       el('span', { class: 'fp-fs-caret', html: icon('chevronRight', 16) }),
     )
+    const searchLabel = opts.labels?.folderSearch ?? 'Search or create…'
     this.search = el('input', {
       type: 'text',
       class: 'fp-fs-search',
-      placeholder: opts.labels?.folderSearch ?? 'Search or create…',
+      placeholder: searchLabel,
+      'aria-label': searchLabel,
     })
-    this.list = el('div', { class: 'fp-fs-list', role: 'listbox' })
+    this.list = el('div', {
+      class: 'fp-fs-list',
+      role: 'listbox',
+      id: this.listId,
+      'aria-label': opts.label ?? opts.labels?.folderLabel ?? 'Folder',
+    })
     this.panel = el(
       'div',
       { class: 'fp-fs-panel', hidden: true },
@@ -88,8 +101,13 @@ export class FolderSelect {
           void this.createFromSearch()
         } else if (e.key === 'Escape') {
           this.setOpen(false)
+          this.trigger.focus()
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          this.focusOption(0)
         }
       }),
+      on(this.list, 'keydown', (e) => this.onListKeydown(e)),
       on(document, 'click', (e) => {
         if (this.open && !this.el.contains(e.target as Node)) this.setOpen(false)
       }),
@@ -168,20 +186,65 @@ export class FolderSelect {
     }
   }
 
+  /** Move focus to the option at `index` (clamped to the current list). */
+  private focusOption(index: number): void {
+    if (!this.optionButtons.length) return
+    const i = Math.max(0, Math.min(index, this.optionButtons.length - 1))
+    this.optionButtons[i].focus()
+  }
+
+  /** Arrow/Home/End/Escape navigation across the option buttons. */
+  private onListKeydown(e: KeyboardEvent): void {
+    const btns = this.optionButtons
+    if (!btns.length) return
+    const current = btns.indexOf(document.activeElement as HTMLButtonElement)
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      this.focusOption(current < 0 ? 0 : current + 1)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (current <= 0) this.search.focus()
+      else this.focusOption(current - 1)
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      this.focusOption(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      this.focusOption(btns.length - 1)
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      this.setOpen(false)
+      this.trigger.focus()
+    }
+  }
+
+  private select(opt: Option): void {
+    this.value = opt.value
+    this.renderLabel()
+    this.setOpen(false)
+    this.trigger.focus()
+    this.opts.onChange(opt.value)
+  }
+
   private renderList(): void {
     clear(this.list)
+    this.optionButtons = []
     const needle = this.search.value.trim().toLowerCase()
     const opts = this.options().filter((o) => !needle || o.label.toLowerCase().includes(needle))
     const manageable = this.opts.manageable !== false
 
     for (const opt of opts) {
-      const row = el('button', {
+      const selected = String(opt.value) === String(this.value)
+      const optBtn = el('button', {
         type: 'button',
-        class: `fp-fs-opt${String(opt.value) === String(this.value) ? ' fp-fs-opt--active' : ''}`,
+        class: `fp-fs-opt${selected ? ' fp-fs-opt--active' : ''}`,
         role: 'option',
+        'aria-selected': String(selected),
+        // Roving: options are reached with the arrow keys, not Tab.
+        tabindex: '-1',
       })
       append(
-        row,
+        optBtn,
         el('span', {
           class: 'fp-fs-opt-ico',
           style: `color:${opt.color}`,
@@ -190,21 +253,24 @@ export class FolderSelect {
         el('span', { class: 'fp-fs-opt-label' }, opt.label),
       )
       if (opt.count != null) {
-        append(row, el('span', { class: 'fp-fs-badge' }, String(opt.count)))
+        append(optBtn, el('span', { class: 'fp-fs-badge' }, String(opt.count)))
       }
-      this.disposers.push(
-        on(row, 'click', () => {
-          this.value = opt.value
-          this.renderLabel()
-          this.setOpen(false)
-          this.opts.onChange(opt.value)
-        }),
-      )
+      this.disposers.push(on(optBtn, 'click', () => this.select(opt)))
+      this.optionButtons.push(optBtn)
+
+      // Wrap the option + its manage buttons in a presentational row so the
+      // manage buttons are focusable SIBLINGS of the option, never interactive
+      // descendants of a role="option" (which is invalid and unreachable by AT).
+      const row = el('div', { class: 'fp-fs-row', role: 'presentation' }, optBtn)
+
       if (manageable && isFolderId(opt.value)) {
         if (this.opts.onRename) {
-          const ren = el('span', {
+          const renameLabel = this.opts.labels?.renameFolderControl ?? 'Rename folder'
+          const ren = el('button', {
+            type: 'button',
             class: 'fp-fs-ren',
-            title: this.opts.labels?.renameFolderControl ?? 'Rename folder',
+            title: renameLabel,
+            'aria-label': `${renameLabel}: ${opt.label}`,
             html: icon('edit', 14),
           })
           this.disposers.push(
@@ -215,9 +281,12 @@ export class FolderSelect {
           )
           append(row, ren)
         }
-        const del = el('span', {
+        const deleteLabel = this.opts.labels?.deleteFolderControl ?? 'Delete folder'
+        const del = el('button', {
+          type: 'button',
           class: 'fp-fs-del',
-          title: this.opts.labels?.deleteFolderControl ?? 'Delete folder',
+          title: deleteLabel,
+          'aria-label': `${deleteLabel}: ${opt.label}`,
           html: icon('trash', 15),
         })
         this.disposers.push(

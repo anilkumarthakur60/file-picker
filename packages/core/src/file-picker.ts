@@ -434,7 +434,7 @@ export class FilePicker {
       'button',
       { type: 'button', class: this.rootClass('fp-trigger') },
       el('span', { html: icon('image', 18) }),
-      el('span', {}, opts.label ?? 'Select File'),
+      el('span', {}, opts.label ?? this.L.triggerLabel),
     )
     this.trackThemed(btn)
     const off = on(btn, 'click', () => this.open())
@@ -803,6 +803,7 @@ export class FilePicker {
       type: 'search',
       class: 'fp-input',
       placeholder: this.L.searchPlaceholder,
+      'aria-label': this.L.searchPlaceholder,
     })
     this.filterSearchEl = search
     this.disposers.push(
@@ -819,6 +820,7 @@ export class FilePicker {
       type: 'search',
       class: 'fp-input',
       placeholder: this.L.tagPlaceholder,
+      'aria-label': this.L.tagPlaceholder,
     })
     this.filterTagEl = tag
     this.disposers.push(
@@ -834,7 +836,7 @@ export class FilePicker {
 
     const typeSel = el(
       'select',
-      { class: 'fp-input fp-select' },
+      { class: 'fp-input fp-select', 'aria-label': this.L.allTypes },
       el('option', { value: '' }, this.L.allTypes),
     )
     for (const t of this.o.typeFilters) typeSel.append(el('option', { value: t.value }, t.label))
@@ -952,7 +954,7 @@ export class FilePicker {
     const hadFocus = this.gridEl.contains(document.activeElement)
     this.gridEl.innerHTML = `<div class="fp-grid" role="listbox"${
       this.o.multiple ? ' aria-multiselectable="true"' : ''
-    } aria-label="Media">${this.media.map((m, i) => this.cardHtml(m, i)).join('')}</div>`
+    } aria-label="${esc(this.L.gridLabel)}">${this.media.map((m, i) => this.cardHtml(m, i)).join('')}</div>`
     const cards = this.gridEl.querySelectorAll<HTMLElement>('.fp-card')
     if (cards.length) {
       const active = Math.min(Math.max(0, this.activeCardIndex), cards.length - 1)
@@ -1007,18 +1009,20 @@ export class FilePicker {
     const openable = !!m.src && !this.previewable(m)
     const fn = esc(m.filename)
     const L = this.L
+    // Action buttons are reached via the card (roving tabindex), so they carry
+    // tabindex="-1" — otherwise Tab would stop on up to 4 buttons per card.
     const actions = [
       this.previewable(m)
-        ? `<button type="button" class="fp-card-act" data-action="preview" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="preview" tabindex="-1" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
         : '',
       openable
-        ? `<button type="button" class="fp-card-act" data-action="open" title="${esc(L.open)}" aria-label="${esc(L.open)} ${fn}">${icon('externalLink', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="open" tabindex="-1" title="${esc(L.open)}" aria-label="${esc(L.open)} ${fn}">${icon('externalLink', 15)}</button>`
         : '',
       this.o.allowEdit
-        ? `<button type="button" class="fp-card-act" data-action="edit" title="${esc(L.edit)}" aria-label="${esc(L.edit)} ${fn}">${icon('edit', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="edit" tabindex="-1" title="${esc(L.edit)}" aria-label="${esc(L.edit)} ${fn}">${icon('edit', 15)}</button>`
         : '',
       this.o.allowDelete
-        ? `<button type="button" class="fp-card-act" data-action="delete" title="${esc(L.delete)}" aria-label="${esc(L.delete)} ${fn}">${icon('trash', 15)}</button>`
+        ? `<button type="button" class="fp-card-act" data-action="delete" tabindex="-1" title="${esc(L.delete)}" aria-label="${esc(L.delete)} ${fn}">${icon('trash', 15)}</button>`
         : '',
     ].join('')
 
@@ -1129,6 +1133,8 @@ export class FilePicker {
     const n = this.selected.length
     this.countChip.hidden = n === 0
     this.countChip.innerHTML = `${esc(this.L.selected(n))} <span class="fp-chip-x">${icon('close', 14)}</span>`
+    // Keep the count in the accessible name (aria-label otherwise hides it).
+    this.countChip.setAttribute('aria-label', `${this.L.clearSelection}, ${this.L.selected(n)}`)
     this.footerPrimary.textContent = this.L.selectAction(n)
   }
 
@@ -1259,7 +1265,7 @@ export class FilePicker {
         class: 'fp-modal',
         role: 'dialog',
         'aria-modal': 'true',
-        'aria-label': 'Upload media',
+        'aria-label': this.L.uploadTitle,
       }),
     )
     this.disposers.push(
@@ -1418,7 +1424,7 @@ export class FilePicker {
         class: 'fp-modal',
         role: 'dialog',
         'aria-modal': 'true',
-        'aria-label': 'Edit media',
+        'aria-label': this.L.editTitle,
       }),
     )
     this.disposers.push(
@@ -1453,7 +1459,16 @@ export class FilePicker {
           el('small', {}, `${(media.extension || '').toUpperCase()} · ${formatSize(media.size)}`),
         )
 
-    const filenameInput = el('input', { type: 'text', class: 'fp-input', value: media.filename })
+    // Ids to associate each visible <label> with its control (fresh per open).
+    const filenameId = nextId()
+    const altId = nextId()
+    const tagsId = nextId()
+    const filenameInput = el('input', {
+      type: 'text',
+      class: 'fp-input',
+      id: filenameId,
+      value: media.filename,
+    })
     const filenameSave = el(
       'button',
       {
@@ -1474,6 +1489,7 @@ export class FilePicker {
     const alt = el('input', {
       type: 'text',
       class: 'fp-input',
+      id: altId,
       value: media.alt ?? '',
       placeholder: this.L.altPlaceholder,
     })
@@ -1509,6 +1525,7 @@ export class FilePicker {
     const tagInput = el('input', {
       type: 'text',
       class: 'fp-input',
+      id: tagsId,
       placeholder: this.L.addTagHint,
     })
     const renderTags = (): void => {
@@ -1575,13 +1592,13 @@ export class FilePicker {
         'div',
         { class: 'fp-modal-body' },
         el('div', { class: 'fp-edit-preview-wrap' }, preview),
-        el('label', { class: 'fp-label' }, this.L.filename),
+        el('label', { class: 'fp-label', for: filenameId }, this.L.filename),
         el('div', { class: 'fp-row' }, filenameInput, filenameSave),
-        el('label', { class: 'fp-label' }, this.L.altText),
+        el('label', { class: 'fp-label', for: altId }, this.L.altText),
         el('div', { class: 'fp-row' }, alt, altSave),
         el('label', { class: 'fp-label' }, this.L.folder),
         folder.el,
-        el('label', { class: 'fp-label' }, this.L.tags),
+        el('label', { class: 'fp-label', for: tagsId }, this.L.tags),
         tagsWrap,
         el('div', { class: 'fp-row' }, tagInput, tagsSave),
         el(
@@ -1637,7 +1654,13 @@ export class FilePicker {
     })
     this.previewOverlay = el(
       'div',
-      { class: this.rootClass('fp-overlay fp-preview'), hidden: true },
+      {
+        class: this.rootClass('fp-overlay fp-preview'),
+        hidden: true,
+        role: 'dialog',
+        'aria-modal': 'true',
+        'aria-label': this.L.preview,
+      },
       close,
       this.previewBody,
     )
@@ -1651,6 +1674,8 @@ export class FilePicker {
 
   private openPreview(item: MediaItem): void {
     this.modalPrevFocus = (document.activeElement as HTMLElement) ?? null
+    // Name the dialog after the item so AT announces what opened.
+    this.previewOverlay.setAttribute('aria-label', `${this.L.preview}: ${item.filename}`)
     clear(this.previewBody)
     let node: HTMLElement
     if (item.type === 'video') {
@@ -1661,11 +1686,12 @@ export class FilePicker {
         autoplay: true,
       })
     } else if (item.type === 'audio') {
+      // No autoplay for audio — auto-playing sound is disruptive, especially
+      // for screen-reader users; the controls let them start it.
       node = el('audio', {
         class: 'fp-preview-media fp-preview-audio',
         src: item.src,
         controls: true,
-        autoplay: true,
       })
     } else {
       node = el('img', { class: 'fp-preview-img', src: item.src, alt: item.alt ?? item.filename })

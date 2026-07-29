@@ -16,6 +16,8 @@ export const defaultLabels: FilePickerLabels = {
   selectAction: (n) => (n > 0 ? `Select ${n}` : 'Done'),
   clearSelection: 'Clear selection',
   selected: (n) => `${n} selected`,
+  gridLabel: 'Media',
+  triggerLabel: 'Select File',
   searchPlaceholder: 'Search files…',
   tagPlaceholder: 'Tag…',
   allTypes: 'All types',
