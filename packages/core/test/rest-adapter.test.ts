@@ -43,8 +43,9 @@ describe('REST adapter', () => {
     expect(calls[0]?.url).toContain('https://api.test/medias?')
     expect(calls[0]?.url).toContain('page=2')
     expect(calls[0]?.url).toContain('rowsPerPage=12')
-    expect(calls[0]?.url).toContain('queryFilter=cat')
-    expect(calls[0]?.url).toContain('folderFilter=5')
+    // Scope filters travel as one JSON `filters` param, not flat query params.
+    const filters = new URL(calls[0]?.url ?? '').searchParams.get('filters')
+    expect(JSON.parse(filters ?? '{}')).toEqual({ queryFilter: 'cat', folderFilter: '5' })
     expect(page.total).toBe(42)
     expect(page.lastPage).toBe(4)
     const item = page.items[0]
@@ -58,7 +59,27 @@ describe('REST adapter', () => {
     const { fn, calls } = makeFetch(() => ({ body: { data: [], meta: { total: 0 } } }))
     const a = createRestAdapter({ baseUrl: 'https://api.test/', fetch: fn })
     await a.listMedia({ page: 1, perPage: 10, folder: 'uncategorized' })
-    expect(calls[0]?.url).toContain('folderFilter=null')
+    const filters = new URL(calls[0]?.url ?? '').searchParams.get('filters')
+    expect(JSON.parse(filters ?? '{}')).toEqual({ folderFilter: 'null' })
+  })
+
+  it('omits the filters param entirely when nothing is filtered', async () => {
+    const { fn, calls } = makeFetch(() => ({ body: { data: [], meta: { total: 0 } } }))
+    const a = createRestAdapter({ baseUrl: 'https://api.test/', fetch: fn })
+    await a.listMedia({ page: 1, perPage: 10 })
+    expect(new URL(calls[0]?.url ?? '').searchParams.has('filters')).toBe(false)
+  })
+
+  it('uploadMedia returns [] when the API answers with only a message', async () => {
+    // Laravel `fast-api-crud` replies `{"data":{"message":"..."}}` on upload.
+    // Mapping that produced one phantom item with an empty id.
+    const { fn } = makeFetch(() => ({
+      status: 201,
+      body: { data: { message: 'Media uploaded successfully' } },
+    }))
+    const a = createRestAdapter({ baseUrl: 'https://api.test', fetch: fn })
+    const file = new File(['x'], 'up.png', { type: 'image/png' })
+    await expect(a.uploadMedia([file], { folderId: null })).resolves.toEqual([])
   })
 
   it('falls back to `uuid` for the id and to items.length for total', async () => {

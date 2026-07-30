@@ -1,9 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { FilePicker } from '@anil-labs/file-picker-react'
-import type { MediaItem } from '@anil-labs/file-picker-core'
+import { createRestAdapter, type MediaItem } from '@anil-labs/file-picker-core'
 import { createDemoAdapter } from './seed'
 
-const adapter = createDemoAdapter()
+// Point the demo at a real backend:
+//
+//   echo 'VITE_MEDIA_API=http://pdf-api.test/api/' > examples/react/.env.local
+//
+// Unset, it falls back to the in-memory seed — which is what keeps the deployed
+// demo working, since it can't reach a machine-local API host. Uploads, edits and
+// deletes go straight to whatever backend you point this at; there is no undo.
+const apiBaseUrl = import.meta.env.VITE_MEDIA_API
+const usingApi = typeof apiBaseUrl === 'string' && apiBaseUrl !== ''
+const adapter = usingApi ? createRestAdapter({ baseUrl: apiBaseUrl }) : createDemoAdapter()
 
 interface LogEntry {
   id: number
@@ -58,7 +67,18 @@ export default function App() {
         <h1>@anil-labs/file-picker</h1>
         <p className="tag">
           A framework-agnostic media library — folders, upload, filters, editing and single/multi
-          selection. This demo runs entirely in-memory (no backend).
+          selection.{' '}
+          {usingApi ? (
+            <>
+              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code> — uploads,
+              edits and deletes are real.
+            </>
+          ) : (
+            <>
+              This demo runs entirely in-memory (no backend). Set <code>VITE_MEDIA_API</code> to
+              point it at a real API.
+            </>
+          )}
         </p>
       </div>
 
