@@ -652,6 +652,44 @@
   }
 }
 
+/* ── bottom bar: pager on the start edge, actions on the end ───────── */
+.fp-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: var(--fp-bg);
+}
+/* The pager takes the slack so the actions are pinned to the end edge even on
+ * page 1 of 1, where the label is at its narrowest. */
+.fp-bar .fp-pager {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 0;
+}
+.fp-bar .fp-footer {
+  flex: 0 0 auto;
+  padding: 0;
+}
+/* The pager needs ~340px (5 buttons + label + per-page select) and the actions
+ * ~200px; below that they can't share a row without wrapping mid-control, so
+ * they stack and the buttons split the width for full-size touch targets. */
+@media (max-width: 600px) {
+  .fp-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .fp-bar .fp-pager {
+    justify-content: center;
+  }
+  .fp-bar .fp-footer .fp-btn {
+    flex: 1 1 0;
+  }
+}
+
 /* ── footer (Cancel / Select) ─────────────────────────────────────── */
 .fp-footer {
   display: flex;
@@ -875,6 +913,9 @@
   padding: 40px;
 }
 .fp-preview-body {
+  /* Shrinks to the media it wraps, which makes it the anchor for the close
+   * button: the button hugs the media's corner instead of the viewport's. */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -897,21 +938,31 @@
 }
 .fp-preview-close {
   position: absolute;
-  top: 18px;
-  inset-inline-end: 18px;
+  top: 8px;
+  inset-inline-end: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: none;
+  width: 34px;
+  height: 34px;
+  /* Sits over the media now, so it can't rely on the dark overlay for contrast:
+   * a dark chip with a light hairline stays legible on a white photo as well as
+   * a black one. Same treatment as the card checkbox. */
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.55);
   color: #fff;
   cursor: pointer;
+  transition: background 0.15s;
 }
 .fp-preview-close:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(15, 23, 42, 0.8);
+}
+/* Audio: clear of the player's own controls (see openPreview) — 34px tall from
+ * -42px leaves an 8px gap above the bar. */
+.fp-preview-body--audio .fp-preview-close {
+  top: -42px;
+  inset-inline-end: 0;
 }
 
 /* ── trigger & selected strip ─────────────────────────────────────── */
@@ -1025,8 +1076,16 @@
   outline: 2px solid var(--fp-accent);
   outline-offset: 2px;
 }
+/* The card ring is keyboard-only. `:focus-visible` by itself wasn't enough:
+ * renderGrid() re-focuses the active card via focus(), and Chrome scores
+ * script-driven focus as keyboard focus, so a mouse click on a card left the
+ * ring latched on — reading as a "selected" border. [data-fp-kb] is set by the
+ * dialog's keydown handler and cleared on pointerdown, so pointer selection
+ * never paints a border while keyboard users keep a visible focus indicator. */
 .fp-card:focus-visible {
   outline: none;
+}
+.fp-dialog[data-fp-kb] .fp-card:focus-visible {
   box-shadow: 0 0 0 2px var(--fp-accent) inset;
 }
 .fp-input:focus-visible,
@@ -1149,6 +1208,14 @@
     width: 22px;
     height: 22px;
   }
+  /* 34px is comfortable with a mouse but under the 44px touch guideline. */
+  .fp-preview-close {
+    width: 42px;
+    height: 42px;
+  }
+  .fp-preview-body--audio .fp-preview-close {
+    top: -50px;
+  }
   .fp-fs-del,
   .fp-fs-ren {
     padding: 8px;
@@ -1169,13 +1236,11 @@
     padding-right: max(16px, env(safe-area-inset-right));
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
-  .fp-pager {
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-  .fp-preview-close {
-    top: max(18px, env(safe-area-inset-top));
-    right: max(18px, env(safe-area-inset-right));
-  }
+  /* .fp-pager dropped: it sits inside .fp-bar now (padding: 0), and .fp-bar
+   * carries the inset itself — falling back to its 10px shorthand where max()
+   * is unsupported. */
+  /* .fp-preview-close dropped: it's anchored to the media inside the overlay's
+   * 40px padding now, so it can't land under a notch or the home indicator. */
 }
 
 /* ── phones: exactly two cards per row ────────────────────────────── */

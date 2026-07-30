@@ -91,6 +91,9 @@ export class FilePicker {
   private editOverlay!: HTMLElement
   private previewOverlay!: HTMLElement
   private previewBody!: HTMLElement
+  // Held as a field because it lives inside previewBody (so it can anchor to the
+  // media's corner rather than the screen's), and openPreview clears that body.
+  private previewClose!: HTMLButtonElement
   private modalHost!: HTMLElement
 
   private readonly selectedHosts = new Set<HTMLElement>()
@@ -160,7 +163,9 @@ export class FilePicker {
     this.o = {
       multiple: options.multiple ?? false,
       // Clamp: perPage 0 would make lastPage Infinity and the grid always empty.
-      perPage: Math.max(1, Math.floor(options.perPage ?? 24)),
+      // Default sits inside PER_PAGE_OPTIONS, or the select would render with
+      // nothing selected and show 10 while the picker actually fetched 24.
+      perPage: Math.max(1, Math.floor(options.perPage ?? 20)),
       perPageOptions: options.perPageOptions ?? PER_PAGE_OPTIONS,
       typeFilters: options.typeFilters ?? TYPE_FILTER_OPTIONS,
       theme: options.theme ?? 'auto',
@@ -775,14 +780,20 @@ export class FilePicker {
       this.filtersBackdrop,
       this.gridEl,
       el('div', { class: 'fp-sep' }),
-      this.pagerEl,
-      el('div', { class: 'fp-sep' }),
-      footer,
+      // Pager and actions share one bar: as two stacked rows (each with its own
+      // separator) they ate ~110px of a phone's viewport for six controls.
+      el('div', { class: 'fp-bar' }, this.pagerEl, footer),
     )
     this.disposers.push(
       on(this.overlay, 'click', (e) => {
         if (e.target === this.overlay) this.close()
       }),
+      // Cards are re-focused programmatically after every grid render, and Chrome
+      // scores script-driven focus() as keyboard focus — so :focus-visible alone
+      // painted a ring on the card after a plain mouse click. This flag gates the
+      // ring on real key input; styles.css keys the card ring off [data-fp-kb].
+      on(this.dialogCard, 'keydown', () => this.dialogCard.setAttribute('data-fp-kb', '')),
+      on(this.dialogCard, 'pointerdown', () => this.dialogCard.removeAttribute('data-fp-kb')),
     )
     this.overlay.append(this.dialogCard)
     this.renderGrid()
@@ -1084,6 +1095,9 @@ export class FilePicker {
       void this.deleteMedia(item)
       return
     }
+    // The whole card is a hit target inside the dialog — thumbnail, filename or
+    // body all toggle, same as the checkbox. Only the checkbox *shows* the state;
+    // the card itself never takes a border (see [data-fp-kb] in styles.css).
     this.toggleMedia(item, e)
   }
 
@@ -1164,7 +1178,9 @@ export class FilePicker {
       if (!disabled) this.pagerDisposers.push(on(b, 'click', go))
       return b
     }
-    const first = mk('chevronsLeft', this.page <= 1, () => this.goPage(1), this.L.first)
+    // Prev/next only. First/last were two extra 32px targets for a jump the page
+    // label already makes cheap ("1 / 2"), and they crowded the bar on phones.
+    // L.first / L.last stay in the labels type so existing overrides don't break.
     const prev = mk(
       'chevronLeft',
       this.page <= 1,
@@ -1182,23 +1198,23 @@ export class FilePicker {
       () => this.goPage(this.page + 1),
       this.L.next,
     )
-    const last = mk(
-      'chevronsRight',
-      this.page >= this.lastPage,
-      () => this.goPage(this.lastPage),
-      this.L.last,
-    )
-
     const perPage = el('select', {
       class: 'fp-input fp-select fp-perpage',
       title: this.L.itemsPerPage,
       'aria-label': this.L.itemsPerPage,
     })
-    for (const n of this.o.perPageOptions) {
-      const opt = el('option', { value: String(n) }, this.L.perPageOption(n))
-      if (n === this.o.perPage) opt.selected = true
-      perPage.append(opt)
+    // A custom `perPage` outside perPageOptions is legal, so fold it in rather
+    // than render a select whose visible value contradicts the fetched page.
+    const sizes = this.o.perPageOptions.includes(this.o.perPage)
+      ? this.o.perPageOptions
+      : [...this.o.perPageOptions, this.o.perPage].sort((a, b) => a - b)
+    for (const n of sizes) {
+      perPage.append(el('option', { value: String(n) }, this.L.perPageOption(n)))
     }
+    // Assign after the options are attached. Setting `.selected` on a detached
+    // <option> is silently dropped by some DOM implementations, which left the
+    // select showing a page size the picker wasn't actually using.
+    perPage.value = String(this.o.perPage)
     this.pagerDisposers.push(
       on(perPage, 'change', () => {
         this.o.perPage = Number(perPage.value)
@@ -1206,7 +1222,7 @@ export class FilePicker {
         void this.fetchData()
       }),
     )
-    append(this.pagerEl, first, prev, label, next, last, perPage)
+    append(this.pagerEl, prev, label, next, perPage)
   }
 
   private goPage(page: number): void {
@@ -1687,8 +1703,9 @@ export class FilePicker {
       type: 'button',
       class: 'fp-preview-close',
       'aria-label': this.L.closePreview,
-      html: icon('close', 24),
+      html: icon('close', 18),
     })
+    this.previewClose = close
     this.previewOverlay = el(
       'div',
       {
@@ -1698,7 +1715,6 @@ export class FilePicker {
         'aria-modal': 'true',
         'aria-label': this.L.preview,
       },
-      close,
       this.previewBody,
     )
     this.disposers.push(
@@ -1733,7 +1749,14 @@ export class FilePicker {
     } else {
       node = el('img', { class: 'fp-preview-img', src: item.src, alt: item.alt ?? item.filename })
     }
-    this.previewBody.append(node)
+    // An <audio> player is a ~54px bar whose own controls occupy the right end,
+    // so the corner button would land on top of them — it sits above the bar
+    // instead. Flagged with a class rather than :has() to match the file's
+    // selector style and keep the rule cheap.
+    this.previewBody.classList.toggle('fp-preview-body--audio', item.type === 'audio')
+    // The close button is a child of the body (anchored to the media, not the
+    // viewport), and the body was just cleared — so re-append it after the media.
+    this.previewBody.append(node, this.previewClose)
     this.previewOverlay.hidden = false
     this.previewOverlay.querySelector<HTMLButtonElement>('.fp-preview-close')?.focus()
   }

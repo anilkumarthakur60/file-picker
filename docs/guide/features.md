@@ -58,7 +58,9 @@ new FilePicker({ adapter, multiple: true })
 ```
 
 - **Click anywhere on a card** — the whole card toggles selection, as does its checkbox, which is
-  always visible and is what shows the state (a selected card gets no border or tint of its own).
+  always visible and is the only thing that shows the state: a selected card takes no border or tint
+  of its own. Keyboard users toggle the focused card with <kbd>Enter</kbd> or <kbd>Space</kbd>, and
+  only they see a focus ring on the card.
 - **Shift-click range** — in multiple mode, click one item then shift-click another to select the
   whole range between them.
 - **Selected strip** — a live thumbnails strip of the current selection can be mounted next to your
@@ -105,8 +107,8 @@ The grid is paginated. Control the page size and the choices offered in the "per
 ```ts
 new FilePicker({
   adapter,
-  perPage: 24, // default
-  perPageOptions: [12, 24, 48, 96], // default
+  perPage: 20, // default
+  perPageOptions: [10, 20, 50, 100, 200], // default
 })
 ```
 

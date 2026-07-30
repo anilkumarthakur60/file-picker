@@ -70,7 +70,7 @@ export const TYPE_FILTER_OPTIONS: TypeFilterOption[] = [
 ]
 
 /** Default "items per page" choices. */
-export const PER_PAGE_OPTIONS = [12, 24, 48, 96]
+export const PER_PAGE_OPTIONS = [10, 20, 50, 100, 200]
 
 /** Extract the lowercase extension (without the dot) from a filename. */
 export function extensionOf(filename: string): string {

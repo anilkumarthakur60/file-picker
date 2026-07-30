@@ -253,6 +253,41 @@ describe('FilePicker', () => {
     fp.destroy()
   })
 
+  it('a pointer-driven toggle leaves no focus ring on the card', async () => {
+    const adapter = createMemoryAdapter({ media: [media(1), media(2)], latency: 0 })
+    const fp = new FilePicker({ adapter, multiple: true })
+    fp.open()
+    await tick()
+    const dialog = document.querySelector('.fp-dialog') as HTMLElement
+    const card = document.querySelector('.fp-card') as HTMLElement
+
+    // Pointer selection: the ring is gated off, so no border appears even though
+    // renderGrid() re-focuses the card programmatically.
+    card.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    card.click()
+    expect(fp.getSelected()).toHaveLength(1)
+    expect(dialog.hasAttribute('data-fp-kb')).toBe(false)
+
+    // Keyboard users keep a visible focus indicator (WCAG 2.4.7).
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    expect(dialog.hasAttribute('data-fp-kb')).toBe(true)
+    fp.destroy()
+  })
+
+  it('keeps Enter/Space selection for keyboard users', async () => {
+    const adapter = createMemoryAdapter({ media: [media(1), media(2)], latency: 0 })
+    const fp = new FilePicker({ adapter, multiple: true })
+    fp.open()
+    await tick()
+
+    const card = document.querySelector('.fp-card') as HTMLElement
+    card.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    expect(fp.getSelected().map((m) => m.id)).toEqual([1])
+    card.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    expect(fp.getSelected()).toHaveLength(0)
+    fp.destroy()
+  })
+
   it('maxSelection caps a multi-select', async () => {
     const adapter = createMemoryAdapter({ media: [media(1), media(2), media(3)], latency: 0 })
     const fp = new FilePicker({ adapter, multiple: true, maxSelection: 2 })
@@ -379,5 +414,77 @@ describe('FilePicker', () => {
     await tick()
     expect(document.querySelector('.fp-page-label')?.textContent).toContain('24')
     fp.destroy()
+  })
+
+  it('puts the pager and the actions on one row, with prev/next only', async () => {
+    const adapter = createMemoryAdapter({
+      media: Array.from({ length: 25 }, (_, i) => media(i + 1)),
+      latency: 0,
+    })
+    const fp = new FilePicker({ adapter, perPage: 12 })
+    fp.open()
+    await tick()
+
+    // One bar, pager then actions — not two stacked rows with a separator each.
+    const bar = document.querySelector('.fp-bar')
+    expect(bar).not.toBeNull()
+    expect(Array.from(bar!.children).map((c) => c.className)).toEqual(['fp-pager', 'fp-footer'])
+
+    // Two page buttons, not four: first/last are gone.
+    const btns = document.querySelectorAll('.fp-page-btn')
+    expect(btns).toHaveLength(2)
+    expect(btns[0]?.getAttribute('aria-label')).toBe('Previous')
+    expect(btns[1]?.getAttribute('aria-label')).toBe('Next')
+    fp.destroy()
+  })
+
+  it('preview close button is anchored to the media, not the overlay', async () => {
+    const audio: MediaItem = { ...media(2), filename: 'chime.wav', type: 'audio', extension: 'wav' }
+    const adapter = createMemoryAdapter({ media: [media(1), audio], latency: 0 })
+    const fp = new FilePicker({ adapter })
+    fp.open()
+    await tick()
+    ;(document.querySelector('[data-action="preview"]') as HTMLButtonElement).click()
+
+    const body = document.querySelector('.fp-preview-body') as HTMLElement
+    const close = document.querySelector('.fp-preview-close') as HTMLElement
+    // Child of the media wrapper — as a child of the overlay it would pin to the
+    // viewport corner instead.
+    expect(close.parentElement).toBe(body)
+    expect(body.classList.contains('fp-preview-body--audio')).toBe(false)
+
+    // Reopening clears the body, so the button has to be re-appended each time.
+    close.click()
+    const cards = document.querySelectorAll('.fp-card')
+    cards[1]?.querySelector<HTMLButtonElement>('[data-action="preview"]')?.click()
+    const body2 = document.querySelector('.fp-preview-body') as HTMLElement
+    expect(body2.querySelector('.fp-preview-close')).not.toBeNull()
+    expect(body2.classList.contains('fp-preview-body--audio')).toBe(true)
+    fp.destroy()
+  })
+
+  it('per-page selector lists the defaults and folds in a custom size', async () => {
+    const adapter = createMemoryAdapter({
+      media: Array.from({ length: 25 }, (_, i) => media(i + 1)),
+      latency: 0,
+    })
+    const fp = new FilePicker({ adapter })
+    fp.open()
+    await tick()
+    const values = () =>
+      Array.from(document.querySelectorAll<HTMLOptionElement>('.fp-perpage option')).map(
+        (o) => o.value,
+      )
+    expect(values()).toEqual(['10', '20', '50', '100', '200'])
+    expect(document.querySelector<HTMLSelectElement>('.fp-perpage')?.value).toBe('20')
+    fp.destroy()
+
+    // A perPage outside the list still shows the real page size, in order.
+    const fp2 = new FilePicker({ adapter, perPage: 25 })
+    fp2.open()
+    await tick()
+    expect(values()).toEqual(['10', '20', '25', '50', '100', '200'])
+    expect(document.querySelector<HTMLSelectElement>('.fp-perpage')?.value).toBe('25')
+    fp2.destroy()
   })
 })

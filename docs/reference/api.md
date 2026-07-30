@@ -28,8 +28,8 @@ const picker = new FilePicker(options)
 | `adapter` | `FilePickerAdapter` | — (required) | The data source. See [Adapters](/guide/adapters). |
 | `multiple` | `boolean` | `false` | Allow selecting more than one item. |
 | `selected` | `MediaItem[] \| MediaItem \| null` | `null` | Initially-selected item(s). |
-| `perPage` | `number` | `24` | Items per page. |
-| `perPageOptions` | `number[]` | `[12, 24, 48, 96]` | Choices in the "per page" selector. |
+| `perPage` | `number` | `20` | Items per page. A value outside `perPageOptions` is folded into the selector so it always shows the real page size. |
+| `perPageOptions` | `number[]` | `[10, 20, 50, 100, 200]` | Choices in the "per page" selector. |
 | `typeFilters` | `TypeFilterOption[]` | built-in set | Type-filter dropdown options. |
 | `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | Color theme (switchable at runtime — see `setTheme`). The picker renders no theme toggle of its own; drive it from your app. |
 | `className` | `string` | `''` | Extra class on the picker root. |
