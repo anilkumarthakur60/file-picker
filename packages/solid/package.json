@@ -1,6 +1,6 @@
 {
   "name": "@anil-labs/file-picker-solid",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SolidJS bindings for @anil-labs/file-picker-core — a media-library file picker with folders, upload, filters and metadata editing.",
   "type": "module",
   "main": "./dist/index.cjs",

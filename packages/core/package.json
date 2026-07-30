@@ -1,6 +1,6 @@
 {
   "name": "@anil-labs/file-picker-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic media-library file picker — folders, upload, search/type filters, metadata editing and single/multi selection. Renders its own UI; pluggable backend adapter. Zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
