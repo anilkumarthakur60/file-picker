@@ -11,10 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Verify the published packages across their supported Node range
-        # (engines: ">=18"). Example apps need Node 20.19+ (Vite 8), so their
-        # build is skipped on 18 below.
-        node: [18, 20, 22]
+        node: [22, 24, 26]
     steps:
       - uses: actions/checkout@v4
 
