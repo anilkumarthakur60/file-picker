@@ -12,6 +12,7 @@
   --fp-surface-2: #eef2f7;
   --fp-hover: #f1f5f9;
   --fp-accent: #2563eb;
+  --fp-accent-solid: #2563eb;
   --fp-accent-soft: rgba(37, 99, 235, 0.12);
   --fp-accent-fg: #ffffff;
   --fp-danger: #e5484d;
@@ -47,8 +48,9 @@
     --fp-surface-2: #232a34;
     --fp-hover: #2b3340;
     --fp-accent: #5b9bff;
+    --fp-accent-solid: #2563eb;
     --fp-accent-soft: rgba(91, 155, 255, 0.16);
-    --fp-accent-fg: #0b1220;
+    --fp-accent-fg: #ffffff;
     --fp-overlay: rgba(0, 0, 0, 0.62);
     --fp-shadow: 0 12px 44px rgba(0, 0, 0, 0.5);
   }
@@ -63,8 +65,9 @@
   --fp-surface-2: #232a34;
   --fp-hover: #2b3340;
   --fp-accent: #5b9bff;
+  --fp-accent-solid: #2563eb;
   --fp-accent-soft: rgba(91, 155, 255, 0.16);
-  --fp-accent-fg: #0b1220;
+  --fp-accent-fg: #ffffff;
   --fp-overlay: rgba(0, 0, 0, 0.62);
   --fp-shadow: 0 12px 44px rgba(0, 0, 0, 0.5);
 }
@@ -496,7 +499,10 @@
   transition: opacity 0.1s;
 }
 .fp-card-check input:checked {
-  background: var(--fp-accent);
+  /* Solid fill, not --fp-accent: the tick is white, and on the light dark-theme
+   * accent it only cleared 2.8:1 — under the 3:1 WCAG 1.4.11 needs for a
+   * graphical control. Also keeps the tick matching the primary button. */
+  background: var(--fp-accent-solid);
   border-color: #fff;
 }
 .fp-card-check input:checked::after {
@@ -892,8 +898,8 @@
   cursor: pointer;
 }
 .fp-btn--primary {
-  background: var(--fp-accent);
-  border-color: var(--fp-accent);
+  background: var(--fp-accent-solid);
+  border-color: var(--fp-accent-solid);
   color: var(--fp-accent-fg);
 }
 .fp-btn--danger {
@@ -973,7 +979,7 @@
   padding: 9px 16px;
   border-radius: var(--fp-radius);
   border: none;
-  background: var(--fp-accent);
+  background: var(--fp-accent-solid);
   color: var(--fp-accent-fg);
   font: inherit;
   font-size: 14px;

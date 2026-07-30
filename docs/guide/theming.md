@@ -58,10 +58,16 @@ your own stylesheet to match your brand:
 ```css
 .fp {
   --fp-accent: #7c3aed;
+  --fp-accent-solid: #7c3aed;
   --fp-accent-soft: rgba(124, 58, 237, 0.12);
   --fp-radius: 16px;
 }
 ```
+
+`--fp-accent` and `--fp-accent-solid` are separate on purpose. In a dark theme they pull opposite
+ways: the accent has to be *light* to read as text or a border against a dark surface, while a fill
+carrying `--fp-accent-fg` text has to be *dark* enough for it. Set both to the same value on a light
+background; on dark, keep the accent light and the solid deep enough for its label (aim for 4.5:1).
 
 ### Available variables
 
@@ -75,9 +81,10 @@ your own stylesheet to match your brand:
 | `--fp-surface` | Panels and inputs | `#f8fafc` |
 | `--fp-surface-2` | Raised surface | `#eef2f7` |
 | `--fp-hover` | Hover background | `#f1f5f9` |
-| `--fp-accent` | Accent / primary color | `#3b82f6` |
-| `--fp-accent-soft` | Accent tint (selection) | `rgba(59, 130, 246, 0.12)` |
-| `--fp-accent-fg` | Text on the accent color | `#ffffff` |
+| `--fp-accent` | Accent for text, borders and focus rings | `#2563eb` |
+| `--fp-accent-solid` | Accent as a *fill* — primary button, trigger, checked box | `#2563eb` |
+| `--fp-accent-soft` | Accent tint (selection) | `rgba(37, 99, 235, 0.12)` |
+| `--fp-accent-fg` | Text on `--fp-accent-solid` | `#ffffff` |
 | `--fp-danger` | Destructive actions | `#e5484d` |
 | `--fp-good` | Success | `#16a34a` |
 | `--fp-overlay` | Modal backdrop | `rgba(15, 23, 42, 0.55)` |
