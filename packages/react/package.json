@@ -19,7 +19,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "sideEffects": false,
   "scripts": {
@@ -36,7 +37,7 @@
     "image-picker"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "license": "MIT",
   "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
@@ -58,7 +59,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
-    "react": "^19.2.7",
+    "react": "^19.2.8",
     "tsup": "^8.5.1",
     "typescript": "^5.7.2"
   }

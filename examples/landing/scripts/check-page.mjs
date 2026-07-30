@@ -193,15 +193,26 @@ check(text('#form-hint').includes('mediaIds[]'), '#form-hint: selection hint not
 $('#demo-form')?.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }))
 await window.happyDOM.waitUntilComplete()
 
+// The payload is rendered as JSON, so parse it rather than substring-matching:
+// a malformed render would otherwise still pass on a lucky `includes`.
 const payload = text('#form-payload')
-check(payload.includes('title'), '#form-payload: submitting did not report the `title` field.')
+let parsed
+try {
+  parsed = JSON.parse(payload)
+} catch {
+  check(false, `#form-payload: submitting did not render valid JSON. Got: ${payload.slice(0, 120)}`)
+}
+check(typeof parsed?.title === 'string', '#form-payload: submitting did not report `title`.')
+// `check` collects failures rather than throwing, so nothing below may
+// dereference `parsed` — a bad parse has to degrade to an empty list.
+const ids = Array.isArray(parsed?.mediaIds) ? parsed.mediaIds : []
 check(
-  payload.includes('mediaIds[]'),
-  "#form-payload: submitting did not report the picker's mediaIds[] fields.",
+  ids.length > 0,
+  '#form-payload: the repeated mediaIds[] fields did not collapse into a `mediaIds` array.',
 )
 const firstId = hiddenInputs[0]?.value ?? ''
 check(
-  firstId !== '' && payload.includes(firstId),
+  firstId !== '' && ids.includes(firstId),
   '#form-payload: the reported payload is missing the selected media id.',
 )
 

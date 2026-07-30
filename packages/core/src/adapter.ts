@@ -260,18 +260,19 @@ const defaultParseList = (json: unknown): { items: Raw[]; total: number; lastPag
   }
 }
 
-const defaultToListParams = (q: MediaQuery): Record<string, string> => ({
-  page: String(q.page),
-  rowsPerPage: String(q.perPage),
-  ...(q.search ? { queryFilter: q.search } : {}),
-  ...(q.tag ? { tagFilter: q.tag } : {}),
-  ...(q.type ? { aggregateTypeFilter: q.type } : {}),
-  ...(q.folder === 'uncategorized'
-    ? { folderFilter: 'null' }
-    : q.folder != null
-      ? { folderFilter: String(q.folder) }
-      : {}),
-})
+const defaultToListParams = (q: MediaQuery): Record<string, string> => {
+  const filters: Record<string, string | number> = {}
+  if (q.search) filters.queryFilter = q.search
+  if (q.tag) filters.tagFilter = q.tag
+  if (q.type) filters.aggregateTypeFilter = q.type
+  if (q.folder === 'uncategorized') filters.folderFilter = 'null'
+  else if (q.folder != null) filters.folderFilter = String(q.folder)
+  return {
+    page: String(q.page),
+    rowsPerPage: String(q.perPage),
+    ...(Object.keys(filters).length ? { filters: JSON.stringify(filters) } : {}),
+  }
+}
 
 const defaultToUpdateBody = (patch: Partial<MediaEditForm>): Record<string, unknown> => {
   const body: Record<string, unknown> = {}
@@ -352,7 +353,7 @@ export function createRestAdapter(config: RestAdapterConfig): FilePickerAdapter 
       const json = await request(url(endpoints.upload), { method: 'POST', body: form })
       const j = (json ?? {}) as Raw
       const data = (Array.isArray(j.data) ? j.data : Array.isArray(json) ? json : [j]) as Raw[]
-      return data.map(mapMedia)
+      return data.map(mapMedia).filter((m) => m.id !== '' && m.id != null)
     },
 
     async listFolders(): Promise<MediaFolder[]> {

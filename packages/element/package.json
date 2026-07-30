@@ -21,8 +21,10 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
+  "sideEffects": true,
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -37,7 +39,7 @@
     "file-upload"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "license": "MIT",
   "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",

@@ -70,18 +70,27 @@ const syncHiddenInputs = (items: MediaItem[]): void => {
 formPicker.on('change', syncHiddenInputs)
 syncHiddenInputs(formPicker.getSelected())
 
-// This prints the exact FormData the browser would post, so you can see what
-// arrives server-side.
+// Renders the posted FormData as the JSON a backend parses it into. Repeated
+// `mediaIds[]` fields collapse into one array under `mediaIds` — the `[]` suffix
+// is wire syntax, not part of the field name. Values stay strings because that
+// is what a multipart body carries; casting them here would hide the fact that
+// your server has to. With nothing selected there is no `mediaIds` key at all,
+// which is the case worth designing for.
 const describeSubmission = (form: HTMLFormElement): string => {
-  const entries = [...new FormData(form).entries()]
-  const width = Math.max(...entries.map(([key]) => key.length), 0)
-  const lines = entries.map(
-    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
-  )
-  if (!entries.some(([key]) => key === 'mediaIds[]')) {
-    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  const payload: Record<string, string | string[]> = {}
+  for (const [rawKey, value] of new FormData(form).entries()) {
+    const repeated = rawKey.endsWith('[]')
+    const key = repeated ? rawKey.slice(0, -2) : rawKey
+    const text = String(value)
+    if (!repeated) {
+      payload[key] = text
+      continue
+    }
+    const bucket = payload[key]
+    if (Array.isArray(bucket)) bucket.push(text)
+    else payload[key] = [text]
   }
-  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+  return JSON.stringify(payload, null, 2)
 }
 
 const form = $<HTMLFormElement>('#form')

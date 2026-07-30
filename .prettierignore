@@ -16,3 +16,6 @@ pnpm-lock.yaml
 .vercel/
 .claude/
 LICENSE
+
+# dotenv templates — Prettier has no parser for them
+**/.env.example

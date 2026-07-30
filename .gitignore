@@ -9,3 +9,8 @@ coverage/
 .vercel
 .idea
 .claude/
+
+# Local env overrides (Vite). `.env.example` is committed as the template.
+.env
+.env.*
+!.env.example

@@ -43,14 +43,79 @@ function onSelect(items: MediaItem[]) {
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `options` | `FilePickerOptions` | — (required) | The picker options (`adapter`, `multiple`, `title`, `theme`, …). |
+| `v-model` | `MediaItem[] \| MediaItem \| null` | — | Two-way selection binding. Takes precedence over `options.selected`. |
 | `label` | `string` | `'Select File'` | Trigger label. |
 | `showSelected` | `boolean` | `true` | Render the selected-thumbnails strip. |
 
 | Event | Payload |
 | --- | --- |
+| `@update:modelValue` | `MediaItem[]` — the `v-model` write-back (fires with `@change`). |
 | `@select` | `MediaItem[]` — the user confirmed with **Done**. |
 | `@change` | `MediaItem[]` — the selection changed. |
 | `@upload` | `MediaItem[]` — an upload completed. |
+
+### `v-model`
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { FilePicker, type MediaItem } from '@anil-labs/file-picker-vue'
+
+const selectedMedia = ref<MediaItem[]>([])
+</script>
+
+<template>
+  <FilePicker v-model="selectedMedia" :options="{ adapter, multiple: true }" />
+</template>
+```
+
+`v-model` is **always emitted as `MediaItem[]`**, in single and multiple mode alike, so its type
+doesn't shift when `options.multiple` changes. On the way in it also accepts a bare `MediaItem` or
+`null` (to clear).
+
+#### Binding IDs instead of items
+
+You cannot `v-model` an array of IDs. `MediaItem[]` → `number[]` is lossy, and nothing can rebuild
+the items from IDs — `FilePickerAdapter` lists media by query, not by ID. Keep the items as the
+source of truth and derive the IDs for your form:
+
+```vue
+<script setup lang="ts">
+import { computed, reactive, ref } from 'vue'
+import { FilePicker, type MediaItem } from '@anil-labs/file-picker-vue'
+
+const formData = reactive({ title: '', alt: '', media_ids: [] as number[] })
+const selectedMedia = ref<MediaItem[]>([])
+
+// One writable computed keeps both in step, without a watcher.
+const mediaModel = computed({
+  get: () => selectedMedia.value,
+  set: (items: MediaItem[]) => {
+    selectedMedia.value = items
+    formData.media_ids = items.map((i) => Number(i.id))
+  },
+})
+</script>
+
+<template>
+  <form>
+    <label class="field">
+      <span>Title</span>
+      <input name="title" v-model="formData.title" />
+    </label>
+
+    <label class="field">
+      <span>Alt text</span>
+      <input name="alt" placeholder="Describe the media" v-model="formData.alt" />
+    </label>
+
+    <FilePicker v-model="mediaModel" :options="{ adapter, multiple: true }" />
+
+    <!-- For a plain (non-fetch) form post, mirror the ids as repeated fields. -->
+    <input v-for="id in formData.media_ids" :key="id" type="hidden" name="mediaIds[]" :value="id" />
+  </form>
+</template>
+```
 
 Use the default slot to provide your own trigger:
 

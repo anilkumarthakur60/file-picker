@@ -22,7 +22,8 @@
     "./styles.css": "./dist/styles.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "sideEffects": [
     "**/*.css"
@@ -44,7 +45,7 @@
     "typescript"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "license": "MIT",
   "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",

@@ -217,17 +217,27 @@ function syncHiddenInputs(items: MediaItem[]): void {
 formPicker.on('change', syncHiddenInputs)
 syncHiddenInputs(formPicker.getSelected())
 
-// What the server would receive, printed instead of navigating away.
+// What the server would receive, printed as JSON instead of navigating away.
+// Repeated `mediaIds[]` fields collapse into one array under `mediaIds` — the
+// `[]` suffix is wire syntax, not part of the field name. Values stay strings
+// because that is what a multipart body carries; casting them here would hide
+// the fact that your server has to. With nothing selected there is no `mediaIds`
+// key at all, which is the case worth designing for.
 function describeSubmission(form: HTMLFormElement): string {
-  const entries = [...new FormData(form).entries()]
-  const width = Math.max(...entries.map(([key]) => key.length), 0)
-  const lines = entries.map(
-    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
-  )
-  if (!entries.some(([key]) => key === 'mediaIds[]')) {
-    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  const payload: Record<string, string | string[]> = {}
+  for (const [rawKey, value] of new FormData(form).entries()) {
+    const repeated = rawKey.endsWith('[]')
+    const key = repeated ? rawKey.slice(0, -2) : rawKey
+    const text = String(value)
+    if (!repeated) {
+      payload[key] = text
+      continue
+    }
+    const bucket = payload[key]
+    if (Array.isArray(bucket)) bucket.push(text)
+    else payload[key] = [text]
   }
-  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+  return JSON.stringify(payload, null, 2)
 }
 
 const demoForm = el<HTMLFormElement>('demo-form')

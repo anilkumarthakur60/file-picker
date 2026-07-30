@@ -1,9 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { FilePicker } from '@anil-labs/file-picker-react'
-import type { MediaItem } from '@anil-labs/file-picker-core'
+import { createRestAdapter, type MediaItem } from '@anil-labs/file-picker-core'
 import { createDemoAdapter } from './seed'
 
-const adapter = createDemoAdapter()
+// Point the demo at a real backend:
+//
+//   echo 'VITE_MEDIA_API=http://pdf-api.test/api/' > examples/react/.env.local
+//
+// Unset, it falls back to the in-memory seed — which is what keeps the deployed
+// demo working, since it can't reach a machine-local API host. Uploads, edits and
+// deletes go straight to whatever backend you point this at; there is no undo.
+const apiBaseUrl = import.meta.env.VITE_MEDIA_API
+const usingApi = typeof apiBaseUrl === 'string' && apiBaseUrl !== ''
+const adapter = usingApi ? createRestAdapter({ baseUrl: apiBaseUrl }) : createDemoAdapter()
 
 interface LogEntry {
   id: number
@@ -19,15 +28,20 @@ let nextId = 0
 // Mirroring the selection into hidden inputs is all it takes — this prints the
 // exact FormData the browser would post so you can see what arrives server-side.
 const describeSubmission = (form: HTMLFormElement): string => {
-  const entries = [...new FormData(form).entries()]
-  const width = Math.max(...entries.map(([key]) => key.length), 0)
-  const lines = entries.map(
-    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
-  )
-  if (!entries.some(([key]) => key === 'mediaIds[]')) {
-    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  const payload: Record<string, string | string[]> = {}
+  for (const [rawKey, value] of new FormData(form).entries()) {
+    const repeated = rawKey.endsWith('[]')
+    const key = repeated ? rawKey.slice(0, -2) : rawKey
+    const text = String(value)
+    if (!repeated) {
+      payload[key] = text
+      continue
+    }
+    const bucket = payload[key]
+    if (Array.isArray(bucket)) bucket.push(text)
+    else payload[key] = [text]
   }
-  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+  return JSON.stringify(payload, null, 2)
 }
 
 export default function App() {
@@ -53,7 +67,18 @@ export default function App() {
         <h1>@anil-labs/file-picker</h1>
         <p className="tag">
           A framework-agnostic media library — folders, upload, filters, editing and single/multi
-          selection. This demo runs entirely in-memory (no backend).
+          selection.{' '}
+          {usingApi ? (
+            <>
+              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code> — uploads,
+              edits and deletes are real.
+            </>
+          ) : (
+            <>
+              This demo runs entirely in-memory (no backend). Set <code>VITE_MEDIA_API</code> to
+              point it at a real API.
+            </>
+          )}
         </p>
       </div>
 
