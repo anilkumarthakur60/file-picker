@@ -25,7 +25,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "echo \"covered by @anil-labs/file-picker-core\"",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -36,7 +36,7 @@
     "file-upload"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "license": "MIT",
   "author": "Er. Anil Kumar Thakur <anilkumarthakur60@gmail.com>",
@@ -57,8 +57,10 @@
     "vue": "^3.3.0"
   },
   "devDependencies": {
+    "happy-dom": "^15.11.7",
     "tsup": "^8.5.1",
     "typescript": "^5.7.2",
+    "vitest": "^4.1.10",
     "vue": "^3.5.39"
   }
 }

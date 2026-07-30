@@ -27,6 +27,16 @@ export interface UseFilePickerOptions extends FilePickerOptions {
 const toArray = (v: MediaItem[] | MediaItem | null | undefined): MediaItem[] =>
   v ? (Array.isArray(v) ? v : [v]) : []
 
+/**
+ * Identity of a selection, by id and order. Controlled sync compares this
+ * instead of the value so that a prop update carrying an equal-but-new array
+ * (which `v-model` produces on every emit) doesn't bounce back into the picker.
+ */
+const selectionKey = (v: MediaItem[] | MediaItem | null | undefined): string =>
+  toArray(v)
+    .map((i) => i.id)
+    .join(',')
+
 /** Create and manage a FilePicker; cleans up on scope unmount. */
 export function useFilePicker(options: UseFilePickerOptions): {
   picker: Ref<FilePickerCore | null>
@@ -70,15 +80,11 @@ export function useFilePicker(options: UseFilePickerOptions): {
   // Controlled sync (mirrors the React hook). These fire only when `options`
   // is reactive (e.g. a reactive() object, or the FilePicker component's props);
   // with a plain static object they stay dormant.
-  let lastSelectedKey = toArray(options.selected)
-    .map((i) => i.id)
-    .join(',')
+  let lastSelectedKey = selectionKey(options.selected)
   watch(
     () => options.selected,
     (v) => {
-      const key = toArray(v)
-        .map((i) => i.id)
-        .join(',')
+      const key = selectionKey(v)
       if (key === lastSelectedKey) return
       lastSelectedKey = key
       picker.value?.setSelected(v ?? null)
@@ -107,10 +113,21 @@ export const FilePicker = defineComponent({
   name: 'FilePicker',
   props: {
     options: { type: Object as PropType<UseFilePickerOptions>, required: true },
+    /**
+     * `v-model` — the current selection. Always **emitted** as `MediaItem[]`,
+     * in single and multiple mode alike, so consumers get one stable type even
+     * if `options.multiple` changes; accepts a bare item or `null` on the way
+     * in. Takes precedence over `options.selected` when the prop is present.
+     */
+    modelValue: {
+      type: [Array, Object] as PropType<MediaItem[] | MediaItem | null>,
+      default: undefined,
+    },
     label: { type: String, default: 'Select File' },
     showSelected: { type: Boolean, default: true },
   },
   emits: {
+    'update:modelValue': (items: MediaItem[]) => Array.isArray(items),
     select: (items: MediaItem[]) => Array.isArray(items),
     change: (items: MediaItem[]) => Array.isArray(items),
     upload: (items: MediaItem[]) => Array.isArray(items),
@@ -123,10 +140,26 @@ export const FilePicker = defineComponent({
   },
   setup(props, { emit, slots }) {
     const selectedEl = ref<HTMLElement>()
+    // `v-model` wins over `options.selected` when supplied. `undefined` means the
+    // prop was never passed; `null` is a deliberate "clear the selection".
+    const controlled = (): MediaItem[] | MediaItem | null | undefined =>
+      props.modelValue !== undefined ? props.modelValue : props.options.selected
+    // Seeded before the picker exists so onChange can stamp it and suppress the
+    // echo — see the watch() below.
+    let lastSelectedKey = selectionKey(controlled())
+
     const { picker, open } = useFilePicker({
       ...props.options,
+      selected: controlled() ?? null,
       onSelect: (i) => emit('select', i),
-      onChange: (i) => emit('change', i),
+      onChange: (i) => {
+        // Stamp first, emit second. `v-model` writes the array straight back into
+        // the prop, and without this the watcher would read its own emit as an
+        // external change and re-enter setSelected during the same update.
+        lastSelectedKey = selectionKey(i)
+        emit('change', i)
+        emit('update:modelValue', i)
+      },
       onUpload: (i) => emit('upload', i),
       onError: (e) => emit('error', e),
       onDelete: (i) => emit('delete', i),
@@ -143,20 +176,13 @@ export const FilePicker = defineComponent({
         if (t) picker.value?.setTheme(t)
       },
     )
-    let lastSelectedKey = toArray(props.options.selected)
-      .map((i) => i.id)
-      .join(',')
-    watch(
-      () => props.options.selected,
-      (v) => {
-        const key = toArray(v)
-          .map((i) => i.id)
-          .join(',')
-        if (key === lastSelectedKey) return
-        lastSelectedKey = key
-        picker.value?.setSelected(v ?? null)
-      },
-    )
+    // One watcher for both inbound paths: `v-model` and `options.selected`.
+    watch(controlled, (v) => {
+      const key = selectionKey(v)
+      if (key === lastSelectedKey) return
+      lastSelectedKey = key
+      picker.value?.setSelected(v ?? null)
+    })
     return () => {
       const children: (VNode | null)[] = [
         slots.default
