@@ -19,15 +19,20 @@ let nextId = 0
 // Mirroring the selection into hidden inputs is all it takes — this prints the
 // exact FormData the browser would post so you can see what arrives server-side.
 const describeSubmission = (form: HTMLFormElement): string => {
-  const entries = [...new FormData(form).entries()]
-  const width = Math.max(...entries.map(([key]) => key.length), 0)
-  const lines = entries.map(
-    ([key, value]) => `${key.padEnd(width)} = ${String(value) || '(empty)'}`,
-  )
-  if (!entries.some(([key]) => key === 'mediaIds[]')) {
-    lines.push('', '(no mediaIds[] field at all — nothing is selected)')
+  const payload: Record<string, string | string[]> = {}
+  for (const [rawKey, value] of new FormData(form).entries()) {
+    const repeated = rawKey.endsWith('[]')
+    const key = repeated ? rawKey.slice(0, -2) : rawKey
+    const text = String(value)
+    if (!repeated) {
+      payload[key] = text
+      continue
+    }
+    const bucket = payload[key]
+    if (Array.isArray(bucket)) bucket.push(text)
+    else payload[key] = [text]
   }
-  return [`POST /api/posts — ${entries.length} field(s)`, '', ...lines].join('\n')
+  return JSON.stringify(payload, null, 2)
 }
 
 export default function App() {
