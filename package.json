@@ -19,6 +19,7 @@
     "example:vanilla": "pnpm --filter example-vanilla dev",
     "example:react": "pnpm --filter example-react dev",
     "example:vue": "pnpm --filter example-vue dev",
+    "dev:vue": "pnpm --filter @anil-labs/file-picker-core --filter @anil-labs/file-picker-vue --filter example-vue -r --parallel dev",
     "example:svelte": "pnpm --filter example-svelte dev",
     "example:solid": "pnpm --filter example-solid dev",
     "example:element": "pnpm --filter example-element dev",
