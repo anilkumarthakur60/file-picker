@@ -464,10 +464,14 @@
 }
 .fp-card-check {
   position: absolute;
-  top: 6px;
+  top: 5px;
   inset-inline-start: 6px;
   z-index: 3;
   display: inline-flex;
+  align-items: center;
+  /* Same height as .fp-card-actions (24px buttons + 2px padding) so the
+   * checkbox and the action pill share one centreline. */
+  height: 28px;
 }
 .fp-card-check input {
   appearance: none;
@@ -1206,13 +1210,34 @@
     width: 40px;
     height: 40px;
   }
+  /* The pill is always visible on touch, so it has to coexist with the
+   * checkbox: 32px acts keep 3 buttons + pill (~104px) clear of the
+   * checkbox even on --fp-card-min-wide cards, and the checkbox grows to
+   * 26px so the two read as one row of controls. */
   .fp-card-act {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+  }
+  .fp-card-actions {
+    /* Never run under the checkbox (26px box + insets): 3 acts still fit
+     * the narrowest 2-up cards; a 4th wraps to a second row instead. */
+    max-width: calc(100% - 32px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .fp-card-check {
+    height: 36px; /* matches the 32px acts + 2px pill padding */
+    inset-inline-start: 0;
+    padding-inline: 6px; /* widens the tap area without moving the box */
   }
   .fp-card-check input {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+  }
+  .fp-card-check input::after {
+    width: 5px;
+    height: 10px;
   }
   /* 34px is comfortable with a mouse but under the 44px touch guideline. */
   .fp-preview-close {
