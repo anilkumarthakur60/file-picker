@@ -13,7 +13,7 @@
     "@anil-labs/file-picker-core": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.7.2",
-    "vite": "^8.2.0"
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
   }
 }
