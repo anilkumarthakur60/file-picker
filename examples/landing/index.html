@@ -3,21 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@anil-labs/file-picker — a framework-agnostic media library picker</title>
+    <title>@anil-labs/file-picker  a framework-agnostic media library picker</title>
     <meta
       name="description"
-      content="Live demos of @anil-labs/file-picker: a framework-agnostic media-library file picker with search, folders, filters, upload, edit and delete — driven by a small adapter, with React, Vue, Svelte, Solid and Web Component bindings."
+      content="Live demos of @anil-labs/file-picker: a framework-agnostic media-library file picker with search, folders, filters, upload, edit and delete  driven by a small adapter, with React, Vue, Svelte, Solid and Web Component bindings."
     />
     <meta name="color-scheme" content="light dark" />
 
     <meta property="og:type" content="website" />
     <meta
       property="og:title"
-      content="@anil-labs/file-picker — one media picker, every framework"
+      content="@anil-labs/file-picker  one media picker, every framework"
     />
     <meta
       property="og:description"
-      content="A framework-agnostic media library: browse, search, filter, upload, tag and delete — wired to your backend through one small adapter."
+      content="A framework-agnostic media library: browse, search, filter, upload, tag and delete  wired to your backend through one small adapter."
     />
 
     <link rel="icon" href="data:," />
@@ -63,7 +63,7 @@
             <h1>A media library,<br />in one adapter.</h1>
             <p class="lead">
               A framework-agnostic file picker with search, folders, type filters, upload, inline
-              edit and delete — wired to your backend through one small adapter. Drop it into any
+              edit and delete  wired to your backend through one small adapter. Drop it into any
               framework, or none.
             </p>
 
@@ -99,7 +99,7 @@
                 </div>
                 <div class="selected-host" id="s-hero"></div>
                 <p class="panel-note">
-                  A full media library over an in-memory adapter — no backend. Everything you do
+                  A full media library over an in-memory adapter  no backend. Everything you do
                   here runs the published build.
                 </p>
               </div>
@@ -115,7 +115,7 @@
             <h2>Live demos</h2>
             <p>
               Each button below opens the real picker with different options. There's no framework
-              on this page — every one is a direct <code>new FilePicker()</code> over the same
+              on this page  every one is a direct <code>new FilePicker()</code> over the same
               in-memory adapter.
             </p>
           </div>
@@ -128,7 +128,7 @@
               </div>
               <div class="panel-body">
                 <p class="panel-note">
-                  <code>multiple: false</code> — tap an item and the dialog confirms and closes
+                  <code>multiple: false</code>  tap an item and the dialog confirms and closes
                   immediately.
                 </p>
                 <div class="trigger-host" id="t-single"></div>
@@ -143,7 +143,7 @@
               </div>
               <div class="panel-body">
                 <p class="panel-note">
-                  <code>multiple: true</code> with <code>maxSelection: 4</code> — gather a batch,
+                  <code>multiple: true</code> with <code>maxSelection: 4</code>  gather a batch,
                   then confirm them together.
                 </p>
                 <div class="trigger-host" id="t-multi"></div>
@@ -159,7 +159,7 @@
               <div class="panel-body">
                 <p class="panel-note">
                   <code>allowUpload</code>, <code>allowEdit</code>, <code>allowDelete</code> and
-                  <code>manageFolders</code> off — a safe pick-only view.
+                  <code>manageFolders</code> off  a safe pick-only view.
                 </p>
                 <div class="trigger-host" id="t-readonly"></div>
                 <div class="selected-host" id="s-readonly"></div>
@@ -191,7 +191,7 @@
               <div class="panel-body">
                 <p class="panel-note">
                   The picker emits <code>change</code>, <code>select</code>, <code>upload</code>,
-                  <code>delete</code> and <code>error</code>. Open it and pick something — this
+                  <code>delete</code> and <code>error</code>. Open it and pick something  this
                   panel is what the build's headless guard drives to prove the engine really runs.
                 </p>
                 <div class="events-split">
@@ -213,7 +213,7 @@
                 <p class="panel-note">
                   The picker is not an <code>&lt;input&gt;</code>, so it posts nothing by itself.
                   Mirror the selection into hidden inputs on <code>change</code> and it behaves like
-                  any other field — submit below to see the exact <code>FormData</code> the browser
+                  any other field  submit below to see the exact <code>FormData</code> the browser
                   would send.
                 </p>
                 <div class="events-split">
@@ -248,8 +248,8 @@
             <h2>Theming</h2>
             <p>
               Every colour is a <code>--fp-*</code> custom property. The picker ships light and dark
-              out of the box (with its own toggle in the dialog header), and one variable —
-              <code>--fp-accent</code> — recolours the whole thing.
+              out of the box (with its own toggle in the dialog header), and one variable 
+              <code>--fp-accent</code>  recolours the whole thing.
             </p>
           </div>
 
@@ -257,7 +257,7 @@
             <div class="panel">
               <div class="panel-head">
                 <span class="panel-title">Accent</span>
-                <span class="panel-hint">live — recolours every picker</span>
+                <span class="panel-hint">live  recolours every picker</span>
               </div>
               <div class="panel-body">
                 <div class="swatches" role="group" aria-label="Accent color" id="accent-switch">
@@ -290,7 +290,7 @@
               <div class="panel-body">
                 <pre class="code" id="accent-code"></pre>
                 <p class="panel-note">
-                  Set <code>--fp-accent</code> on any ancestor — a wrapper, or <code>:root</code> to
+                  Set <code>--fp-accent</code> on any ancestor  a wrapper, or <code>:root</code> to
                   recolour every picker at once. No class to add, no stylesheet to fork.
                 </p>
               </div>
@@ -305,8 +305,8 @@
           <div class="section-head">
             <h2>One adapter, eight methods</h2>
             <p>
-              The picker knows nothing about your storage. Implement eight methods — list, upload,
-              update, delete, and the folder operations — and the whole UI works against it. A
+              The picker knows nothing about your storage. Implement eight methods  list, upload,
+              update, delete, and the folder operations  and the whole UI works against it. A
               ready-made in-memory adapter (used all over this page) and a REST adapter ship in the
               box.
             </p>
@@ -316,13 +316,13 @@
               <h3>Browse &amp; search</h3>
               <p>
                 Paginated grid, debounced search, type filters (image, video, audio, docs…) and tag
-                filtering — all driven by a single <code>listMedia</code> query.
+                filtering  all driven by a single <code>listMedia</code> query.
               </p>
             </div>
             <div class="feature">
               <h3>Folders</h3>
               <p>
-                Create, rename and delete folders, and move items between them — or turn folder
+                Create, rename and delete folders, and move items between them  or turn folder
                 management off entirely with one option.
               </p>
             </div>
@@ -336,7 +336,7 @@
             <div class="feature">
               <h3>Inline edit</h3>
               <p>
-                Rename, set alt text and manage tags in a side dialog — each field saved through the
+                Rename, set alt text and manage tags in a side dialog  each field saved through the
                 adapter's <code>updateMedia</code>.
               </p>
             </div>
@@ -365,7 +365,7 @@
             <h2>Keyboard &amp; accessibility</h2>
             <p>
               The dialog is fully operable from the keyboard, with focus management and
-              screen-reader announcements — open any demo above and try it.
+              screen-reader announcements  open any demo above and try it.
             </p>
           </div>
 

@@ -7,7 +7,7 @@ React, Vue, Svelte, Solid and a Web Component.
 ## Prerequisites
 
 - **Node.js** ≥ 18 (the repo tracks the current LTS in CI)
-- **pnpm** ≥ 9 — `corepack enable` will provide the pinned version
+- **pnpm** ≥ 9  `corepack enable` will provide the pinned version
 
 ## Getting started
 
@@ -27,7 +27,7 @@ pnpm example:react   # or :vue :svelte :solid :element :vanilla
 
 ```
 packages/
-  core/      # the engine — media-library UI, selection, filters, upload,
+  core/      # the engine  media-library UI, selection, filters, upload,
              #   folders & the FilePickerAdapter (renders its own DOM + styles.css)
   react/     # React binding (<FilePicker>, useFilePicker)
   vue/       # Vue 3 binding (<FilePicker>, useFilePicker)
@@ -38,7 +38,7 @@ examples/     # one Vite app per binding (also the deployed demos)
 docs/         # VitePress documentation site
 ```
 
-Most behaviour changes belong in **`packages/core`** — the bindings are
+Most behaviour changes belong in **`packages/core`**  the bindings are
 intentionally thin wrappers.
 
 ## Scripts
@@ -48,7 +48,7 @@ intentionally thin wrappers.
 | `pnpm build` | Build all packages (ESM + CJS + IIFE + `.d.ts`) |
 | `pnpm test` | Run the Vitest suite (core) |
 | `pnpm typecheck` | `tsc --noEmit` across every package |
-| `pnpm lint` | ESLint (type-aware on the library — **`any` is an error**) |
+| `pnpm lint` | ESLint (type-aware on the library  **`any` is an error**) |
 | `pnpm format` | Prettier write |
 | `pnpm check` | lint + format:check + typecheck + test, in one shot |
 | `pnpm docs:dev` | Preview the docs site locally |
@@ -59,7 +59,7 @@ Please run **`pnpm check`** before opening a PR.
 
 - **No `any`.** The library is linted with type-aware rules; use a specific
   type, or define one if it doesn't exist yet.
-- Formatting is owned by Prettier — don't hand-format; run `pnpm format`.
+- Formatting is owned by Prettier  don't hand-format; run `pnpm format`.
 - Match the surrounding style (no semicolons, single quotes).
 - New behaviour should come with a test in `packages/core/test`.
 
@@ -85,7 +85,7 @@ need one.
 
 ## Reporting bugs
 
-Open an issue with the **Bug report** template — a minimal reproduction (a
+Open an issue with the **Bug report** template  a minimal reproduction (a
 StackBlitz/CodeSandbox or a code snippet) gets things fixed fastest.
 
 By contributing you agree that your contributions are licensed under the

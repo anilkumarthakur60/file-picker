@@ -1,14 +1,14 @@
 # Adapters
 
 An **adapter** is the seam between the picker and your data. The engine renders the UI and manages
-state; the adapter answers data questions — list this page of media, upload these files, rename this
+state; the adapter answers data questions  list this page of media, upload these files, rename this
 folder. Because that's the only coupling, the picker works with any backend.
 
 You have three options:
 
-- [`createMemoryAdapter()`](#creatememoryadapter) — in-memory, for demos, prototypes and tests.
-- [`createRestAdapter()`](#createrestadapter) — a configurable client for a JSON/REST API.
-- [Implement `FilePickerAdapter`](#implement-your-own-adapter) — for GraphQL, Firebase, S3, or anything else.
+- [`createMemoryAdapter()`](#creatememoryadapter)  in-memory, for demos, prototypes and tests.
+- [`createRestAdapter()`](#createrestadapter)  a configurable client for a JSON/REST API.
+- [Implement `FilePickerAdapter`](#implement-your-own-adapter)  for GraphQL, Firebase, S3, or anything else.
 
 ## The `FilePickerAdapter` contract
 
@@ -43,14 +43,14 @@ IDs may be **numbers or strings** (`type MediaId = string | number`). A `folderI
 `MediaItem`, `MediaFolder` and `MediaEditForm`.
 
 ::: tip Pagination & filtering happen server-side
-`listMedia` receives the full `MediaQuery` — `page`, `perPage`, `search`, `tag`, `type` and
+`listMedia` receives the full `MediaQuery`  `page`, `perPage`, `search`, `tag`, `type` and
 `folder`. Apply those on your backend and return the matching page plus the overall `total` so the
 picker can render pagination.
 :::
 
 ## `createMemoryAdapter()`
 
-An in-memory adapter — everything lives in JavaScript. Great for demos, prototypes and unit tests.
+An in-memory adapter  everything lives in JavaScript. Great for demos, prototypes and unit tests.
 Uploads become object URLs, and deleting a folder moves its media to Uncategorized.
 
 ```ts
@@ -94,7 +94,7 @@ const adapter = createRestAdapter({
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `baseUrl` | `string` | — | Base URL. A trailing slash is optional. |
+| `baseUrl` | `string` |  | Base URL. A trailing slash is optional. |
 | `headers` | `HeadersInit \| () => HeadersInit \| Promise<HeadersInit>` | `{}` | Static headers, or a (possibly async) function called per request. |
 | `fetch` | `typeof fetch` | global `fetch` | Custom fetch implementation. |
 | `endpoints` | `Partial<RestEndpoints>` | see below | Override any endpoint path. |
@@ -117,7 +117,7 @@ const adapter = createRestAdapter({
 
 ### Default request shape
 
-- **List params** (`toListParams`): `page`, `rowsPerPage`, and — when present — `queryFilter`
+- **List params** (`toListParams`): `page`, `rowsPerPage`, and  when present  `queryFilter`
   (search), `tagFilter`, `aggregateTypeFilter` (type) and `folderFilter` (the folder id, or `null`
   for Uncategorized).
 - **List response** (`parseList`): items from `json.data` (or a top-level array), `total` and
@@ -163,7 +163,7 @@ const adapter = createRestAdapter({
 
 ## Implement your own adapter
 
-For anything that isn't REST — GraphQL, Firebase, S3, an RPC client — implement the interface
+For anything that isn't REST  GraphQL, Firebase, S3, an RPC client  implement the interface
 directly. The picker only ever calls these eight methods, so as long as they resolve to the right
 shapes, the entire UI works.
 
@@ -240,7 +240,7 @@ function toMediaItem(row: MyApiMedia): MediaItem {
 
 ::: tip Errors surface as an event
 If an adapter method rejects, the picker emits an [`error`](/reference/api#events) event with the
-thrown value — subscribe to it to show a toast or log the failure.
+thrown value  subscribe to it to show a toast or log the failure.
 :::
 
 The utility helpers [`mediaTypeFromMime`](/reference/api#utilities), `extensionOf` and `formatSize`

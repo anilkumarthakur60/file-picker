@@ -7,7 +7,7 @@
 
 export type MediaId = string | number
 
-/** High-level file bucket — drives the icon, preview and type-filter. */
+/** High-level file bucket  drives the icon, preview and type-filter. */
 export type MediaType =
   | 'image'
   | 'vector'
@@ -32,7 +32,7 @@ export interface MediaItem {
   type: MediaType | (string & {})
   alt: string | null
   size: number
-  /** URL to the file — used for image thumbnails and the preview lightbox. */
+  /** URL to the file  used for image thumbnails and the preview lightbox. */
   src: string
   tags: string[]
 }
@@ -113,7 +113,7 @@ export interface FilePickerAdapter {
   deleteFolder(id: MediaId): Promise<void>
   /**
    * Optional teardown, called from {@link FilePicker.destroy}. Release any
-   * resources the adapter holds — e.g. revoke object URLs, abort in-flight
+   * resources the adapter holds  e.g. revoke object URLs, abort in-flight
    * requests. Safe to omit for stateless adapters.
    */
   dispose?(): void
@@ -215,7 +215,7 @@ export interface FilePickerLabels {
 
 /** Options for constructing a {@link FilePicker}. */
 export interface FilePickerOptions {
-  /** Data source — implement {@link FilePickerAdapter} or use a built-in factory. */
+  /** Data source  implement {@link FilePickerAdapter} or use a built-in factory. */
   adapter: FilePickerAdapter
   /** Allow selecting more than one item. @default false */
   multiple?: boolean
@@ -229,7 +229,7 @@ export interface FilePickerOptions {
   typeFilters?: TypeFilterOption[]
   /**
    * Color theme. `'auto'` follows the OS. The picker renders no theme-toggle
-   * UI of its own — drive it from your app (e.g. mirror your navbar's switch)
+   * UI of its own  drive it from your app (e.g. mirror your navbar's switch)
    * via this option and {@link FilePicker.setTheme}. @default 'auto'
    */
   theme?: 'light' | 'dark' | 'auto'
@@ -265,7 +265,7 @@ export interface FilePickerOptions {
   renderEmpty?: () => string
   /** Replace the first-load skeleton/loading markup (returns trusted HTML). */
   renderLoading?: () => string
-  /** Replace a card's meta line — e.g. show dimensions or a date (returns trusted HTML). */
+  /** Replace a card's meta line  e.g. show dimensions or a date (returns trusted HTML). */
   renderCardMeta?: (item: MediaItem) => string
   /** Extra buttons to mount in the header toolbar. */
   headerActions?: HTMLElement[]

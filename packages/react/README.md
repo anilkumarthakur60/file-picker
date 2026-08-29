@@ -1,6 +1,6 @@
 # @anil-labs/file-picker-react
 
-**React bindings for [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)** — a media-library file picker with folders, upload, filters and metadata editing.
+**React bindings for [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)**  a media-library file picker with folders, upload, filters and metadata editing.
 
 [![npm](https://img.shields.io/npm/v/@anil-labs/file-picker-react?color=3b82f6&label=npm)](https://www.npmjs.com/package/@anil-labs/file-picker-react)
 
@@ -37,7 +37,7 @@ function Picker() {
 
 ## API
 
-- `<FilePicker … />` — spreads all [`FilePickerOptions`](https://anilkumarthakur60.github.io/file-picker/reference/api) as props (`adapter` required), plus `label`, `showSelected`, `children` (custom trigger), and `onSelect` / `onChange` / `onUpload`.
+- `<FilePicker … />`  spreads all [`FilePickerOptions`](https://anilkumarthakur60.github.io/file-picker/reference/api) as props (`adapter` required), plus `label`, `showSelected`, `children` (custom trigger), and `onSelect` / `onChange` / `onUpload`.
 - `useFilePicker(options)` → `{ picker, selected, isOpen, open, close, setSelected }`.
 
 Cleanup is automatic on unmount, and the package ships a `'use client'` banner so it works in the

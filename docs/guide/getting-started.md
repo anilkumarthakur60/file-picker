@@ -5,7 +5,7 @@ you don't need a backend yet.
 
 ## Install
 
-Install the binding for your framework — the core engine comes with it as a dependency.
+Install the binding for your framework  the core engine comes with it as a dependency.
 
 ::: code-group
 
@@ -46,8 +46,8 @@ import '@anil-labs/file-picker-core/styles.css'
 
 ## Create an adapter
 
-The picker reads and writes media through an [adapter](/guide/adapters). For a first run — or for
-demos and tests — use `createMemoryAdapter()`, which keeps everything in memory:
+The picker reads and writes media through an [adapter](/guide/adapters). For a first run  or for
+demos and tests  use `createMemoryAdapter()`, which keeps everything in memory:
 
 ```ts
 import { createMemoryAdapter } from '@anil-labs/file-picker-core'
@@ -77,7 +77,7 @@ const adapter = createMemoryAdapter({ media, folders, latency: 300 })
 ```
 
 When you're ready for a real backend, swap in [`createRestAdapter()`](/guide/adapters#createrestadapter)
-or [implement your own](/guide/adapters#implement-your-own-adapter) — nothing else changes.
+or [implement your own](/guide/adapters#implement-your-own-adapter)  nothing else changes.
 
 ## Render your first picker
 
@@ -138,12 +138,12 @@ picker.on('select', (items) => console.log('confirmed', items))
 
 :::
 
-That's it — a trigger button that opens the media library, lets the user browse folders, upload,
+That's it  a trigger button that opens the media library, lets the user browse folders, upload,
 filter, edit and select, and hands you the chosen `MediaItem[]` on `select`.
 
 ## Next steps
 
-- [Adapters](/guide/adapters) — connect a real backend.
-- [Frameworks](/frameworks/react) — the idiomatic quick start and API for each binding.
-- [Features](/guide/features) — everything the picker can do.
-- [Theming](/guide/theming) — light / dark / auto and custom colors.
+- [Adapters](/guide/adapters)  connect a real backend.
+- [Frameworks](/frameworks/react)  the idiomatic quick start and API for each binding.
+- [Features](/guide/features)  everything the picker can do.
+- [Theming](/guide/theming)  light / dark / auto and custom colors.

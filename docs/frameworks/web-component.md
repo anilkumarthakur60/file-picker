@@ -1,6 +1,6 @@
 # Web Component
 
-`@anil-labs/file-picker-element` registers a `<file-picker>` custom element — usable in any framework
+`@anil-labs/file-picker-element` registers a `<file-picker>` custom element  usable in any framework
 or in plain HTML, with no build step. Importing the package auto-registers the element.
 
 ## Install
@@ -9,7 +9,7 @@ or in plain HTML, with no build step. Importing the package auto-registers the e
 npm i @anil-labs/file-picker-element
 ```
 
-Or load it straight from a CDN — the package ships an IIFE build (`unpkg` / `jsdelivr`):
+Or load it straight from a CDN  the package ships an IIFE build (`unpkg` / `jsdelivr`):
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@anil-labs/file-picker-element"></script>
@@ -19,7 +19,7 @@ Or load it straight from a CDN — the package ships an IIFE build (`unpkg` / `j
 ## Quick start
 
 Configure the element with **attributes**, set the required `adapter` as a **JS property** (it's an
-object, not a string), and listen for `fp:*` **events** — where `event.detail` is the `MediaItem[]`
+object, not a string), and listen for `fp:*` **events**  where `event.detail` is the `MediaItem[]`
 array.
 
 ```html
@@ -52,7 +52,7 @@ array.
 | `per-page` | number | Items per page. |
 | `show-selected` | string | Set to `false` to hide the selected-thumbnails strip. |
 
-Attributes are reactive — changing one rebuilds the picker with the new configuration.
+Attributes are reactive  changing one rebuilds the picker with the new configuration.
 
 ## Property
 
@@ -80,8 +80,8 @@ Every event's `detail` is the `MediaItem[]` array. Events bubble.
 | --- | --- |
 | `openPicker()` | Open the dialog. |
 | `closePicker()` | Close the dialog. |
-| `selected` | Getter — the current selection as `MediaItem[]`. |
-| `picker` | Getter — the underlying `FilePicker` engine (once built). |
+| `selected` | Getter  the current selection as `MediaItem[]`. |
+| `picker` | Getter  the underlying `FilePicker` engine (once built). |
 
 ```js
 const el = document.querySelector('file-picker')

@@ -7,7 +7,7 @@ import { createDemoAdapter } from './seed'
 //
 //   echo 'VITE_MEDIA_API=http://pdf-api.test/api/' > examples/react/.env.local
 //
-// Unset, it falls back to the in-memory seed — which is what keeps the deployed
+// Unset, it falls back to the in-memory seed  which is what keeps the deployed
 // demo working, since it can't reach a machine-local API host. Uploads, edits and
 // deletes go straight to whatever backend you point this at; there is no undo.
 const apiBaseUrl = import.meta.env.VITE_MEDIA_API
@@ -25,7 +25,7 @@ const names = (items: MediaItem[]): string => items.map((m) => m.filename).join(
 let nextId = 0
 
 // The picker is not an <input>, so it contributes nothing to a form on its own.
-// Mirroring the selection into hidden inputs is all it takes — this prints the
+// Mirroring the selection into hidden inputs is all it takes  this prints the
 // exact FormData the browser would post so you can see what arrives server-side.
 const describeSubmission = (form: HTMLFormElement): string => {
   const payload: Record<string, string | string[]> = {}
@@ -66,11 +66,11 @@ export default function App() {
         <span className="badge">{'React · <FilePicker>'}</span>
         <h1>@anil-labs/file-picker</h1>
         <p className="tag">
-          A framework-agnostic media library — folders, upload, filters, editing and single/multi
+          A framework-agnostic media library  folders, upload, filters, editing and single/multi
           selection.{' '}
           {usingApi ? (
             <>
-              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code> — uploads,
+              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code>  uploads,
               edits and deletes are real.
             </>
           ) : (
@@ -88,9 +88,9 @@ export default function App() {
           multiple
           title="Media Library"
           label="Choose media"
-          onChange={(items) => push('change', `${items.length} selected — ${names(items)}`)}
-          onSelect={(items) => push('select ✓', `confirmed ${items.length} — ${names(items)}`)}
-          onUpload={(items) => push('upload', `${items.length} file(s) — ${names(items)}`)}
+          onChange={(items) => push('change', `${items.length} selected  ${names(items)}`)}
+          onSelect={(items) => push('select ✓', `confirmed ${items.length}  ${names(items)}`)}
+          onUpload={(items) => push('upload', `${items.length} file(s)  ${names(items)}`)}
         />
       </div>
 
@@ -131,14 +131,14 @@ export default function App() {
               label="Attach media"
               onChange={setSelected}
             />
-            {/* One hidden input per selected item — `mediaIds[]` arrives as an
+            {/* One hidden input per selected item  `mediaIds[]` arrives as an
                 array in PHP/Laravel/Rails; use `mediaIds` for a repeated key. */}
             {selected.map((item) => (
               <input key={item.id} type="hidden" name="mediaIds[]" value={String(item.id)} />
             ))}
             <p className="hint">
               {selected.length} hidden <code>mediaIds[]</code> input
-              {selected.length === 1 ? '' : 's'} — the trigger is a{' '}
+              {selected.length === 1 ? '' : 's'}  the trigger is a{' '}
               <code>type=&quot;button&quot;</code>, so opening the picker never submits the form.
             </p>
           </div>

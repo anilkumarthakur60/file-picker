@@ -46,7 +46,7 @@ export class FolderSelect {
   private readonly search: HTMLInputElement
   private readonly list: HTMLElement
   private readonly listId = `fp-fs-list-${++fsUid}`
-  /** The current option buttons, in DOM order — used for arrow-key navigation. */
+  /** The current option buttons, in DOM order  used for arrow-key navigation. */
   private optionButtons: HTMLButtonElement[] = []
   private value: FolderScope
   private open = false

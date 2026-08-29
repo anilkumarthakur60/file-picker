@@ -1,4 +1,4 @@
-/** Minimal DOM helpers — keeps the engine terse without a framework. */
+/** Minimal DOM helpers  keeps the engine terse without a framework. */
 
 type Child = Node | string | null | undefined | false
 type Attrs = Record<string, string | number | boolean | null | undefined | EventListener>

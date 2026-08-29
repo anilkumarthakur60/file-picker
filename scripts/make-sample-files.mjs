@@ -1,14 +1,14 @@
 // Regenerate the demo library's sample files.
 //
 // The examples' media library wants one of every media type, and every card
-// should offer a working action — "open in new tab" for the types the picker
+// should offer a working action  "open in new tab" for the types the picker
 // can't render inline. That means the bytes behind them have to be real files.
 //
 // They are served as static assets from each example's public/samples/ rather
 // than built in the browser as blob: URLs, because a blob URL only works for
 // MIME types the browser *renders*: navigating a new tab to a blob of a
 // download-type (docx, xlsx, pptx, zip) opens an empty tab and downloads
-// nothing. A plain HTTP URL behaves like production — rendered or downloaded
+// nothing. A plain HTTP URL behaves like production  rendered or downloaded
 // under its real filename.
 //
 // The Office formats are zips of XML parts; the parts below are the minimum
@@ -292,7 +292,7 @@ const JSON_TOKENS = `{
 }
 `
 
-/** The 22 bytes of a valid, empty zip — an archive with no entries. */
+/** The 22 bytes of a valid, empty zip  an archive with no entries. */
 const ZIP = Buffer.from([0x50, 0x4b, 0x05, 0x06, ...new Array(18).fill(0)])
 
 /** A short fading tone, so the audio card's preview really plays something. */

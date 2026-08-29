@@ -17,7 +17,7 @@ const str = (v: unknown, fallback = ''): string => {
   return fallback
 }
 const num = (v: unknown, fallback = 0): number => {
-  // Treat null/undefined/'' as absent — Number('') and Number(null) are 0
+  // Treat null/undefined/'' as absent  Number('') and Number(null) are 0
   // (finite), which would otherwise mask the fallback.
   if (v == null || v === '') return fallback
   const n = Number(v)
@@ -25,7 +25,7 @@ const num = (v: unknown, fallback = 0): number => {
 }
 
 /* ------------------------------------------------------------------ *
- * In-memory adapter — for demos, tests and prototypes (no backend).  *
+ * In-memory adapter  for demos, tests and prototypes (no backend).  *
  * ------------------------------------------------------------------ */
 
 export interface MemoryAdapterSeed {
@@ -41,7 +41,7 @@ const makeObjectUrl = (file: File): string =>
     : ''
 
 /**
- * An in-memory {@link FilePickerAdapter}. Everything lives in JS — great for
+ * An in-memory {@link FilePickerAdapter}. Everything lives in JS  great for
  * demos and unit tests. Uploads become object URLs; deleting a folder moves
  * its media to Uncategorized.
  */
@@ -169,7 +169,7 @@ export function createMemoryAdapter(seed: MemoryAdapterSeed = {}): FilePickerAda
 }
 
 /* ------------------------------------------------------------------ *
- * REST adapter — a configurable client for a JSON/REST backend.      *
+ * REST adapter  a configurable client for a JSON/REST backend.      *
  * Defaults match a Laravel-style media API.                          *
  * ------------------------------------------------------------------ */
 

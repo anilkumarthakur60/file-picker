@@ -57,7 +57,7 @@ export const defaultLabels: FilePickerLabels = {
   dropHint: 'Click to select files, or drag & drop',
   uploaded: (n) => (n === 1 ? 'Uploaded 1 file' : `Uploaded ${n} files`),
   uploadFailed: 'Upload failed',
-  uploadSkipped: (n) => `${n} file${n === 1 ? '' : 's'} skipped — wrong type`,
+  uploadSkipped: (n) => `${n} file${n === 1 ? '' : 's'} skipped  wrong type`,
   editTitle: 'Edit Media',
   filename: 'Filename',
   altText: 'Alt text',

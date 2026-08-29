@@ -5,7 +5,7 @@ There's no utility framework to configure and nothing to wire up beyond a single
 
 ## Import the stylesheet
 
-The stylesheet is **required** — without it the dialog is unstyled. Import it once in your app's
+The stylesheet is **required**  without it the dialog is unstyled. Import it once in your app's
 entry:
 
 ```ts
@@ -29,7 +29,7 @@ apply). You can add those classes yourself if you theme a region of the page ind
 
 ## Switch the theme at runtime
 
-The picker renders **no theme toggle of its own** — your app owns that (e.g. a switch in your
+The picker renders **no theme toggle of its own**  your app owns that (e.g. a switch in your
 navbar). Drive the picker's theme from your app by passing `theme` and calling `setTheme()`:
 
 ```ts
@@ -41,14 +41,14 @@ picker.on('theme', (t) => console.log('theme is now', t))
 The framework bindings pass `theme` reactively, so binding a prop is enough:
 
 ```tsx
-// React — the picker follows your app's theme state
+// React  the picker follows your app's theme state
 <FilePicker adapter={adapter} theme={appIsDark ? 'dark' : 'light'} />
 ```
 
 ## Responsive
 
 On narrow viewports the filter bar collapses into an **off-canvas drawer**, opened from the
-toolbar's filter button, so the media grid keeps the screen. It's automatic — nothing to configure.
+toolbar's filter button, so the media grid keeps the screen. It's automatic  nothing to configure.
 
 ## Customize with `--fp-*` variables
 
@@ -82,7 +82,7 @@ background; on dark, keep the accent light and the solid deep enough for its lab
 | `--fp-surface-2` | Raised surface | `#eef2f7` |
 | `--fp-hover` | Hover background | `#f1f5f9` |
 | `--fp-accent` | Accent for text, borders and focus rings | `#2563eb` |
-| `--fp-accent-solid` | Accent as a *fill* — primary button, trigger, checked box | `#2563eb` |
+| `--fp-accent-solid` | Accent as a *fill*  primary button, trigger, checked box | `#2563eb` |
 | `--fp-accent-soft` | Accent tint (selection) | `rgba(37, 99, 235, 0.12)` |
 | `--fp-accent-fg` | Text on `--fp-accent-solid` | `#ffffff` |
 | `--fp-danger` | Destructive actions | `#e5484d` |
@@ -110,7 +110,7 @@ The stylesheet supplies dark values automatically for `theme: 'auto'` (via `pref
 and for `.fp--dark`. To tune the dark palette, override the variables under the dark selectors.
 
 An `@media` block can't sit inside a comma-separated selector list, so the two dark selectors have
-to be written as separate rules — mirroring the shipped stylesheet. The first covers forced dark
+to be written as separate rules  mirroring the shipped stylesheet. The first covers forced dark
 (`.fp--dark`), the second covers `auto` under an OS that prefers dark:
 
 ```css

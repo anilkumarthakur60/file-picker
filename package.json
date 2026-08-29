@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.0.0",
-  "description": "Monorepo for @anil-labs/file-picker — a framework-agnostic media-library file picker (folders, upload, filters, editing) with React, Vue, Svelte, Solid and Web Component bindings",
+  "description": "Monorepo for @anil-labs/file-picker  a framework-agnostic media-library file picker (folders, upload, filters, editing) with React, Vue, Svelte, Solid and Web Component bindings",
   "scripts": {
     "build": "pnpm --filter \"./packages/*\" -r build",
     "dev": "pnpm --filter \"./packages/*\" -r --parallel dev",

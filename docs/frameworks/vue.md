@@ -42,17 +42,17 @@ function onSelect(items: MediaItem[]) {
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `options` | `FilePickerOptions` | — (required) | The picker options (`adapter`, `multiple`, `title`, `theme`, …). |
-| `v-model` | `MediaItem[] \| MediaItem \| null` | — | Two-way selection binding. Takes precedence over `options.selected`. |
+| `options` | `FilePickerOptions` |  (required) | The picker options (`adapter`, `multiple`, `title`, `theme`, …). |
+| `v-model` | `MediaItem[] \| MediaItem \| null` |  | Two-way selection binding. Takes precedence over `options.selected`. |
 | `label` | `string` | `'Select File'` | Trigger label. |
 | `showSelected` | `boolean` | `true` | Render the selected-thumbnails strip. |
 
 | Event | Payload |
 | --- | --- |
-| `@update:modelValue` | `MediaItem[]` — the `v-model` write-back (fires with `@change`). |
-| `@select` | `MediaItem[]` — the user confirmed with **Done**. |
-| `@change` | `MediaItem[]` — the selection changed. |
-| `@upload` | `MediaItem[]` — an upload completed. |
+| `@update:modelValue` | `MediaItem[]`  the `v-model` write-back (fires with `@change`). |
+| `@select` | `MediaItem[]`  the user confirmed with **Done**. |
+| `@change` | `MediaItem[]`  the selection changed. |
+| `@upload` | `MediaItem[]`  an upload completed. |
 
 ### `v-model`
 
@@ -76,7 +76,7 @@ doesn't shift when `options.multiple` changes. On the way in it also accepts a b
 #### Binding IDs instead of items
 
 You cannot `v-model` an array of IDs. `MediaItem[]` → `number[]` is lossy, and nothing can rebuild
-the items from IDs — `FilePickerAdapter` lists media by query, not by ID. Keep the items as the
+the items from IDs  `FilePickerAdapter` lists media by query, not by ID. Keep the items as the
 source of truth and derive the IDs for your form:
 
 ```vue

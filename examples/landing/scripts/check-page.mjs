@@ -2,18 +2,18 @@
 // Post-build guard for the file-picker landing page.
 //
 // A broken landing page fails silently: the markup renders, the headings read
-// correctly, and only the pickers — the point of the page — come up as dead
+// correctly, and only the pickers  the point of the page  come up as dead
 // buttons that open nothing. Typechecking cannot catch it either, since every
 // wiring bug worth having (a renamed id, a picker never mounted, an adapter
 // that returns nothing, a listener on the wrong element) is type-correct.
 //
-// So this mounts the real built artifact in happy-dom — the same DOM the core
-// engine is unit-tested against — drives it, and asserts:
+// So this mounts the real built artifact in happy-dom  the same DOM the core
+// engine is unit-tested against  drives it, and asserts:
 //
 //   1. Every demo mounted a trigger, a selected strip and a (hidden) dialog.
 //   2. The pre-seeded demos actually show their initial selection.
 //   3. Opening the events picker loads the grid from the adapter, and clicking
-//      an item emits `change` and writes it to the live event log — i.e. the
+//      an item emits `change` and writes it to the live event log  i.e. the
 //      whole async pipeline runs, not just the static shell.
 //
 // Usage:  node scripts/check-page.mjs [outDir]     (default: dist)
@@ -47,7 +47,7 @@ if (!scriptSrc) {
 const { Window } = require('happy-dom')
 const window = new Window({
   url: 'http://localhost/',
-  // Don't let happy-dom fetch/run the page's own <script src> — this guard
+  // Don't let happy-dom fetch/run the page's own <script src>  this guard
   // imports the bundle itself with the globals registered below.
   settings: { disableJavaScriptFileLoading: true, disableJavaScriptEvaluation: true },
 })
@@ -76,7 +76,7 @@ for (const key of [
   'KeyboardEvent',
   'Image',
   'DOMParser',
-  // The form demo reads its own <form> through FormData — Node has a global of
+  // The form demo reads its own <form> through FormData  Node has a global of
   // that name, but only happy-dom's knows how to walk this document's fields.
   'FormData',
 ]) {
@@ -91,7 +91,7 @@ for (const key of [
 
 window.document.write(html)
 
-// The bundle's top-level code runs on import — that IS the wiring under test.
+// The bundle's top-level code runs on import  that IS the wiring under test.
 await import(pathToFileURL(resolve(outDir, scriptSrc.replace(/^\.?\//, ''))).href)
 await window.happyDOM.waitUntilComplete()
 
@@ -128,7 +128,7 @@ check(
   'a picker overlay was already open before any trigger was clicked.',
 )
 
-// The hero and events demos start pre-selected — prove the `selected` option and
+// The hero and events demos start pre-selected  prove the `selected` option and
 // the selected-strip renderer are wired.
 check(
   ($('#s-hero .fp-selected')?.childElementCount ?? 0) > 0,
@@ -146,7 +146,7 @@ check(openOverlay != null, 'events picker: clicking the trigger did not open a d
 const cards = openOverlay ? [...openOverlay.querySelectorAll('.fp-card')] : []
 check(
   cards.length > 0,
-  'events picker: the grid rendered no items — the adapter/render pipeline did not run.',
+  'events picker: the grid rendered no items  the adapter/render pipeline did not run.',
 )
 
 if (cards.length > 0) {
@@ -159,10 +159,10 @@ if (cards.length > 0) {
   )
   check(
     $$('#events-log .log-row').length >= 1,
-    '#events-log: selecting an item logged no `change` event — the event wiring is broken.',
+    '#events-log: selecting an item logged no `change` event  the event wiring is broken.',
   )
 
-  // The checkbox is the other half of the same hit target — clicking it must
+  // The checkbox is the other half of the same hit target  clicking it must
   // toggle too, and it is the only thing that shows the selection now that a
   // selected card carries no border. Re-query: renderGrid rebuilt the cards
   // above, so the `cards` handles are detached and clicking them is a no-op.
@@ -177,7 +177,7 @@ if (cards.length > 0) {
 
 // ------------------------------------------------- form demo (hidden inputs)
 
-// The form demo starts pre-selected, so the hidden inputs must already exist —
+// The form demo starts pre-selected, so the hidden inputs must already exist 
 // a picker that mounts but never mirrors its selection posts an empty form.
 const hiddenInputs = $$('#form-hidden input[name="mediaIds[]"]')
 check(
@@ -204,7 +204,7 @@ try {
 }
 check(typeof parsed?.title === 'string', '#form-payload: submitting did not report `title`.')
 // `check` collects failures rather than throwing, so nothing below may
-// dereference `parsed` — a bad parse has to degrade to an empty list.
+// dereference `parsed`  a bad parse has to degrade to an empty list.
 const ids = Array.isArray(parsed?.mediaIds) ? parsed.mediaIds : []
 check(
   ids.length > 0,

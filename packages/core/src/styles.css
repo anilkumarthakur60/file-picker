@@ -1,4 +1,4 @@
-/* @anil-labs/file-picker — engine styles. Import once:
+/* @anil-labs/file-picker  engine styles. Import once:
      import '@anil-labs/file-picker-core/styles.css'
    Theming: override the --fp-* custom properties, or add .fp--dark / .fp--light. */
 
@@ -178,7 +178,7 @@
   padding: 12px 16px;
   align-items: center;
 }
-/* Mobile-only chrome — shown inside the media query below. */
+/* Mobile-only chrome  shown inside the media query below. */
 .fp-filters-toggle,
 .fp-filters-head,
 .fp-filters-backdrop {
@@ -504,7 +504,7 @@
 }
 .fp-card-check input:checked {
   /* Solid fill, not --fp-accent: the tick is white, and on the light dark-theme
-   * accent it only cleared 2.8:1 — under the 3:1 WCAG 1.4.11 needs for a
+   * accent it only cleared 2.8:1  under the 3:1 WCAG 1.4.11 needs for a
    * graphical control. Also keeps the tick matching the primary button. */
   background: var(--fp-accent-solid);
   border-color: #fff;
@@ -968,7 +968,7 @@
 .fp-preview-close:hover {
   background: rgba(15, 23, 42, 0.8);
 }
-/* Audio: clear of the player's own controls (see openPreview) — 34px tall from
+/* Audio: clear of the player's own controls (see openPreview)  34px tall from
  * -42px leaves an 8px gap above the bar. */
 .fp-preview-body--audio .fp-preview-close {
   top: -42px;
@@ -1056,7 +1056,7 @@
   }
   .fp-filter,
   .fp-filter-folder {
-    /* Don't grow to fill the tall column — stack compactly at natural height. */
+    /* Don't grow to fill the tall column  stack compactly at natural height. */
     flex: none;
     width: 100%;
     min-width: 0;
@@ -1089,7 +1089,7 @@
 /* The card ring is keyboard-only. `:focus-visible` by itself wasn't enough:
  * renderGrid() re-focuses the active card via focus(), and Chrome scores
  * script-driven focus as keyboard focus, so a mouse click on a card left the
- * ring latched on — reading as a "selected" border. [data-fp-kb] is set by the
+ * ring latched on  reading as a "selected" border. [data-fp-kb] is set by the
  * dialog's keydown handler and cleared on pointerdown, so pointer selection
  * never paints a border while keyboard users keep a visible focus indicator. */
 .fp-card:focus-visible {
@@ -1268,7 +1268,7 @@
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   /* .fp-pager dropped: it sits inside .fp-bar now (padding: 0), and .fp-bar
-   * carries the inset itself — falling back to its 10px shorthand where max()
+   * carries the inset itself  falling back to its 10px shorthand where max()
    * is unsupported. */
   /* .fp-preview-close dropped: it's anchored to the media inside the overlay's
    * 40px padding now, so it can't land under a notch or the home indicator. */
@@ -1281,7 +1281,7 @@
   }
   /* A fixed pair rather than auto-fill: on a phone, auto-fill fits a third
    * (and on the widest phones a fourth) track, which leaves the thumbnails too
-   * small to judge. `minmax(0, 1fr)` — not `1fr` — so a long filename can't
+   * small to judge. `minmax(0, 1fr)`  not `1fr`  so a long filename can't
    * push a track past its share and break the pair. */
   .fp-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1302,7 +1302,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  /* keep the loading spinner spinning — it communicates progress */
+  /* keep the loading spinner spinning  it communicates progress */
   .fp-spinner {
     animation-duration: 0.7s !important;
     animation-iteration-count: infinite !important;

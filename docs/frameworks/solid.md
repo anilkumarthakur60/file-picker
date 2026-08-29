@@ -44,9 +44,9 @@ The component spreads all [`FilePickerOptions`](/reference/api#options) (`adapte
 | --- | --- | --- | --- |
 | `label` | `string` | `'Select File'` | Trigger label. |
 | `showSelected` | `boolean` | `true` | Render the selected-thumbnails strip. |
-| `onSelect` | `(items: MediaItem[]) => void` | — | Fires when the user confirms with **Done**. |
-| `onChange` | `(items: MediaItem[]) => void` | — | Fires on every selection change. |
-| `onUpload` | `(items: MediaItem[]) => void` | — | Fires after an upload completes. |
+| `onSelect` | `(items: MediaItem[]) => void` |  | Fires when the user confirms with **Done**. |
+| `onChange` | `(items: MediaItem[]) => void` |  | Fires on every selection change. |
+| `onUpload` | `(items: MediaItem[]) => void` |  | Fires after an upload completes. |
 
 ## `useFilePicker`
 
@@ -80,8 +80,8 @@ function Gallery() {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `selected` | `Accessor<MediaItem[]>` | The current selection — call it: `selected()`. |
-| `isOpen` | `Accessor<boolean>` | Whether the dialog is open — `isOpen()`. |
+| `selected` | `Accessor<MediaItem[]>` | The current selection  call it: `selected()`. |
+| `isOpen` | `Accessor<boolean>` | Whether the dialog is open  `isOpen()`. |
 | `open` | `() => void` | Open the dialog. |
 | `close` | `() => void` | Close the dialog. |
 | `setSelected` | `(items: MediaItem[] \| MediaItem \| null) => void` | Replace the selection. |

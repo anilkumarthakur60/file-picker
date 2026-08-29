@@ -32,9 +32,9 @@ const log = (kind: string, detail: string): void => {
 }
 const names = (items: MediaItem[]): string => items.map((m) => m.filename).join(', ') || '(none)'
 
-picker.on('change', (items) => log('change', `${items.length} selected — ${names(items)}`))
-picker.on('select', (items) => log('select ✓', `confirmed ${items.length} — ${names(items)}`))
-picker.on('upload', (items) => log('upload', `${items.length} file(s) — ${names(items)}`))
+picker.on('change', (items) => log('change', `${items.length} selected  ${names(items)}`))
+picker.on('select', (items) => log('select ✓', `confirmed ${items.length}  ${names(items)}`))
+picker.on('upload', (items) => log('upload', `${items.length} file(s)  ${names(items)}`))
 picker.on('delete', (item) => log('delete', item.filename))
 picker.on('error', (err) => log('error', String(err)))
 
@@ -63,7 +63,7 @@ const syncHiddenInputs = (items: MediaItem[]): void => {
     hiddenHost.append(input)
   }
   hintEl.innerHTML =
-    `${items.length} hidden <code>mediaIds[]</code> input${items.length === 1 ? '' : 's'} — ` +
+    `${items.length} hidden <code>mediaIds[]</code> input${items.length === 1 ? '' : 's'}  ` +
     `the trigger is a <code>type="button"</code>, so opening the picker never submits the form.`
 }
 
@@ -71,7 +71,7 @@ formPicker.on('change', syncHiddenInputs)
 syncHiddenInputs(formPicker.getSelected())
 
 // Renders the posted FormData as the JSON a backend parses it into. Repeated
-// `mediaIds[]` fields collapse into one array under `mediaIds` — the `[]` suffix
+// `mediaIds[]` fields collapse into one array under `mediaIds`  the `[]` suffix
 // is wire syntax, not part of the field name. Values stay strings because that
 // is what a multipart body carries; casting them here would hide the fact that
 // your server has to. With nothing selected there is no `mediaIds` key at all,

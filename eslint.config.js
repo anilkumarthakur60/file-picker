@@ -11,7 +11,7 @@ const rootDir = fileURLToPath(new URL('.', import.meta.url))
  * Flat ESLint config.
  *
  * - Published packages (`packages/*`/src) are linted with full **type-aware**
- *   rules — `any` is a hard error and unsafe/untyped access is banned.
+ *   rules  `any` is a hard error and unsafe/untyped access is banned.
  * - Example apps and build scripts get a lighter, non-type-checked pass that
  *   still forbids `any`.
  * - Prettier owns all formatting; `eslint-config-prettier` disables any rule

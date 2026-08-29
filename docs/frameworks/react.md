@@ -46,12 +46,12 @@ The component spreads all [`FilePickerOptions`](/reference/api#options) (`adapte
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `label` | `string` | `'Select File'` | Trigger label (ignored when `children` is provided). |
-| `children` | `ReactNode` | — | Custom trigger content; clicking it opens the picker. |
+| `children` | `ReactNode` |  | Custom trigger content; clicking it opens the picker. |
 | `showSelected` | `boolean` | `true` | Render the selected-thumbnails strip. |
-| `wrapperClass` | `string` | — | Class for the wrapper element. |
-| `onSelect` | `(items: MediaItem[]) => void` | — | Fires when the user confirms with **Done**. |
-| `onChange` | `(items: MediaItem[]) => void` | — | Fires on every selection change. |
-| `onUpload` | `(items: MediaItem[]) => void` | — | Fires after an upload completes. |
+| `wrapperClass` | `string` |  | Class for the wrapper element. |
+| `onSelect` | `(items: MediaItem[]) => void` |  | Fires when the user confirms with **Done**. |
+| `onChange` | `(items: MediaItem[]) => void` |  | Fires on every selection change. |
+| `onUpload` | `(items: MediaItem[]) => void` |  | Fires after an upload completes. |
 
 Provide `children` to use your own trigger:
 

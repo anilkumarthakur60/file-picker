@@ -142,7 +142,7 @@ for (const { trigger, selected, label, options } of DEMOS) {
   picker.mountSelected(el(selected))
 }
 
-// --- Events demo — the guard drives this one to prove the engine runs.
+// --- Events demo  the guard drives this one to prove the engine runs.
 const eventsPicker = new FilePicker({
   adapter: createDemoAdapter(),
   multiple: true,
@@ -167,23 +167,23 @@ const logLine = (kind: string, detail: string): void => {
   while (eventsLog.childElementCount > 24) eventsLog.lastElementChild?.remove()
 }
 eventsLog.innerHTML =
-  '<div class="empty">Open the picker and pick something — events appear here…</div>'
+  '<div class="empty">Open the picker and pick something  events appear here…</div>'
 
 const names = (items: MediaItem[]): string => items.map((m) => m.filename).join(', ') || '(none)'
 
-eventsPicker.on('change', (items) => logLine('change', `${items.length} — ${names(items)}`))
+eventsPicker.on('change', (items) => logLine('change', `${items.length}  ${names(items)}`))
 eventsPicker.on('select', (items) =>
-  logLine('select ✓', `confirmed ${items.length} — ${names(items)}`),
+  logLine('select ✓', `confirmed ${items.length}  ${names(items)}`),
 )
-eventsPicker.on('upload', (items) => logLine('upload', `${items.length} file(s) — ${names(items)}`))
+eventsPicker.on('upload', (items) => logLine('upload', `${items.length} file(s)  ${names(items)}`))
 eventsPicker.on('delete', (item) => logLine('delete', item.filename))
 eventsPicker.on('error', (err) => logLine('error', String(err)))
 
-// --- Form demo — the picker is not an <input> ------------------------------
+// --- Form demo  the picker is not an <input> ------------------------------
 
 // It mounts a trigger and a thumbnail strip, neither of which a <form> can
-// read. Mirroring the selection into hidden inputs on `change` — the same event
-// the selected strip renders from — makes it submit like any other field.
+// read. Mirroring the selection into hidden inputs on `change`  the same event
+// the selected strip renders from  makes it submit like any other field.
 const formPicker = new FilePicker({
   adapter: createDemoAdapter(),
   multiple: true,
@@ -210,7 +210,7 @@ function syncHiddenInputs(items: MediaItem[]): void {
     }),
   )
   formHint.innerHTML =
-    `${items.length} hidden <code>mediaIds[]</code> input${items.length === 1 ? '' : 's'} — ` +
+    `${items.length} hidden <code>mediaIds[]</code> input${items.length === 1 ? '' : 's'}  ` +
     `the trigger is a <code>type="button"</code>, so opening the picker never submits the form.`
 }
 
@@ -218,7 +218,7 @@ formPicker.on('change', syncHiddenInputs)
 syncHiddenInputs(formPicker.getSelected())
 
 // What the server would receive, printed as JSON instead of navigating away.
-// Repeated `mediaIds[]` fields collapse into one array under `mediaIds` — the
+// Repeated `mediaIds[]` fields collapse into one array under `mediaIds`  the
 // `[]` suffix is wire syntax, not part of the field name. Values stay strings
 // because that is what a multipart body carries; casting them here would hide
 // the fact that your server has to. With nothing selected there is no `mediaIds`
@@ -296,7 +296,7 @@ const FRAMEWORKS: FrameworkDemo[] = [
   {
     slug: 'vanilla',
     label: 'Vanilla JS',
-    desc: 'The raw FilePicker engine over an in-memory adapter — no framework.',
+    desc: 'The raw FilePicker engine over an in-memory adapter  no framework.',
   },
   {
     slug: 'react',
@@ -321,7 +321,7 @@ const FRAMEWORKS: FrameworkDemo[] = [
   {
     slug: 'element',
     label: 'Web Component',
-    desc: 'The <file-picker> custom element — any framework or plain HTML.',
+    desc: 'The <file-picker> custom element  any framework or plain HTML.',
   },
 ]
 

@@ -8,7 +8,7 @@ export default defineConfig({
   lang: 'en-US',
   title: '@anil-labs/file-picker',
   description:
-    'A framework-agnostic media-library file picker — folders, upload, filters, editing and single/multi selection. One engine, a pluggable backend adapter, and bindings for React, Vue, Svelte, Solid and a Web Component.',
+    'A framework-agnostic media-library file picker  folders, upload, filters, editing and single/multi selection. One engine, a pluggable backend adapter, and bindings for React, Vue, Svelte, Solid and a Web Component.',
   cleanUrls: true,
   lastUpdated: true,
   head: [['meta', { name: 'theme-color', content: '#3b82f6' }]],

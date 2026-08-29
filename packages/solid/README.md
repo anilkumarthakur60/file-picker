@@ -1,6 +1,6 @@
 # @anil-labs/file-picker-solid
 
-**SolidJS bindings for [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)** — a media-library file picker with folders, upload, filters and metadata editing.
+**SolidJS bindings for [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)**  a media-library file picker with folders, upload, filters and metadata editing.
 
 [![npm](https://img.shields.io/npm/v/@anil-labs/file-picker-solid?color=3b82f6&label=npm)](https://www.npmjs.com/package/@anil-labs/file-picker-solid)
 
@@ -35,7 +35,7 @@ const { open, selected, isOpen } = useFilePicker({ adapter, multiple: true })
 
 ## API
 
-- `<FilePicker … />` — spreads all `FilePickerOptions` as props (`adapter` required), plus `label`, `showSelected`, and `onSelect` / `onChange` / `onUpload`.
+- `<FilePicker … />`  spreads all `FilePickerOptions` as props (`adapter` required), plus `label`, `showSelected`, and `onSelect` / `onChange` / `onUpload`.
 - `useFilePicker(options)` → `{ selected (accessor), isOpen (accessor), open, close, setSelected, picker }`.
 
 Cleans up on scope dispose. Peer: `solid-js ^1.8`.

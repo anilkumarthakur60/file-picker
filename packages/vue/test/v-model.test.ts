@@ -27,7 +27,7 @@ const settle = async (): Promise<void> => {
 const $ = <T extends HTMLElement>(sel: string): T | null => document.querySelector<T>(sel)
 
 // Scope every card query to the dialog. The `showSelected` strip renders
-// `.fp-card` nodes too, and it precedes the overlay in the document — so a bare
+// `.fp-card` nodes too, and it precedes the overlay in the document  so a bare
 // `.fp-card` selector starts matching the strip as soon as anything is selected.
 const gridCard = (): HTMLElement | null => $<HTMLElement>('.fp-dialog .fp-card')
 
@@ -90,7 +90,7 @@ describe('FilePicker v-model', () => {
         modelValue: model.value,
         'onUpdate:modelValue': (v: MediaItem[]) => {
           emits++
-          // A fresh array every time — the shape v-model actually produces, and
+          // A fresh array every time  the shape v-model actually produces, and
           // the one an identity check on the value would loop on.
           model.value = [...v]
         },

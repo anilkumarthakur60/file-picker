@@ -5,7 +5,7 @@
 //     assets/         <- the landing page's own bundle
 //     vanilla/ react/ vue/ svelte/ solid/ element/
 //
-// The landing page used to be a hardcoded HTML string generated right here — a
+// The landing page used to be a hardcoded HTML string generated right here  a
 // link directory of framework cards, with no working picker on it. It is now a
 // real Vite app under examples/landing, so it is typechecked, linted and
 // formatted like everything else, and its demos are the live engine rather than
@@ -49,7 +49,7 @@ for (const { slug, filter } of demos) {
 //
 //    `--emptyOutDir` is deliberately omitted: dist-demos already holds the six
 //    demo builds at this point, and Vite would wipe them. Vite warns when the
-//    outDir sits outside its root and it isn't emptying it — that warning is
+//    outDir sits outside its root and it isn't emptying it  that warning is
 //    the expected outcome here, not a problem.
 run(`pnpm --filter example-landing exec vite build --base=/ --outDir=${outDir}`)
 

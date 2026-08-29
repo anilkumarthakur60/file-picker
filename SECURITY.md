@@ -29,7 +29,7 @@ unless you prefer to remain anonymous.
 ## Scope
 
 This is a client-side UI library with **zero runtime dependencies**. The most
-relevant class of issue is DOM/HTML injection — note in particular that
+relevant class of issue is DOM/HTML injection  note in particular that
 `captionHTML: true` and `type: 'html'` items render **trusted** content
 verbatim by design; passing untrusted strings there is an application-level
 concern, not a library vulnerability.

@@ -1,10 +1,10 @@
 # @anil-labs/file-picker-core
 
-**The framework-agnostic engine behind [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)** — a media-library file picker (folders, upload, filters, metadata editing, single/multi selection) that renders its own themeable UI and talks to any backend through a pluggable adapter. Zero runtime dependencies.
+**The framework-agnostic engine behind [`@anil-labs/file-picker`](https://github.com/anilkumarthakur60/file-picker)**  a media-library file picker (folders, upload, filters, metadata editing, single/multi selection) that renders its own themeable UI and talks to any backend through a pluggable adapter. Zero runtime dependencies.
 
 [![npm](https://img.shields.io/npm/v/@anil-labs/file-picker-core?color=3b82f6&label=npm)](https://www.npmjs.com/package/@anil-labs/file-picker-core)
 
-Using a framework? Prefer the binding — it wires selection into your reactivity and cleans up
+Using a framework? Prefer the binding  it wires selection into your reactivity and cleans up
 automatically: [React](https://www.npmjs.com/package/@anil-labs/file-picker-react) ·
 [Vue](https://www.npmjs.com/package/@anil-labs/file-picker-vue) ·
 [Svelte](https://www.npmjs.com/package/@anil-labs/file-picker-svelte) ·
@@ -38,9 +38,9 @@ picker.on('select', (items) => console.log('picked', items))
 
 The engine is backend-agnostic. Provide one of:
 
-- **`createRestAdapter(config)`** — a configurable REST client (defaults suit a Laravel-style API); override `mapMedia` / `parseList` / `toListParams` etc. for other shapes.
-- **`createMemoryAdapter(seed)`** — in-memory, for demos, prototypes and tests.
-- **your own `FilePickerAdapter`** — eight async methods: `listMedia`, `deleteMedia`, `updateMedia`, `uploadMedia`, `listFolders`, `createFolder`, `renameFolder`, `deleteFolder`.
+- **`createRestAdapter(config)`**  a configurable REST client (defaults suit a Laravel-style API); override `mapMedia` / `parseList` / `toListParams` etc. for other shapes.
+- **`createMemoryAdapter(seed)`**  in-memory, for demos, prototypes and tests.
+- **your own `FilePickerAdapter`**  eight async methods: `listMedia`, `deleteMedia`, `updateMedia`, `uploadMedia`, `listFolders`, `createFolder`, `renameFolder`, `deleteFolder`.
 
 ## Instance API
 

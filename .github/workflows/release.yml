@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches: [main]
-  # Re-run a release without inventing a commit — needed whenever a run failed
+  # Re-run a release without inventing a commit  needed whenever a run failed
   # for a reason outside the repo (a missing NPM_TOKEN, an unconfigured scope).
   workflow_dispatch:
 

@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Maintenance release. Toolchain and development dependencies refreshed across the
-  repository — Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 —
+  repository  Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 
   and the documentation site is now published at
   https://anilkumarthakur60.github.io/file-picker/, so the links in each package README
   resolve.
@@ -27,7 +27,7 @@ Initial release.
 
 - Theming through `--fp-*` custom properties with light/dark/auto; `--fp-accent` colours text and borders while `--fp-accent-solid` fills controls, so both stay legible in either theme.
 
-- Selection is shown by the card checkbox alone — cards take no border, and the keyboard focus ring is gated behind real key input.
+- Selection is shown by the card checkbox alone  cards take no border, and the keyboard focus ring is gated behind real key input.
 
 - Accessibility: roving tabindex over the grid, `role="listbox"`/`option`, focus trapping in dialogs, 44px touch targets, RTL via logical properties, and `prefers-reduced-motion` support.
 

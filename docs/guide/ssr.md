@@ -1,6 +1,6 @@
 # Server-Side Rendering
 
-The picker is a browser component — it renders to the DOM, so the engine can only live on the client.
+The picker is a browser component  it renders to the DOM, so the engine can only live on the client.
 Constructing `new FilePicker(...)` **throws synchronously** when there's no DOM (and also when no
 adapter is given), so it must never run during SSR.
 
@@ -11,7 +11,7 @@ page covers the few things to keep in mind.
 
 ## The stylesheet is SSR-safe
 
-The CSS import is just a stylesheet — it never touches the DOM at import time, so import it anywhere,
+The CSS import is just a stylesheet  it never touches the DOM at import time, so import it anywhere,
 including a server entry or root layout:
 
 ```ts
@@ -21,7 +21,7 @@ import '@anil-labs/file-picker-core/styles.css'
 ## Build the engine on the client only
 
 If you drop down to the core `new FilePicker(...)` directly, construct it inside an effect / mount
-hook — **never at module scope**, where it would run on the server and throw:
+hook  **never at module scope**, where it would run on the server and throw:
 
 ::: code-group
 
@@ -76,7 +76,7 @@ function Gallery() {
 :::
 
 ::: tip
-This is exactly what the [framework bindings](/frameworks/react) do for you — reach for them first
+This is exactly what the [framework bindings](/frameworks/react) do for you  reach for them first
 and you rarely need to touch the raw constructor.
 :::
 
@@ -96,7 +96,7 @@ if (typeof window !== 'undefined') {
 
 Once the engine is built, the framework bindings keep only **`theme`** and **`selected`** in sync
 with your props. Every other option (`adapter`, `multiple`, `typeFilters`, `labels`, `layout`, …) is
-read once at construction. To apply a changed option, **remount** the component — for example by
+read once at construction. To apply a changed option, **remount** the component  for example by
 giving it a new React `key`.
 
 ## Framework notes
@@ -104,7 +104,7 @@ giving it a new React `key`.
 ### Next.js (App Router)
 
 The React binding ships a `'use client'` banner, so `<FilePicker>` works in Server Component setups
-out of the box — render it directly and import the core CSS in your root layout. For the web
+out of the box  render it directly and import the core CSS in your root layout. For the web
 component, dynamic-import it from a client component's `useEffect`, or wrap that component with
 `next/dynamic` using `{ ssr: false }`.
 
@@ -122,7 +122,7 @@ export function Picker() {
 
 ### Nuxt
 
-Use the Vue binding — `<FilePicker>` builds the engine on mount, so it hydrates cleanly. Add the CSS
+Use the Vue binding  `<FilePicker>` builds the engine on mount, so it hydrates cleanly. Add the CSS
 via `nuxt.config` (`css: ['@anil-labs/file-picker-core/styles.css']`) or an `app.vue` import. For the
 web component, import it inside `onMounted` or wrap `<file-picker>` in `<ClientOnly>`, and register
 the tag so the compiler doesn't warn:
@@ -137,7 +137,7 @@ export default defineNuxtConfig({
 ### SvelteKit
 
 `createFilePicker` constructs the engine immediately, so call it inside `onMount` and tear it down in
-`onDestroy` — exactly as the [Svelte guide](/frameworks/svelte) shows. That keeps it off the server.
+`onDestroy`  exactly as the [Svelte guide](/frameworks/svelte) shows. That keeps it off the server.
 Import the CSS in your root `+layout.svelte`, and dynamic-import `@anil-labs/file-picker-element`
 inside `onMount` if you use the web component.
 

@@ -42,7 +42,7 @@ export function createFilePicker(options: CreateFilePickerOptions): FilePickerCo
 
   // The core renders to the DOM, so it can only be constructed in the browser.
   // During SvelteKit's server render `document` is undefined and the core
-  // constructor throws — guard it and return an inert controller instead. The
+  // constructor throws  guard it and return an inert controller instead. The
   // component script re-runs on the client during hydration (and the documented
   // usage is `onMount`), where the engine is built for real.
   const picker = typeof document !== 'undefined' ? new FilePickerCore(options) : null

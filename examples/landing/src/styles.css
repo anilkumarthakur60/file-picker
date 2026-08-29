@@ -1,7 +1,7 @@
 /* Page chrome for the file-picker landing demo.
  *
  * The picker ships its own complete stylesheet (@anil-labs/file-picker-core/
- * styles.css) — the dialog, grid, folders, trigger and selected strip, all
+ * styles.css)  the dialog, grid, folders, trigger and selected strip, all
  * themed through --fp-* variables. Everything here is the surrounding page:
  * layout, cards, and the light/dark theme of the page itself.
  *

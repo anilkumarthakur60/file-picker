@@ -56,7 +56,7 @@ export class Emitter {
       try {
         ;(listener as Listener<E>)(...args)
       } catch (err) {
-        // Never re-enter on the 'error' channel — that would risk a loop.
+        // Never re-enter on the 'error' channel  that would risk a loop.
         if (event !== 'error' && typeof console !== 'undefined') {
           console.error('[file-picker] an event listener threw:', err)
         }

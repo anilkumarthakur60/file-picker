@@ -47,13 +47,13 @@ const file = (
 })
 
 /**
- * A seeded in-memory adapter — the same sample library used by every demo. It
+ * A seeded in-memory adapter  the same sample library used by every demo. It
  * covers every `MediaType` the picker knows about, so each icon, accent colour,
  * type filter and card action shows up somewhere in the grid.
  */
 export function createDemoAdapter(): FilePickerAdapter {
   const media: MediaItem[] = [
-    // image — thumbnails come straight from `src`
+    // image  thumbnails come straight from `src`
     img(10, 'sunrise.jpg', 1, ['nature', 'warm']),
     img(20, 'mountains.jpg', 1, ['nature']),
     img(30, 'city-lights.jpg', 1, ['urban']),
@@ -67,7 +67,7 @@ export function createDemoAdapter(): FilePickerAdapter {
     img(96, 'logo-dark.jpg', 2, ['brand']),
     img(104, 'pattern.jpg', 2, ['brand']),
 
-    // vector — an SVG counts as an image: real thumbnail, lightbox preview
+    // vector  an SVG counts as an image: real thumbnail, lightbox preview
     file(200, 'brand-mark.svg', 'vector', 'image/svg+xml', 2, 306, ['brand', 'logo']),
 
     // pdf, documents, spreadsheets, presentations, text and unknown types all

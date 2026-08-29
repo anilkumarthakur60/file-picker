@@ -114,7 +114,7 @@ export const FilePicker = defineComponent({
   props: {
     options: { type: Object as PropType<UseFilePickerOptions>, required: true },
     /**
-     * `v-model` — the current selection. Always **emitted** as `MediaItem[]`,
+     * `v-model`  the current selection. Always **emitted** as `MediaItem[]`,
      * in single and multiple mode alike, so consumers get one stable type even
      * if `options.multiple` changes; accepts a bare item or `null` on the way
      * in. Takes precedence over `options.selected` when the prop is present.
@@ -145,7 +145,7 @@ export const FilePicker = defineComponent({
     const controlled = (): MediaItem[] | MediaItem | null | undefined =>
       props.modelValue !== undefined ? props.modelValue : props.options.selected
     // Seeded before the picker exists so onChange can stamp it and suppress the
-    // echo — see the watch() below.
+    // echo  see the watch() below.
     let lastSelectedKey = selectionKey(controlled())
 
     const { picker, open } = useFilePicker({

@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Maintenance release. Toolchain and development dependencies refreshed across the
-  repository — Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 —
+  repository  Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 
   and the documentation site is now published at
   https://anilkumarthakur60.github.io/file-picker/, so the links in each package README
   resolve.
@@ -20,7 +20,7 @@
 
 Initial release.
 
-- `<file-picker>` custom element — registered on import, no framework required.
+- `<file-picker>` custom element  registered on import, no framework required.
 
 - Attribute and property coverage for the engine's options, with `fp:*` DOM events for every callback.
 

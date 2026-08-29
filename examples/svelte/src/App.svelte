@@ -32,7 +32,7 @@
   }
 
   // The picker is not an <input>, so it contributes nothing to a form on its
-  // own. Mirroring the selection into hidden inputs is all it takes — this
+  // own. Mirroring the selection into hidden inputs is all it takes  this
   // prints the exact FormData the browser would post, so you can see what
   // arrives server-side.
   const describeSubmission = (form: HTMLFormElement): string => {
@@ -64,9 +64,9 @@
       adapter,
       multiple: true,
       title: 'Media Library',
-      onChange: (items) => push('change', `${items.length} selected — ${names(items)}`),
-      onSelect: (items) => push('select ✓', `confirmed ${items.length} — ${names(items)}`),
-      onUpload: (items) => push('upload', `${items.length} file(s) — ${names(items)}`),
+      onChange: (items) => push('change', `${items.length} selected  ${names(items)}`),
+      onSelect: (items) => push('select ✓', `confirmed ${items.length}  ${names(items)}`),
+      onUpload: (items) => push('upload', `${items.length} file(s)  ${names(items)}`),
     })
     // Read the selection reactively from the controller's `$selected` store.
     unsubscribe = controller.selected.subscribe((items) => (selected = items))
@@ -94,7 +94,7 @@
     <span class="badge">Svelte 5 · runes</span>
     <h1>@anil-labs/file-picker</h1>
     <p class="tag">
-      A framework-agnostic media library — folders, upload, filters, editing and single/multi
+      A framework-agnostic media library  folders, upload, filters, editing and single/multi
       selection. This demo runs entirely in-memory (no backend).
     </p>
   </div>
@@ -137,7 +137,7 @@
         <span>Media</span>
         <div bind:this={formTriggerEl}></div>
         <div bind:this={formSelectedEl}></div>
-        <!-- One hidden input per selected item — `mediaIds[]` arrives as an
+        <!-- One hidden input per selected item  `mediaIds[]` arrives as an
              array in PHP/Laravel/Rails; use `mediaIds` for a repeated key. -->
         {#each formSelected as item (item.id)}
           <input type="hidden" name="mediaIds[]" value={String(item.id)} />
@@ -145,7 +145,7 @@
         <p class="hint">
           {formSelected.length} hidden <code>mediaIds[]</code> input{formSelected.length === 1
             ? ''
-            : 's'} — the trigger is a <code>type="button"</code>, so opening the picker never
+            : 's'}  the trigger is a <code>type="button"</code>, so opening the picker never
           submits the form.
         </p>
       </div>

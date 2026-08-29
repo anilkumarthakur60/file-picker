@@ -154,7 +154,7 @@ export class FilePicker {
     }
     if (!options.adapter) {
       throw new Error(
-        '[file-picker] `adapter` is required — pass createRestAdapter(...), createMemoryAdapter(...), ' +
+        '[file-picker] `adapter` is required  pass createRestAdapter(...), createMemoryAdapter(...), ' +
           'or your own FilePickerAdapter.',
       )
     }
@@ -381,7 +381,7 @@ export class FilePicker {
     this.stylesheetWarned = true
     if (getComputedStyle(this.overlay).position !== 'fixed' && typeof console !== 'undefined') {
       console.warn(
-        "[file-picker] the dialog looks unstyled — did you import '@anil-labs/file-picker-core/styles.css'?",
+        "[file-picker] the dialog looks unstyled  did you import '@anil-labs/file-picker-core/styles.css'?",
       )
     }
   }
@@ -490,7 +490,7 @@ export class FilePicker {
     this.toastTimers.length = 0
     this.emitter.clear()
     this.unlockScroll()
-    // Tear down trigger/selected hosts the caller mounted but never disposed —
+    // Tear down trigger/selected hosts the caller mounted but never disposed 
     // removes their nodes and listeners so a dead instance can't respond to
     // trigger clicks. Iterate a copy since each dispose splices itself out.
     for (const dispose of [...this.mountDisposers]) dispose()
@@ -630,14 +630,14 @@ export class FilePicker {
       this.total = res.total
       this.lastPage = res.lastPage ?? Math.max(1, Math.ceil(res.total / this.o.perPage))
       this.loadError = null
-      // The media array was replaced — a stale shift-range anchor is meaningless.
+      // The media array was replaced  a stale shift-range anchor is meaningless.
       this.lastIndex = null
       this.announce(this.L.results(this.total))
     } catch (err) {
       if (token !== this.fetchToken || this.destroyed) return
       this.loadError = err
       if (this.media.length) {
-        // A background refetch failed but content is already on screen — keep
+        // A background refetch failed but content is already on screen  keep
         // it and surface the failure as a toast, rather than wiping to a
         // full-page error state.
         this.toast(this.L.errorTitle, 'error')
@@ -789,7 +789,7 @@ export class FilePicker {
         if (e.target === this.overlay) this.close()
       }),
       // Cards are re-focused programmatically after every grid render, and Chrome
-      // scores script-driven focus() as keyboard focus — so :focus-visible alone
+      // scores script-driven focus() as keyboard focus  so :focus-visible alone
       // painted a ring on the card after a plain mouse click. This flag gates the
       // ring on real key input; styles.css keys the card ring off [data-fp-kb].
       on(this.dialogCard, 'keydown', () => this.dialogCard.setAttribute('data-fp-kb', '')),
@@ -950,11 +950,11 @@ export class FilePicker {
     if (!this.gridEl || this.destroyed) return
     if (this.loading) {
       if (this.media.length) {
-        // Refetch with content already on screen — dim it in place, don't clear.
+        // Refetch with content already on screen  dim it in place, don't clear.
         this.gridEl.classList.add('fp-grid-scroll--loading')
         return
       }
-      // First load — a skeleton grid reads better than a lone centered spinner.
+      // First load  a skeleton grid reads better than a lone centered spinner.
       const n = Math.min(this.o.perPage, 12)
       const skel = `<div class="fp-skel-card"><div class="fp-skel-thumb"></div><div class="fp-skel-line"></div><div class="fp-skel-line fp-skel-line--sm"></div></div>`
       this.gridEl.innerHTML =
@@ -1030,7 +1030,7 @@ export class FilePicker {
     const fn = esc(m.filename)
     const L = this.L
     // Action buttons are reached via the card (roving tabindex), so they carry
-    // tabindex="-1" — otherwise Tab would stop on up to 4 buttons per card.
+    // tabindex="-1"  otherwise Tab would stop on up to 4 buttons per card.
     const actions = [
       this.previewable(m)
         ? `<button type="button" class="fp-card-act" data-action="preview" tabindex="-1" title="${esc(L.preview)}" aria-label="${esc(L.preview)} ${fn}">${icon('eye', 15)}</button>`
@@ -1095,7 +1095,7 @@ export class FilePicker {
       void this.deleteMedia(item)
       return
     }
-    // The whole card is a hit target inside the dialog — thumbnail, filename or
+    // The whole card is a hit target inside the dialog  thumbnail, filename or
     // body all toggle, same as the checkbox. Only the checkbox *shows* the state;
     // the card itself never takes a border (see [data-fp-kb] in styles.css).
     this.toggleMedia(item, e)
@@ -1350,7 +1350,7 @@ export class FilePicker {
       }),
       on(input, 'change', () => {
         if (!input.files?.length) return
-        // Apply the accept filter here too — the native `accept` attribute is
+        // Apply the accept filter here too  the native `accept` attribute is
         // only advisory (users can pick "All files"), so mirror the drop path.
         const picked = [...input.files]
         const files = this.acceptFilter(picked)
@@ -1739,7 +1739,7 @@ export class FilePicker {
         autoplay: true,
       })
     } else if (item.type === 'audio') {
-      // No autoplay for audio — auto-playing sound is disruptive, especially
+      // No autoplay for audio  auto-playing sound is disruptive, especially
       // for screen-reader users; the controls let them start it.
       node = el('audio', {
         class: 'fp-preview-media fp-preview-audio',
@@ -1750,12 +1750,12 @@ export class FilePicker {
       node = el('img', { class: 'fp-preview-img', src: item.src, alt: item.alt ?? item.filename })
     }
     // An <audio> player is a ~54px bar whose own controls occupy the right end,
-    // so the corner button would land on top of them — it sits above the bar
+    // so the corner button would land on top of them  it sits above the bar
     // instead. Flagged with a class rather than :has() to match the file's
     // selector style and keep the rule cheap.
     this.previewBody.classList.toggle('fp-preview-body--audio', item.type === 'audio')
     // The close button is a child of the body (anchored to the media, not the
-    // viewport), and the body was just cleared — so re-append it after the media.
+    // viewport), and the body was just cleared  so re-append it after the media.
     this.previewBody.append(node, this.previewClose)
     this.previewOverlay.hidden = false
     this.previewOverlay.querySelector<HTMLButtonElement>('.fp-preview-close')?.focus()
@@ -1819,7 +1819,7 @@ export class FilePicker {
       this.total = Math.max(0, this.total - 1)
       this.lastPage = Math.max(1, Math.ceil(this.total / this.o.perPage))
       if (!this.media.length && this.page > 1) {
-        // Deleted the last row on a later page — step back and refetch.
+        // Deleted the last row on a later page  step back and refetch.
         this.page = Math.min(this.page, this.lastPage)
         void this.fetchData()
       } else {

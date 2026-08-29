@@ -36,7 +36,7 @@ describe('REST adapter', () => {
         meta: { total: 42, last_page: 4 },
       },
     }))
-    // no trailing slash on baseUrl — the adapter must add it
+    // no trailing slash on baseUrl  the adapter must add it
     const a = createRestAdapter({ baseUrl: 'https://api.test', fetch: fn })
     const page = await a.listMedia({ page: 2, perPage: 12, search: 'cat', folder: 5 })
 

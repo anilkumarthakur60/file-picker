@@ -75,9 +75,9 @@ const controller = createFilePicker(options)
 | `close` | `() => void` | Close the dialog. |
 | `setSelected` | `(items: MediaItem[] \| MediaItem \| null) => void` | Replace the selection. |
 | `picker` | `FilePicker` | The underlying engine (use `mountTrigger` / `mountSelected`). |
-| `destroy` | `() => void` | Tear down — call in `onDestroy`. |
+| `destroy` | `() => void` | Tear down  call in `onDestroy`. |
 
 ::: tip Your own trigger
-`mountTrigger` and `mountSelected` are optional — call `controller.open()` from any button of your
+`mountTrigger` and `mountSelected` are optional  call `controller.open()` from any button of your
 own instead.
 :::

@@ -106,7 +106,7 @@ describe('FilePicker', () => {
     const filters = document.querySelector('.fp-filters')
     expect(toggle).not.toBeNull()
     // The drawer must be a direct child of the dialog, not nested in the
-    // sticky header — otherwise its z-index is trapped and it opens *behind*
+    // sticky header  otherwise its z-index is trapped and it opens *behind*
     // the backdrop.
     expect(filters?.parentElement).toBe(card)
     expect(card?.classList.contains('fp-dialog--filters')).toBe(false)
@@ -325,7 +325,7 @@ describe('FilePicker', () => {
     const fp = new FilePicker({ adapter })
     const host = document.createElement('div')
     document.body.append(host)
-    // Intentionally discard the returned disposers — destroy() must still clean up.
+    // Intentionally discard the returned disposers  destroy() must still clean up.
     fp.mountTrigger(host)
     fp.mountSelected(host)
     expect(host.querySelector('.fp-trigger')).not.toBeNull()
@@ -425,7 +425,7 @@ describe('FilePicker', () => {
     fp.open()
     await tick()
 
-    // One bar, pager then actions — not two stacked rows with a separator each.
+    // One bar, pager then actions  not two stacked rows with a separator each.
     const bar = document.querySelector('.fp-bar')
     expect(bar).not.toBeNull()
     expect(Array.from(bar!.children).map((c) => c.className)).toEqual(['fp-pager', 'fp-footer'])
@@ -448,7 +448,7 @@ describe('FilePicker', () => {
 
     const body = document.querySelector('.fp-preview-body') as HTMLElement
     const close = document.querySelector('.fp-preview-close') as HTMLElement
-    // Child of the media wrapper — as a child of the overlay it would pin to the
+    // Child of the media wrapper  as a child of the overlay it would pin to the
     // viewport corner instead.
     expect(close.parentElement).toBe(body)
     expect(body.classList.contains('fp-preview-body--audio')).toBe(false)

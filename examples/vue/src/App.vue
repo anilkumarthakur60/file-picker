@@ -22,26 +22,26 @@ const push = (kind: string, detail: string): void => {
 }
 
 const onChange = (items: MediaItem[]): void => {
-  push('change', `${items.length} selected — ${names(items)}`)
+  push('change', `${items.length} selected  ${names(items)}`)
 }
 
 const onSelect = (items: MediaItem[]): void => {
-  push('select ✓', `confirmed ${items.length} — ${names(items)}`)
+  push('select ✓', `confirmed ${items.length}  ${names(items)}`)
 }
 
 const onUpload = (items: MediaItem[]): void => {
-  push('upload', `${items.length} file(s) — ${names(items)}`)
+  push('upload', `${items.length} file(s)  ${names(items)}`)
 }
 
 // --- form integration ------------------------------------------------------
 
 // The picker is not an <input>, so it contributes nothing to a form on its own.
-// Mirroring the selection into hidden inputs is all it takes — this prints the
+// Mirroring the selection into hidden inputs is all it takes  this prints the
 // JSON a backend parses that FormData into, so you can see what arrives.
 const payload = ref<string | null>(null)
 
 const formData = ref({
-  // Seeded here, not with a `value` attribute on the input — v-model wins over
+  // Seeded here, not with a `value` attribute on the input  v-model wins over
   // `value`, so the markup default would silently never appear.
   name: 'Summer campaign',
   description: '',
@@ -50,7 +50,7 @@ const formData = ref({
 
 const selected = ref<MediaItem[]>([])
 
-// `v-model` on <FilePicker> carries MediaItem[], not ids — ids are a lossy
+// `v-model` on <FilePicker> carries MediaItem[], not ids  ids are a lossy
 // projection and nothing can rebuild items from them. A writable computed keeps
 // both in step: the items drive the picker, the ids drive the form.
 const mediaModel = computed({
@@ -92,7 +92,7 @@ const onSubmit = (event: Event): void => {
       <span class="badge">Vue · &lt;FilePicker&gt;</span>
       <h1>@anil-labs/file-picker</h1>
       <p class="tag">
-        A framework-agnostic media library — folders, upload, filters, editing and single/multi
+        A framework-agnostic media library  folders, upload, filters, editing and single/multi
         selection. This demo runs entirely in-memory (no backend).
       </p>
     </div>
@@ -139,7 +139,7 @@ const onSubmit = (event: Event): void => {
             :options="{ adapter, multiple: true, title: 'Attach media' }"
             label="Attach media"
           />
-          <!-- One hidden input per selected id — `mediaIds[]` arrives as an
+          <!-- One hidden input per selected id  `mediaIds[]` arrives as an
                array in PHP/Laravel/Rails; use `mediaIds` for a repeated key. -->
           <input
             v-for="id in formData.media_ids"
@@ -149,7 +149,7 @@ const onSubmit = (event: Event): void => {
             :value="String(id)"
           />
           <p class="hint">
-            <code>formData.media_ids</code> = [{{ formData.media_ids.join(', ') }}] —
+            <code>formData.media_ids</code> = [{{ formData.media_ids.join(', ') }}] 
             {{ formData.media_ids.length }} hidden <code>mediaIds[]</code> input{{
               formData.media_ids.length === 1 ? '' : 's'
             }}. The trigger is a <code>type="button"</code>, so opening the picker never submits the

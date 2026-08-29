@@ -69,7 +69,7 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
       for (const off of offs) off()
       p.destroy()
     }
-    // Created once — the adapter is read at construction and callbacks use a ref.
+    // Created once  the adapter is read at construction and callbacks use a ref.
   }, [])
 
   const theme = options.theme
@@ -101,7 +101,7 @@ export function useFilePicker(options: UseFilePickerOptions): FilePickerControll
 export interface FilePickerProps extends UseFilePickerOptions {
   /** Trigger label (ignored when `children` is provided). */
   label?: string
-  /** Custom trigger content — clicking it opens the picker. */
+  /** Custom trigger content  clicking it opens the picker. */
   children?: ReactNode
   /** Render the selected-thumbnails strip below the trigger. @default true */
   showSelected?: boolean

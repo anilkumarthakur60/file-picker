@@ -30,13 +30,13 @@ const names = (list: MediaItem[]): string => list.map((m) => m.filename).join(',
 
 // `event.detail` is the MediaItem[] array on every fp:* event.
 picker.addEventListener('fp:change', (e) =>
-  log('change', `${items(e).length} selected — ${names(items(e))}`),
+  log('change', `${items(e).length} selected  ${names(items(e))}`),
 )
 picker.addEventListener('fp:select', (e) =>
-  log('select ✓', `confirmed ${items(e).length} — ${names(items(e))}`),
+  log('select ✓', `confirmed ${items(e).length}  ${names(items(e))}`),
 )
 picker.addEventListener('fp:upload', (e) =>
-  log('upload', `${items(e).length} file(s) — ${names(items(e))}`),
+  log('upload', `${items(e).length} file(s)  ${names(items(e))}`),
 )
 
 // --- the picker as a form field --------------------------------------------
@@ -63,7 +63,7 @@ const syncHiddenInputs = (list: MediaItem[]): void => {
     hiddenHost.append(input)
   }
   hintEl.innerHTML =
-    `${list.length} hidden <code>mediaIds[]</code> input${list.length === 1 ? '' : 's'} — ` +
+    `${list.length} hidden <code>mediaIds[]</code> input${list.length === 1 ? '' : 's'}  ` +
     `the trigger is a <code>type="button"</code>, so opening the picker never submits the form.`
 }
 
@@ -71,7 +71,7 @@ formPicker.addEventListener('fp:change', (e) => syncHiddenInputs(items(e)))
 syncHiddenInputs([])
 
 // Renders the posted FormData as the JSON a backend parses it into. Repeated
-// `mediaIds[]` fields collapse into one array under `mediaIds` — the `[]` suffix
+// `mediaIds[]` fields collapse into one array under `mediaIds`  the `[]` suffix
 // is wire syntax, not part of the field name. Values stay strings because that
 // is what a multipart body carries; casting them here would hide the fact that
 // your server has to. With nothing selected there is no `mediaIds` key at all,

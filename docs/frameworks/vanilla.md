@@ -1,7 +1,7 @@
 # Vanilla / Core
 
 `@anil-labs/file-picker-core` is the engine every binding wraps. Use it directly in plain JavaScript
-or TypeScript — no framework required.
+or TypeScript  no framework required.
 
 ## Install
 
@@ -34,7 +34,7 @@ picker.on('change', (items) => console.log('selection changed', items))
 <div id="selected"></div>
 ```
 
-You don't have to use `mountTrigger` — call `picker.open()` from any button of your own.
+You don't have to use `mountTrigger`  call `picker.open()` from any button of your own.
 
 ## Options
 
@@ -84,8 +84,8 @@ off()
 
 | Event | Payload |
 | --- | --- |
-| `open` | — |
-| `close` | — |
+| `open` |  |
+| `close` |  |
 | `change` | `MediaItem[]` |
 | `select` | `MediaItem[]` |
 | `upload` | `MediaItem[]` |

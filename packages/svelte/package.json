@@ -1,7 +1,7 @@
 {
   "name": "@anil-labs/file-picker-svelte",
   "version": "0.1.1",
-  "description": "Svelte bindings for @anil-labs/file-picker-core — a media-library file picker with folders, upload, filters and metadata editing.",
+  "description": "Svelte bindings for @anil-labs/file-picker-core  a media-library file picker with folders, upload, filters and metadata editing.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

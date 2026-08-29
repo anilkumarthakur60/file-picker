@@ -1,6 +1,6 @@
 /**
  * A small inline-SVG icon set (lucide-style, 24×24, `stroke: currentColor`).
- * Keeps the picker dependency-free — no icon font required.
+ * Keeps the picker dependency-free  no icon font required.
  */
 const PATHS: Record<string, string> = {
   // file types

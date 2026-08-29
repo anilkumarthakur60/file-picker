@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Maintenance release. Toolchain and development dependencies refreshed across the
-  repository — Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 —
+  repository  Vite 8.2, `@vitejs/plugin-react` 6.0.5 and the GitHub Actions suite to v5 
   and the documentation site is now published at
   https://anilkumarthakur60.github.io/file-picker/, so the links in each package README
   resolve.
@@ -22,6 +22,6 @@ Initial release.
 
 - Svelte 4 and 5 bindings: a store-based helper plus a `<FilePicker>` component.
 
-- SSR-safe — the engine is only constructed in the browser, so rendering on the server does not touch `document`.
+- SSR-safe  the engine is only constructed in the browser, so rendering on the server does not touch `document`.
 
 - Requires Node >= 22.
