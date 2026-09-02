@@ -12,7 +12,7 @@
   "dependencies": {
     "@anil-labs/file-picker-core": "workspace:*",
     "@anil-labs/file-picker-vue": "workspace:*",
-    "vue": "^3.5.40"
+    "vue": "^3.5.42"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
