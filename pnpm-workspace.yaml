@@ -7,3 +7,12 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@vitejs/plugin-react@6.0.5'
   - vite@8.2.0
+
+# Patched versions of dev-only transitive deps with high-severity advisories.
+# js-yaml (via @changesets/cli): GHSA quadratic CPU / maxTotalMergeKeys DoS.
+# browserslist (via eslint-plugin-react-hooks > @babel/core): unbounded memory.
+# Drop each once its parent requires a fixed version.
+overrides:
+  js-yaml@>=3.0.0 <3.15.2: ^3.15.2
+  js-yaml@>=4.0.0 <4.3.2: ^4.3.2
+  browserslist@<4.28.7: ^4.28.7

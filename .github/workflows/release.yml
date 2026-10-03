@@ -27,13 +27,20 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
-          registry-url: https://registry.npmjs.org
 
       - name: Install
         run: pnpm install --frozen-lockfile
 
       # When changesets exist -> opens/updates a "Version Packages" PR.
       # When that PR is merged (no changesets left) -> builds and publishes to npm.
+      #
+      # pnpm publishes via npm trusted publishing when the package trusts this
+      # workflow: it swaps the job's OIDC token (`id-token: write` above) for a
+      # short-lived npm token and attaches provenance. Packages that don't trust
+      # it yet fall back to NPM_TOKEN ("Skipped OIDC" in the log). Set up with
+      #   npm trust github <package> --repo anilkumarthakur60/file-picker \
+      #     --file release.yml --allow-publish
+      # then NPM_TOKEN can be removed.
       - name: Create release PR or publish
         uses: changesets/action@v1
         with:
@@ -41,6 +48,4 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true'

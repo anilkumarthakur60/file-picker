@@ -5,11 +5,13 @@ import type { FilePickerAdapter, MediaItem, MediaPage } from '../src'
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 5))
 
 // Click a card's checkbox. Cards are rebuilt by renderGrid after every
-// selection change, so re-query on each call.
+// selection change, so re-query on each call. Target the <input> itself (what
+// a pointer lands on): happy-dom 20 fires a <label>'s synthetic input click
+// first and ignores preventDefault(), so clicking the label toggles twice.
 const checkCard = (i: number): void =>
   document
     .querySelectorAll<HTMLElement>('.fp-card')
-    [i]?.querySelector<HTMLElement>('.fp-card-check')
+    [i]?.querySelector<HTMLElement>('.fp-card-check input')
     ?.click()
 
 const media = (id: number): MediaItem => ({

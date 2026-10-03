@@ -58,7 +58,7 @@
     "vue": "^3.3.0"
   },
   "devDependencies": {
-    "happy-dom": "^15.11.7",
+    "happy-dom": "^20.14.5",
     "tsup": "^8.5.1",
     "typescript": "^5.7.2",
     "vitest": "^4.1.10",
