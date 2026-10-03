@@ -177,7 +177,7 @@ if (cards.length > 0) {
 
 // ------------------------------------------------- form demo (hidden inputs)
 
-// The form demo starts pre-selected, so the hidden inputs must already exist 
+// The form demo starts pre-selected, so the hidden inputs must already exist
 // a picker that mounts but never mirrors its selection posts an empty form.
 const hiddenInputs = $$('#form-hidden input[name="mediaIds[]"]')
 check(

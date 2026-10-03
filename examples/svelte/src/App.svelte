@@ -94,7 +94,7 @@
     <span class="badge">Svelte 5 · runes</span>
     <h1>@anil-labs/file-picker</h1>
     <p class="tag">
-      A framework-agnostic media library  folders, upload, filters, editing and single/multi
+      A framework-agnostic media library folders, upload, filters, editing and single/multi
       selection. This demo runs entirely in-memory (no backend).
     </p>
   </div>
@@ -145,8 +145,8 @@
         <p class="hint">
           {formSelected.length} hidden <code>mediaIds[]</code> input{formSelected.length === 1
             ? ''
-            : 's'}  the trigger is a <code>type="button"</code>, so opening the picker never
-          submits the form.
+            : 's'} the trigger is a <code>type="button"</code>, so opening the picker never submits
+          the form.
         </p>
       </div>
 

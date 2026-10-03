@@ -66,11 +66,11 @@ export default function App() {
         <span className="badge">{'React · <FilePicker>'}</span>
         <h1>@anil-labs/file-picker</h1>
         <p className="tag">
-          A framework-agnostic media library  folders, upload, filters, editing and single/multi
+          A framework-agnostic media library folders, upload, filters, editing and single/multi
           selection.{' '}
           {usingApi ? (
             <>
-              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code>  uploads,
+              Live against <code>{apiBaseUrl}</code> via <code>createRestAdapter</code> uploads,
               edits and deletes are real.
             </>
           ) : (
@@ -138,7 +138,7 @@ export default function App() {
             ))}
             <p className="hint">
               {selected.length} hidden <code>mediaIds[]</code> input
-              {selected.length === 1 ? '' : 's'}  the trigger is a{' '}
+              {selected.length === 1 ? '' : 's'} the trigger is a{' '}
               <code>type=&quot;button&quot;</code>, so opening the picker never submits the form.
             </p>
           </div>

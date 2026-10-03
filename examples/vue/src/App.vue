@@ -92,7 +92,7 @@ const onSubmit = (event: Event): void => {
       <span class="badge">Vue · &lt;FilePicker&gt;</span>
       <h1>@anil-labs/file-picker</h1>
       <p class="tag">
-        A framework-agnostic media library  folders, upload, filters, editing and single/multi
+        A framework-agnostic media library folders, upload, filters, editing and single/multi
         selection. This demo runs entirely in-memory (no backend).
       </p>
     </div>
@@ -149,7 +149,7 @@ const onSubmit = (event: Event): void => {
             :value="String(id)"
           />
           <p class="hint">
-            <code>formData.media_ids</code> = [{{ formData.media_ids.join(', ') }}] 
+            <code>formData.media_ids</code> = [{{ formData.media_ids.join(', ') }}]
             {{ formData.media_ids.length }} hidden <code>mediaIds[]</code> input{{
               formData.media_ids.length === 1 ? '' : 's'
             }}. The trigger is a <code>type="button"</code>, so opening the picker never submits the
