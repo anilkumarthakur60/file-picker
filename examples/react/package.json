@@ -12,12 +12,12 @@
   "dependencies": {
     "@anil-labs/file-picker-core": "workspace:*",
     "@anil-labs/file-picker-react": "workspace:*",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.0.5",
     "typescript": "^5.7.2",
     "vite": "^8.2.0"
