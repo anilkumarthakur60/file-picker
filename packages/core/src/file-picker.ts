@@ -490,7 +490,7 @@ export class FilePicker {
     this.toastTimers.length = 0
     this.emitter.clear()
     this.unlockScroll()
-    // Tear down trigger/selected hosts the caller mounted but never disposed 
+    // Tear down trigger/selected hosts the caller mounted but never disposed
     // removes their nodes and listeners so a dead instance can't respond to
     // trigger clicks. Iterate a copy since each dispose splices itself out.
     for (const dispose of [...this.mountDisposers]) dispose()

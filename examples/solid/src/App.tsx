@@ -51,7 +51,7 @@ export default function App() {
         <span class="badge">SolidJS</span>
         <h1>@anil-labs/file-picker</h1>
         <p class="tag">
-          A framework-agnostic media library  folders, upload, filters, editing and single/multi
+          A framework-agnostic media library folders, upload, filters, editing and single/multi
           selection. This demo runs entirely in-memory (no backend).
         </p>
       </div>
@@ -115,7 +115,7 @@ export default function App() {
             </For>
             <p class="hint">
               {selected().length} hidden <code>mediaIds[]</code> input
-              {selected().length === 1 ? '' : 's'}  the trigger is a <code>type="button"</code>, so
+              {selected().length === 1 ? '' : 's'} the trigger is a <code>type="button"</code>, so
               opening the picker never submits the form.
             </p>
           </div>
