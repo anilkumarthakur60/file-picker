@@ -23,8 +23,12 @@ updates:
       include: scope
     groups:
       # Batch the dev tooling (eslint, prettier, tsup, vitest, typescript, …)
-      # into a single PR to keep the queue quiet.
+      # into a single PR to keep the queue quiet. Only minor/patch updates are
+      # grouped so the batch can auto-merge; majors get their own PR to review.
       dev-dependencies:
         dependency-type: development
+        update-types:
+          - minor
+          - patch
         patterns:
           - '*'
