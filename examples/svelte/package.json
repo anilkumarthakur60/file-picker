@@ -12,7 +12,7 @@
   "dependencies": {
     "@anil-labs/file-picker-core": "workspace:*",
     "@anil-labs/file-picker-svelte": "workspace:*",
-    "svelte": "^5.57.3"
+    "svelte": "^5.59.1"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
